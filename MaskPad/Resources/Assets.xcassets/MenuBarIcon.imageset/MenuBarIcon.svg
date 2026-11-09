@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Monochrome template image for the macOS menu bar: solid (masked) screen with keypad cut out -->
+  <!-- translate centers the monitor bbox (y 112..936) on the canvas -->
+  <g fill="#000000" transform="translate(0 -12)">
+    <path fill-rule="evenodd" d="
+      M160 112 H864 A112 112 0 0 1 976 224 V704 A112 112 0 0 1 864 816 H160 A112 112 0 0 1 48 704 V224 A112 112 0 0 1 160 112 Z
+      M372 216 a60 60 0 1 0 0.1 0 Z M512 216 a60 60 0 1 0 0.1 0 Z M652 216 a60 60 0 1 0 0.1 0 Z
+      M372 344 a60 60 0 1 0 0.1 0 Z M512 344 a60 60 0 1 0 0.1 0 Z M652 344 a60 60 0 1 0 0.1 0 Z
+      M372 472 a60 60 0 1 0 0.1 0 Z M512 472 a60 60 0 1 0 0.1 0 Z M652 472 a60 60 0 1 0 0.1 0 Z
+      M512 600 a60 60 0 1 0 0.1 0 Z"/>
+    <path d="M420 800 H604 L632 884 H392 Z"/>
+    <rect x="296" y="872" width="432" height="64" rx="32"/>
+  </g>
+</svg>

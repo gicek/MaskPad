@@ -1,0 +1,7 @@
+// Ad-hoc signing by default so any machine can build and run. Ad-hoc identity changes on every
+// build, so the Accessibility grant must be re-granted. With an Apple developer certificate, copy
+// MaskPad.local.xcconfig.example to MaskPad.local.xcconfig (not committed) and set the team.
+CODE_SIGN_STYLE = Automatic
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =
+#include? "MaskPad.local.xcconfig"

@@ -1,0 +1,11 @@
+// Copy to MaskPad.local.xcconfig (not committed). Signing with a fixed certificate keeps the
+// Accessibility grant across rebuilds. Use Automatic with an Apple Development certificate;
+// with only a Developer ID certificate, use Manual:
+//   CODE_SIGN_STYLE = Manual
+//   CODE_SIGN_IDENTITY = Developer ID Application
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = YOURTEAMID
+CODE_SIGN_IDENTITY = Apple Development
+
+// Secure timestamp for Release builds, required for notarization (needs a real certificate, not ad-hoc).
+OTHER_CODE_SIGN_FLAGS[config=Release] = --timestamp

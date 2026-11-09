@@ -1,0 +1,94 @@
+name: MaskPad
+# Source language is English: user-facing text is written as English literals in code; translations live in the String Catalog.
+options:
+  developmentLanguage: en
+  defaultConfig: Debug
+  bundleIdPrefix: com.gicek
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "14.0"
+
+fileGroups:
+  - Config/MaskPad.xcconfig
+  - Config/MaskPad.local.xcconfig.example
+  - README.md
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_EMIT_LOC_STRINGS: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+  MaskPad:
+    type: application
+    platform: macOS
+    productName: MaskPad
+    configFiles:
+      Debug: Config/MaskPad.xcconfig
+      Release: Config/MaskPad.xcconfig
+    sources:
+      - path: MaskPad
+    info:
+      path: MaskPad/Info.plist
+      properties:
+        CFBundleDisplayName: MaskPad
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.utilities
+        # Menu-bar-only app: no Dock icon and not listed in ⌘Tab.
+        LSUIElement: true
+        NSHighResolutionCapable: true
+        NSHumanReadableCopyright: "© 2026 gicek"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.gicek.maskpad
+        PRODUCT_NAME: MaskPad
+        PRODUCT_MODULE_NAME: MaskPad
+        ENABLE_HARDENED_RUNTIME: YES
+        # No App Sandbox: HID-level event taps, private SkyLight/DisplayServices, and changing the system
+        # Screen Sharing settings all require it off, so distribution is Developer ID only, not the App Store.
+        ENABLE_APP_SANDBOX: NO
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+        # Icons are generated from design/logo by Scripts/build_icons.sh.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Release:
+          # Release builds must not carry the get-task-allow debugging entitlement (notarization rejects it).
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+
+  MaskPadTests:
+    type: bundle.unit-test
+    platform: macOS
+    # Same signing as the app: the app uses the Hardened Runtime and only loads test bundles signed by the same team.
+    configFiles:
+      Debug: Config/MaskPad.xcconfig
+      Release: Config/MaskPad.xcconfig
+    sources:
+      - path: Tests
+    dependencies:
+      - target: MaskPad
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.gicek.maskpad.tests
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MaskPad.app/Contents/MacOS/MaskPad
+        BUNDLE_LOADER: $(TEST_HOST)
+
+schemes:
+  MaskPad:
+    build:
+      targets:
+        MaskPad: all
+        MaskPadTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - MaskPadTests
+    archive:
+      config: Release

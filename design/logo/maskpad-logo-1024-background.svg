@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#EEF3FF"/>
+      <stop offset="1" stop-color="#C9D6F2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- full-bleed background (no corner radius; the platform applies its own mask) -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- transparent logo, scaled 0.78 and centered -->
+  <g transform="translate(112.64 112.64) scale(0.78)">
+    <defs>
+      <linearGradient id="frame" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#4F8DF7"/>
+        <stop offset="1" stop-color="#1D3E9E"/>
+      </linearGradient>
+      <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#151B2E"/>
+        <stop offset="1" stop-color="#05070D"/>
+      </linearGradient>
+      <linearGradient id="stand" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2A4FB8"/>
+        <stop offset="1" stop-color="#1A3482"/>
+      </linearGradient>
+      <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.10"/>
+        <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="key" cx="0.5" cy="0.35" r="0.7">
+        <stop offset="0" stop-color="#FFFFFF"/>
+        <stop offset="1" stop-color="#D6E2FF"/>
+      </radialGradient>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="10" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+        <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0B1B4D" flood-opacity="0.35"/>
+      </filter>
+    </defs>
+  
+    <g filter="url(#shadow)">
+      <!-- stand -->
+      <path d="M436 768 L588 768 L612 860 L412 860 Z" fill="url(#stand)"/>
+      <rect x="332" y="852" width="360" height="44" rx="22" fill="url(#frame)"/>
+  
+      <!-- display frame -->
+      <rect x="96" y="128" width="832" height="652" rx="88" fill="url(#frame)"/>
+      <!-- masked screen -->
+      <rect x="140" y="172" width="744" height="564" rx="52" fill="url(#screen)"/>
+      <path d="M140 224 a52 52 0 0 1 52 -52 H620 L300 736 H192 a52 52 0 0 1 -52 -52 Z" fill="url(#sheen)"/>
+  
+      <!-- passcode keypad: 3 x 4 with zero centered on last row -->
+      <g transform="translate(0 26)">
+      <g fill="url(#key)" fill-opacity="0.92">
+        <circle cx="412" cy="262" r="38"/>
+        <circle cx="512" cy="262" r="38"/>
+        <circle cx="612" cy="262" r="38"/>
+        <circle cx="412" cy="372" r="38"/>
+        <circle cx="612" cy="372" r="38"/>
+        <circle cx="412" cy="482" r="38"/>
+        <circle cx="512" cy="482" r="38"/>
+        <circle cx="612" cy="482" r="38"/>
+        <circle cx="512" cy="592" r="38"/>
+      </g>
+      <!-- active key -->
+      <circle cx="512" cy="372" r="40" fill="#5B9BFF" filter="url(#glow)"/>
+      </g>
+    </g>
+  </g>
+</svg>
