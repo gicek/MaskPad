@@ -99,16 +99,18 @@ go-live: ## Verify, then publish the draft so Sparkle offers the update
 # Only what builds produce: build/ may also hold local files such as a key backup. Builds started in Xcode
 # go to Xcode's default DerivedData folder instead; xcodebuild reports which one belongs to this project,
 # and it is removed only if it is under Xcode's DerivedData. The query itself creates that folder, so it
-# runs only when a MaskPad-* folder already exists.
+# runs only when a MaskPad-* folder already exists. App copies in what is removed are first unregistered
+# from Launch Services, so the app launcher doesn't keep pointing at them instead of the installed app.
 XCODE_DERIVED_DATA := $(HOME)/Library/Developer/Xcode/DerivedData
 clean: ## Remove build output, fetched packages and Xcode's DerivedData for this project
+	@Scripts/unregister_apps.sh build
 	rm -rf build/debug build/release build/dist build/intermediates $(DERIVED_DATA) $(SOURCE_PACKAGES)
 	@[[ -d $(PROJECT) && -n $$(print -l $(XCODE_DERIVED_DATA)/MaskPad-*(N/)) ]] || exit 0; \
 	products=$$(xcodebuild -project $(PROJECT) -scheme $(SCHEME) -showBuildSettings 2>/dev/null \
 		| awk '$$1 == "BUILD_ROOT" { print $$3; exit }'); \
 	dir=$${products%/Build/Products}; \
 	if [[ $$dir == $(XCODE_DERIVED_DATA)/MaskPad-* && -d $$dir ]]; then \
-		echo "rm -rf $$dir"; rm -rf "$$dir"; \
+		Scripts/unregister_apps.sh "$$dir"; echo "rm -rf $$dir"; rm -rf "$$dir"; \
 	fi
 
 distclean: clean ## Clean, then remove the generated MaskPad.xcodeproj (back to a fresh checkout)

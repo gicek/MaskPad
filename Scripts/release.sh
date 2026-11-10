@@ -163,8 +163,15 @@ INFO
   (cd "$dir" && shasum -a 256 "$@" > SHA256SUMS)
 }
 
+# Copies of the app get registered with Launch Services, and the app launcher may then show one of them
+# instead of the installed app. Copies that stay on disk are registered again soon after, so the only
+# lasting copy is the output in build/release: the export is moved there, and the stapled copy and the
+# DMG mount are gone before the script exits and unregisters what was under build/intermediates. Old
+# copies are unregistered before they are deleted.
+"$root/Scripts/unregister_apps.sh" "$work" "$release_dir"
 rm -rf "$work" "$release_dir"
 mkdir -p "$work" "$release_dir"
+trap '"$root/Scripts/unregister_apps.sh" "$work"' EXIT
 
 step "Archiving MaskPad $version ($build)"
 "${xcodebuild[@]}" archive -destination "generic/platform=macOS" -archivePath "$archive" \
@@ -186,7 +193,7 @@ PLIST
 xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_dir" \
   -exportOptionsPlist "$work/ExportOptions.plist" -quiet
 app=$release_dir/MaskPad.app
-ditto "$export_dir/MaskPad.app" "$app"
+mv "$export_dir/MaskPad.app" "$app"
 
 step "Checking the signature"
 # Command output is captured before matching: with pipefail, `codesign | grep -q` can fail when grep exits
@@ -255,6 +262,7 @@ xcrun stapler staple -q "$stapled"
 spctl -a -t open --context context:primary-signature "$dmg"
 spctl -a -t exec "$stapled"
 ditto -c -k --keepParent "$stapled" "$zip"
+rm -r "${stapled:h}"
 
 step "Generating the appcast"
 # Each release's appcast lists only that release; the feed URL always resolves to the latest one.

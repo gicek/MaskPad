@@ -45,8 +45,10 @@ release_url=$(gh release view "$tag" -R "$repo" --json url --jq .url)
 asset_names=$(gh release view "$tag" -R "$repo" --json assets --jq '.assets[].name')
 
 # Set at the top level: in zsh, an EXIT trap set inside a function runs when the function returns.
+# The unpacked and mounted copies get registered with Launch Services; drop them before deleting.
 tmp=$(mktemp -d)
-trap 'hdiutil detach -quiet "$tmp/mnt" 2>/dev/null; rm -rf "$tmp"' EXIT
+# Each step may fail (the DMG is usually detached already); with set -e, a failure would end the trap.
+trap 'hdiutil detach -quiet "$tmp/mnt" 2>/dev/null || true; "$root/Scripts/unregister_apps.sh" "$tmp" || true; rm -rf "$tmp"' EXIT
 
 # app_version <app>: "<CFBundleShortVersionString> (<CFBundleVersion>)"
 app_version() {
