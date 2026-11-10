@@ -11,7 +11,7 @@ options:
 packages:
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
-    from: 2.10.1
+    exactVersion: 2.10.1  # pinned so releases are reproducible (Package.resolved is not committed)
 
 fileGroups:
   - Config/MaskPad.xcconfig
