@@ -91,6 +91,20 @@ verify() {
     || fail "The zip's EdDSA signature in appcast.xml does not verify."
   ok "appcast.xml: $version ($build), $zip_name, $length bytes, EdDSA signature valid"
 
+  # Release notes in English and every language of the app (Scripts/localize_appcast.py). Releases from
+  # before localized notes (1.0.2 and earlier) have one English description without a language.
+  if [[ $(xpath "count(//item/description[@*[local-name()='lang']])") == 0 ]]; then
+    ok "release notes: English only (released before localized notes)"
+  else
+    local langs=(en ${(z)"$(PYTHONDONTWRITEBYTECODE=1 python3 -c 'import sys; sys.path.insert(0, "Scripts"); from translations import LANGS; print(*LANGS)')"})
+    local missing_langs=()
+    for lang in $langs; do
+      [[ $(xpath "count(//item/description[@*[local-name()='lang']='$lang'])") == 1 ]] || missing_langs+=($lang)
+    done
+    (( ${#missing_langs} == 0 )) || fail "appcast.xml has no release notes in: $missing_langs"
+    ok "release notes in ${#langs} languages: $langs"
+  fi
+
   # The zip Sparkle installs.
   ditto -x -k "$tmp/assets/$zip_name" "$tmp/zip"
   check_app "$tmp/zip/MaskPad.app" "$zip_name"
@@ -112,8 +126,14 @@ verify() {
   if [[ $is_draft == true ]]; then
     [[ $mode == go-live ]] || echo "    Draft: not live yet. Publish it with make go-live."
   else
-    check_live || fail "The live feed $feed_url does not serve this release's appcast."
-    ok "live feed serves $version ($build)"
+    # Only the latest release is the live feed; an older one is checked as it was published.
+    local latest=$(gh release view -R "$repo" --json tagName --jq .tagName 2>/dev/null)
+    if [[ $latest == "$tag" ]]; then
+      check_live || fail "The live feed $feed_url does not serve this release's appcast."
+      ok "live feed serves $version ($build)"
+    else
+      ok "not the latest release (that is ${latest:-unknown}); the live feed isn't checked"
+    fi
   fi
 }
 
