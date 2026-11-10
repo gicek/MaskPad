@@ -2209,48 +2209,48 @@
         }
       }
     },
-    "Press keys…": {
+    "Press keys": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tasten drücken …"
+            "value": "Tasten drücken"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pulsa las teclas…"
+            "value": "Pulsa las teclas"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Appuyez sur les touches…"
+            "value": "Appuyez sur les touches"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "キーを押してください…"
+            "value": "キーを押してください"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "키를 누르세요…"
+            "value": "키를 누르세요"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "按下组合键…"
+            "value": "按下组合键"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "按下組合鍵…"
+            "value": "按下組合鍵"
           }
         }
       }

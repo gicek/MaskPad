@@ -446,14 +446,14 @@ T = {
  "Les codes ne correspondent pas.",
  "Die Codes stimmen nicht überein.",
 ),
-"Press keys…": (
- "按下组合键…",
- "按下組合鍵…",
- "キーを押してください…",
- "Pulsa las teclas…",
- "키를 누르세요…",
- "Appuyez sur les touches…",
- "Tasten drücken …",
+"Press keys": (
+ "按下组合键",
+ "按下組合鍵",
+ "キーを押してください",
+ "Pulsa las teclas",
+ "키를 누르세요",
+ "Appuyez sur les touches",
+ "Tasten drücken",
 ),
 "Quit MaskPad": (
  "退出 MaskPad",

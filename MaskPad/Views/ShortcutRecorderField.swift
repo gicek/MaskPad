@@ -79,7 +79,7 @@ struct ShortcutRecorderField: View {
     @ViewBuilder
     private var label: some View {
         if isRecording {
-            Text(L("Press keys…")).font(.body)
+            Text(L("Press keys")).font(.body)
         } else if let chord {
             HStack(spacing: 1) {
                 ForEach(Array(chord.displayTokens.enumerated()), id: \.offset) { _, token in
