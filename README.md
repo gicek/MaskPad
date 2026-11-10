@@ -48,6 +48,11 @@ macOS login password or FileVault.
 - **Remote input is not blocked.** Input from macOS Screen Sharing and from tools that send events
   directly to apps bypasses the mask by design, so anyone with remote access to the Mac can still use
   it.
+- **Only a person can use the keypad.** The mask's buttons accept clicks from a real mouse or
+  trackpad, touches on a touch screen and clicks through Screen Sharing; the passcode can also be typed
+  on a physical keyboard. Clicks, key presses and Accessibility actions from other processes, such as
+  Computer Use agents working under the mask, are ignored, so they can't enter digits, start the
+  wrong-passcode cooldown or lock the Mac. Ignored presses are logged with the process that sent them.
 - **The passcode is 6 digits.** It is stored in the Keychain as a salted SHA-256 hash.
 - **Restarting removes the mask.** Holding the power button or a crash ends MaskPad, and the Mac then
   falls back to its login password.

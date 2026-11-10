@@ -143,7 +143,7 @@ struct MaskUnlockView: View {
             keypad
 
             // The whole row is clickable; the chevron alone is too small a target.
-            Button(action: model.showForgotPasscode) {
+            Button(action: personPress(model.showForgotPasscode)) {
                 HStack(spacing: 6) {
                     Text(L("Forgot Passcode?"))
                     Image(systemName: "chevron.right")
@@ -173,7 +173,7 @@ struct MaskUnlockView: View {
                 .foregroundStyle(.white.opacity(0.85))
 
             Text(L("The Mac locks first. Log in with your Mac password and the mask turns off, then reset the passcode in MaskPad Settings."))
-            Button(action: model.lockSystem) {
+            Button(action: personPress(model.lockSystem)) {
                 Text(L("Unlock with Mac Password"))
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(.white)
@@ -184,7 +184,7 @@ struct MaskUnlockView: View {
             }
             .buttonStyle(.plain)
 
-            Button(action: model.showKeypad) {
+            Button(action: personPress(model.showKeypad)) {
                 HStack(spacing: 6) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 13, weight: .semibold))
@@ -249,7 +249,7 @@ struct MaskUnlockView: View {
             HStack(spacing: Self.keySpacing) {
                 Color.clear.frame(width: Self.keySide, height: Self.keySide)
                 digitKey("0")
-                Button(action: model.deleteDigit) {
+                Button(action: personPress(model.deleteDigit)) {
                     Image(systemName: "delete.left")
                         .font(.system(size: 22))
                         .foregroundStyle(.white.opacity(0.85))
@@ -263,9 +263,7 @@ struct MaskUnlockView: View {
     }
 
     private func digitKey(_ digit: Character) -> some View {
-        Button {
-            model.tap(digit: digit)
-        } label: {
+        Button(action: personPress { model.tap(digit: digit) }) {
             Text(String(digit))
                 .font(.system(size: 30, weight: .light))
                 .foregroundStyle(.white)
@@ -275,6 +273,12 @@ struct MaskUnlockView: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+/// Wraps every button action on the mask: it runs only for a person's click or touch, never for presses by
+/// background tools (synthetic clicks, Accessibility actions); see `MaskInputOrigin`.
+private func personPress(_ action: @escaping @MainActor () -> Void) -> @MainActor () -> Void {
+    { if MaskInputOrigin.currentEventIsPersonPress() { action() } }
 }
 
 /// Wrong-code shake: moves the dots back and forth horizontally.
