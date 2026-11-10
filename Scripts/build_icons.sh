@@ -1,8 +1,12 @@
 #!/bin/zsh
 # Regenerates the app icon and menu bar icon in the asset catalog from design/logo, and the DMG
-# background and volume icon in design/dmg (used by Scripts/release.sh).
-# Requires Node (renders with resvg via `npx @resvg/resvg-js-cli`) and uv (runs the Pillow volume icon script).
+# background and volume icon in design/dmg (used by Scripts/release.sh). Run it with make icons.
+# Requires Node (SVGs are rendered by resvg through npx, pinned below) and uv (runs the Pillow script
+# that draws the volume icon). The output is committed, so builds never need either.
 set -euo pipefail
+
+command -v npx >/dev/null || { echo "error: npx is missing; install Node (brew install node)." >&2; exit 1; }
+command -v uv >/dev/null || { echo "error: uv is missing; brew install uv" >&2; exit 1; }
 
 root=${0:A:h:h}
 logo=$root/design/logo
@@ -32,20 +36,29 @@ $body
 </svg>
 SVG
 
-render() { npx -y @resvg/resvg-js-cli --fit-width "$2" "$1" "$3" >/dev/null; }
+# Each render is a separate npx process (about a second to start), so they run in parallel; any failure
+# fails the script. The SVGs have no text, so system fonts are not loaded.
+npx -y --quiet @resvg/resvg-js-cli@2.6.2-beta.1 --version >/dev/null  # install once, before the parallel runs
+pids=()
+render() {
+  npx -y --quiet @resvg/resvg-js-cli@2.6.2-beta.1 --log-level error --no-system-font \
+    --fit-width "$2" "$1" "$3" >/dev/null &
+  pids+=($!)
+}
 
 for size in 16 32 128 256 512; do
   render "$tmp/appicon.svg" $size "$appicon/icon_${size}x${size}.png"
   render "$tmp/appicon.svg" $((size * 2)) "$appicon/icon_${size}x${size}@2x.png"
 done
+# DMG window background at 1x and 2x; dmgbuild combines them into one TIFF.
+dmg=$root/design/dmg
+render "$dmg/background.svg" 700 "$dmg/background.png"
+render "$dmg/background.svg" 1400 "$dmg/background@2x.png"
+for pid in $pids; do wait $pid; done
 
 cp "$logo/maskpad-logo-1024-menubar.svg" "$assets/MenuBarIcon.imageset/MenuBarIcon.svg"
 echo "Icons written to $assets"
 
-# DMG art: the window background at 1x and 2x (dmgbuild combines them into one TIFF), and the mounted
-# volume icon (the system disk icon with the logo on it).
-dmg=$root/design/dmg
-render "$dmg/background.svg" 700 "$dmg/background.png"
-render "$dmg/background.svg" 1400 "$dmg/background@2x.png"
+# Mounted volume icon: the system disk icon with the logo on it.
 uv run --quiet --script "$root/Scripts/build_dmg_volume_icon.py"
 echo "DMG art written to $dmg"
