@@ -5,7 +5,8 @@
 #                  #   -> build/release/MaskPad.app, MaskPad-<version>-unnotarized.zip
 #   make dist      # Scripts/release.sh dist: the above, then a notarized DMG and zip and the appcast
 #                  #   -> build/dist/MaskPad-<version>.dmg, MaskPad-<version>.zip, appcast.xml
-#   make publish   # Scripts/release.sh publish: dist, then create GitHub release v<version> from build/dist
+#   make publish   # Scripts/release.sh publish: dist, then a draft GitHub release v<version> from build/dist;
+#                  #   it is not live until make go-live (Scripts/github_release.sh)
 #
 # build/release and build/dist each get BUILD_INFO (version, commit, Xcode, signing and notarization) and
 # SHA256SUMS, so either folder says which build it holds even when the other is from a different run.
@@ -21,8 +22,9 @@
 #     xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>
 # - dist: the Sparkle EdDSA private key in the login Keychain, matching SUPublicEDKey, and a build number
 #   higher than the live feed's
-# - publish: gh, logged in; a clean, pushed tree; a version without a GitHub release
-# Release notes, if present, come from docs/release-notes/<version>.md.
+# - publish: gh, logged in; a clean, pushed tree; a version without a GitHub release; release notes
+# Release notes come from docs/release-notes/<version>.md (make bump creates it from a template): dist
+# warns when they are missing or unedited, publish refuses.
 set -euo pipefail
 
 root=${0:A:h:h}
@@ -76,6 +78,21 @@ profile=${profile:-MaskPad}
 tag=v$version
 [[ -n $version && -n $build ]] || fail "Could not read the version from the build settings."
 [[ -n $team ]] || fail "Developer ID signing is not configured; see Config/MaskPad.local.xcconfig.example."
+
+# Release notes: present, edited (no TODO line from the make bump template) and not empty.
+notes=$root/docs/release-notes/$version.md
+notes_problem=
+if [[ ! -f $notes ]]; then
+  notes_problem="docs/release-notes/$version.md is missing; create it with make bump or by hand."
+elif grep -q 'TODO:' "$notes"; then
+  notes_problem="docs/release-notes/$version.md still has the TODO line from the template."
+elif ! grep -q '[[:alnum:]]' "$notes"; then
+  notes_problem="docs/release-notes/$version.md is empty."
+fi
+if [[ -n $notes_problem ]]; then
+  $publish && fail "$notes_problem"
+  $notarize && echo "warning: $notes_problem The appcast will have no release notes." >&2
+fi
 identities=$(security find-identity -v -p codesigning)
 [[ $identities == *"Developer ID Application: "*"($team)"* ]] \
   || fail "No Developer ID Application certificate for team $team in the keychain."
@@ -102,7 +119,7 @@ if $notarize; then
   if live=$(curl -fsL "$feed_url" 2>/dev/null); then
     live_build=$(sed -n 's/.*<sparkle:version>\([^<]*\)<.*/\1/p' <<< "$live" | sed -n 1p)
     if [[ -n $live_build ]] && (( build <= live_build )); then
-      fail "CURRENT_PROJECT_VERSION ($build) must be greater than the published build ($live_build)."
+      fail "CURRENT_PROJECT_VERSION ($build) must be greater than the published build ($live_build); run make bump."
     fi
   fi
 fi
@@ -113,7 +130,11 @@ if $publish; then
   [[ -z $(git status --porcelain) ]] || fail "The working tree has uncommitted changes; commit them before publishing."
   git fetch --quiet origin
   [[ -n $(git branch -r --contains HEAD) ]] || fail "HEAD is not on origin; push it before publishing."
-  ! gh release view "$tag" -R "$repo" >/dev/null 2>&1 || fail "GitHub release $tag already exists; bump MARKETING_VERSION."
+  if is_draft=$(gh release view "$tag" -R "$repo" --json isDraft --jq .isDraft 2>/dev/null); then
+    [[ $is_draft == true ]] && fail "A draft GitHub release $tag already exists. Check it with make verify-release \
+and publish it with make go-live, or delete it: gh release delete $tag -R $repo"
+    fail "GitHub release $tag already exists; raise the version with make bump VERSION=<x.y.z>."
+  fi
 fi
 
 # --- Release: Developer ID–signed app and zip in build/release ---
@@ -240,26 +261,26 @@ step "Generating the appcast"
 staging=$work/appcast
 mkdir -p "$staging"
 cp "$zip" "$staging/"
-notes=$root/docs/release-notes/$version.md
-[[ -f $notes ]] && cp "$notes" "$staging/MaskPad-$version.md"
+[[ -z $notes_problem ]] && cp "$notes" "$staging/MaskPad-$version.md"
 "$sparkle_bin/generate_appcast" --embed-release-notes --maximum-versions 1 \
   --download-url-prefix "https://github.com/$repo/releases/download/$tag/" \
   --link "https://github.com/$repo" -o "$dist_dir/appcast.xml" "$staging"
 grep -q 'sparkle:edSignature=' "$dist_dir/appcast.xml" || fail "The appcast is not EdDSA-signed."
 write_info "$dist_dir" "yes (submission $submission)" "${dmg:t}" "${zip:t}"
 
-if $publish; then
-  step "Publishing GitHub release $tag"
-  notes_args=(--notes "")
-  [[ -f $notes ]] && notes_args=(--notes-file "$notes")
-  gh release create "$tag" "$dmg" "$zip" "$dist_dir/appcast.xml" -R "$repo" --target "$(git rev-parse HEAD)" \
-    --title "MaskPad $version" "${notes_args[@]}"
-fi
-
 step "MaskPad $version ($build): signed and notarized"
 echo "    $dist_dir"
 sed 's/^/    /' "$dist_dir/SHA256SUMS"
-if ! $publish; then
-  echo "    Publish with: make publish"
+
+if $publish; then
+  # A draft is invisible to users, and releases/latest (the Sparkle feed) skips it, so nothing ships until
+  # make go-live. The tag is created at this commit when the draft is published.
+  step "Creating draft GitHub release $tag"
+  draft_url=$(gh release create "$tag" "$dmg" "$zip" "$dist_dir/appcast.xml" "$dist_dir/SHA256SUMS" -R "$repo" \
+    --draft --target "$commit" --title "MaskPad $version" --notes-file "$notes")
+  echo "    $draft_url"
+  echo "    Not live yet. Check it with make verify-release, then publish it with make go-live."
+else
+  echo "    Publish a draft with: make publish"
 fi
 exit 0

@@ -145,18 +145,37 @@ than through the Mac App Store.
 
 ### Release
 
+Publishing a new version to GitHub:
+
+```sh
+make bump VERSION=1.2.3   # set the version, raise the build number, create docs/release-notes/1.2.3.md
+                          # write the release notes, then commit and push
+make publish              # build, notarize and upload a draft GitHub release (not live yet)
+make verify-release       # download the draft and check everything users and Sparkle will get
+make go-live              # verify again, publish the draft, wait until the update feed serves it
+```
+
+Only the first three lines and testing the downloaded DMG are manual; `make bump` without `VERSION`
+raises only the build number. Until `make go-live`, the release is a draft: nobody can see it, and
+installed copies don't offer the update. `make verify-release` also works on a published release
+(`VERSION=x.y.z` for an older one), and then also checks the live feed.
+
+To build without publishing:
+
 ```sh
 make release   # archive, export with Developer ID -> build/release (app and zip, not notarized)
 make dist      # release, then DMG, notarize, staple, zip, appcast -> build/dist
-make publish   # dist, then create GitHub release v<version> with the DMG, zip and appcast
 ```
 
-Each runs `make check` first, then `Scripts/release.sh`. Release builds are universal (Apple silicon
-and Intel). In `build/dist`, the DMG is for downloads and the zip is for Sparkle.
+`release`, `dist` and `publish` run `make check` first, then `Scripts/release.sh`; `verify-release` and
+`go-live` run `Scripts/github_release.sh`. Release builds are universal (Apple silicon and Intel). In
+`build/dist`, the DMG is for downloads and the zip is for Sparkle; `publish` uploads both with
+`appcast.xml` and `SHA256SUMS`.
 
-Before each release, raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`: Sparkle
-compares the build number, and the script refuses one that isn't higher than the published one. Release
-notes are read from `docs/release-notes/<version>.md` if it exists.
+Sparkle compares the build number, so every release needs a higher one; `dist` and `publish` refuse a
+build number that isn't higher than the live one. Release notes come from
+`docs/release-notes/<version>.md`: `publish` refuses them when missing, empty or still the template, and
+`dist` warns.
 
 The script checks everything it needs before the slow build, and says how to fix what is missing:
 
@@ -167,7 +186,7 @@ The script checks everything it needs before the slow build, and says how to fix
 - for `dist` and `publish`: a `notarytool` keychain profile, and the Sparkle private key in the login
   Keychain matching `SUPublicEDKey` (see [Updates](#updates))
 - for `publish`: [gh](https://cli.github.com), logged in; a clean, pushed working tree; a version
-  without a GitHub release yet
+  without a GitHub release (or draft) yet; release notes
 
 The notarytool profile is the `NOTARY_PROFILE` environment variable, else `NOTARY_PROFILE` in
 `Config/MaskPad.local.xcconfig`, else `MaskPad`:
@@ -178,7 +197,8 @@ xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team
 
 One notarization covers both files: the DMG is submitted, and its ticket is stapled to the DMG and to the
 app before it is zipped (the app in `build/release` stays unstapled). If Apple rejects the submission,
-the script prints the notary log.
+the script prints the notary log. Before notarizing, the app inside the DMG is checked with
+`codesign --strict`, so the DMG layout can't add anything that breaks the signature.
 
 ### Updates
 

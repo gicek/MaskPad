@@ -28,7 +28,8 @@ XCODEBUILD := xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration De
 # Python scripts import each other; keep __pycache__ out of Scripts/.
 PYTHON := PYTHONDONTWRITEBYTECODE=1 python3
 
-.PHONY: help project open build run test strings check-strings check icons dist release publish clean distclean
+.PHONY: help project open build run test strings check-strings check icons bump release dist publish \
+	verify-release go-live clean distclean
 
 help: ## Show this help
 	@awk 'BEGIN { FS = ":.*## " } /^##@/ { printf "\n%s\n", substr($$0, 5) } \
@@ -73,16 +74,25 @@ project: ## Generate MaskPad.xcodeproj from project.yml
 open: project ## Generate the project and open it in Xcode
 	open $(PROJECT)
 
-##@ Release (Developer ID; each runs make check first, see README)
+##@ Release (Developer ID; see README for the full flow)
 
-release: check ## Signed, not notarized app and zip into build/release
+bump: ## Next build number, and VERSION=x.y.z if given; creates the release notes template
+	Scripts/bump_version.sh $(VERSION)
+
+release: check ## make check, then a signed, not notarized app and zip into build/release
 	Scripts/release.sh release
 
 dist: check ## Release, then notarized DMG, zip and appcast into build/dist
 	Scripts/release.sh dist
 
-publish: check ## Dist, then create the GitHub release from build/dist
+publish: check ## Dist, then a draft GitHub release from build/dist (not live yet)
 	Scripts/release.sh publish
+
+verify-release: ## Download and check the GitHub release for this version (VERSION=x.y.z for another)
+	Scripts/github_release.sh verify $(VERSION)
+
+go-live: ## Verify, then publish the draft so Sparkle offers the update
+	Scripts/github_release.sh go-live $(VERSION)
 
 ##@ Cleaning
 
