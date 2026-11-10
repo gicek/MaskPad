@@ -209,6 +209,13 @@ step "Packaging the DMG"
 codesign --sign "$identity" --timestamp "$dmg"
 codesign --verify --strict "$dmg"
 hdiutil verify -quiet "$dmg"
+# The app as users will copy it: the DMG layout must not add Finder info or other detritus to the bundle.
+mnt=$work/dmg-mount
+hdiutil attach -quiet -nobrowse -readonly -mountpoint "$mnt" "$dmg"
+dmg_app_ok=true
+codesign --verify --deep --strict "$mnt/MaskPad.app" || dmg_app_ok=false
+hdiutil detach -quiet "$mnt"
+$dmg_app_ok || fail "The app inside the DMG fails strict signature verification."
 
 # One submission covers both: notarizing the DMG also records the app inside it, so a copy of the same
 # app can be stapled too and zipped for Sparkle. build/release keeps the unstapled app.

@@ -34,4 +34,5 @@ icon_locations = {
     app_name: (150, 196),
     "Applications": (550, 196),
 }
-hide_extensions = [app_name]
+# No hide_extensions: it sets Finder info on the app bundle, which then fails `codesign --strict` after
+# it is copied to Applications. Finder hides the .app extension by default anyway.
