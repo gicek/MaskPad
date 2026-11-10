@@ -423,6 +423,8 @@ final class MaskController: ObservableObject {
                 .canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle,
             ]
             window.contentView = MaskHostingView(rootView: MaskUnlockView(model: model))
+            // Exactly the screen, whatever the content asks for (see `MaskHostingView`).
+            window.setFrame(screen.frame, display: false)
             window.makeKeyAndOrderFront(nil)
             return window
         }
@@ -437,10 +439,24 @@ final class MaskController: ObservableObject {
     }
 }
 
-/// Takes the first click even when MaskPad isn't the active app. Other apps can come to the front while
-/// masked (automation tools, a hot corner opening Quick Note); without this, the first click on the keypad
-/// only activates MaskPad and its digit is lost, so a correct passcode fails once.
+/// The mask window's content view.
+///
+/// - Never sizes the window: by default an NSHostingView resizes its window to fit the SwiftUI content's
+///   minimum size. A wrapping message once made the mask window much taller than the screen, pushing the
+///   keypad down, and other content could as well shrink it and uncover part of the screen. The mask
+///   window is always exactly its screen (`MaskController.buildWindows`).
+/// - Takes the first click even when MaskPad isn't the active app. Other apps can come to the front while
+///   masked (automation tools, a hot corner opening Quick Note); without this, the first click on the
+///   keypad only activates MaskPad and its digit is lost, so a correct passcode fails once.
 private final class MaskHostingView<Content: View>: NSHostingView<Content> {
+    required init(rootView: Content) {
+        super.init(rootView: rootView)
+        sizingOptions = []
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 }
 
