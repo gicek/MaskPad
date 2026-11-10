@@ -54,8 +54,9 @@ macOS login password or FileVault.
   Computer Use agents working under the mask, are ignored, so they can't enter digits, start the
   wrong-passcode cooldown or lock the Mac. Ignored presses are logged with the process that sent them.
 - **The passcode is 6 digits.** It is stored in the Keychain as a salted SHA-256 hash.
-- **Restarting removes the mask.** Holding the power button or a crash ends MaskPad, and the Mac then
-  falls back to its login password.
+- **Restarting removes the mask.** After a restart (for example by holding the power button) the Mac
+  falls back to its login password. If MaskPad itself crashes or is killed, the mask disappears and the
+  Mac is left unlocked.
 - **Locking the Mac removes the mask.** Anyone at the keyboard can use "Unlock with Mac Password" to
   lock the Mac, which interrupts whatever was running; getting back in still requires the Mac password.
   Closing the lid only removes the mask when macOS actually asks for the password on wake.
