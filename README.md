@@ -117,8 +117,8 @@ Scripts/release.sh --skip-notarize   # same without notarization
 ```
 
 The result is `build/Release/MaskPad-<version>.zip`, a universal (Apple silicon and Intel) app.
-Notarization uses a `notarytool` keychain profile, `MaskPad` by default (override with
-`NOTARY_PROFILE`):
+Notarization uses a `notarytool` keychain profile: the `NOTARY_PROFILE` environment variable, else
+`NOTARY_PROFILE` in `Config/MaskPad.local.xcconfig`, else `MaskPad`:
 
 ```sh
 xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>

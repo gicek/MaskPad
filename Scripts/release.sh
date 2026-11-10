@@ -5,7 +5,8 @@
 #   Scripts/release.sh --skip-notarize   # archive, export, zip (not notarized)
 #
 # Requires Developer ID signing in Config/MaskPad.local.xcconfig and, for notarization, a notarytool
-# keychain profile (default name "MaskPad", override with NOTARY_PROFILE):
+# keychain profile: NOTARY_PROFILE from the environment, else NOTARY_PROFILE in
+# Config/MaskPad.local.xcconfig, else "MaskPad":
 #   xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>
 set -euo pipefail
 
@@ -13,7 +14,6 @@ root=${0:A:h:h}
 cd "$root"
 notarize=true
 [[ "${1:-}" == "--skip-notarize" ]] && notarize=false
-profile=${NOTARY_PROFILE:-MaskPad}
 export DEVELOPER_DIR=${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}
 
 out=$root/build/Release
@@ -31,6 +31,8 @@ setting() {
 }
 version=$(setting MARKETING_VERSION)
 team=$(setting DEVELOPMENT_TEAM)
+profile=${NOTARY_PROFILE:-$(setting NOTARY_PROFILE)}
+profile=${profile:-MaskPad}
 if [[ -z "$team" ]]; then
   echo "Developer ID signing is not configured; see Config/MaskPad.local.xcconfig.example." >&2
   exit 1
