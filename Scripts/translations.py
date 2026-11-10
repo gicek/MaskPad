@@ -1,6 +1,6 @@
 # MaskPad translation table: English key -> (zh-Hans, zh-Hant, ja, es, ko, fr, de)
-# Run python3 Scripts/build_strings.py to generate MaskPad/Resources/Localizable.xcstrings;
-# --check only validates. French narrow no-break spaces (before ? ! ; :) are added by the
+# Run make strings to generate MaskPad/Resources/Localizable.xcstrings;
+# make check-strings only validates. French narrow no-break spaces (before ? ! ; :) are added by the
 # generator, so use regular spaces here.
 LANGS = ['zh-Hans', 'zh-Hant', 'ja', 'es', 'ko', 'fr', 'de']
 

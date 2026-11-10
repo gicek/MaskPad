@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Generate MaskPad/Resources/Localizable.xcstrings from Scripts/translations.py.
 
-    python3 Scripts/build_strings.py           # validate and write
-    python3 Scripts/build_strings.py --check   # validate only; exit 1 if the catalog is out of date
+    python3 Scripts/build_strings.py           # make strings: validate and write
+    python3 Scripts/build_strings.py --check   # make check-strings: validate only; exit 1 if the catalog is out of date
 
 Checks:
 - L("…") keys in code match the translation table exactly (missing or extra keys are errors);
@@ -87,7 +87,7 @@ catalog = json.dumps({"sourceLanguage": "en", "strings": strings, "version": "1.
 
 if "--check" in sys.argv[1:]:
     if not OUT.exists() or OUT.read_text() != catalog:
-        print(f"{OUT.relative_to(root)} is out of date; run python3 Scripts/build_strings.py")
+        print(f"{OUT.relative_to(root)} is out of date; run make strings")
         sys.exit(1)
     print(f"ok: {len(strings)} keys x {len(LANGS)} languages")
 else:

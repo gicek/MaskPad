@@ -66,7 +66,7 @@ targets:
         # Screen Sharing settings all require it off, so distribution is Developer ID only, not the App Store.
         ENABLE_APP_SANDBOX: NO
         LOCALIZATION_PREFERS_STRING_CATALOGS: YES
-        # Icons are generated from design/logo by Scripts/build_icons.sh.
+        # Icons are generated from design/logo by make icons (Scripts/build_icons.sh).
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       configs:
         Release:

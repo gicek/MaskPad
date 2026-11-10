@@ -1,106 +1,156 @@
 #!/bin/zsh
-# Builds a Developer ID–signed, notarized MaskPad-<version>.dmg (for downloads), MaskPad-<version>.zip
-# (for Sparkle) and its appcast.xml in build/Release.
+# Builds MaskPad for distribution. Run it through make, which runs make check first:
 #
-#   Scripts/release.sh                   # archive, export, DMG, notarize, staple, zip, appcast
-#   Scripts/release.sh --publish         # same, then create GitHub release v<version> with DMG + zip + appcast
-#   Scripts/release.sh --skip-notarize   # archive, export, DMG, zip (not notarized, no appcast)
+#   make release   # Scripts/release.sh release: Developer ID–signed app and zip, not notarized
+#                  #   -> build/release/MaskPad.app, MaskPad-<version>-unnotarized.zip
+#   make dist      # Scripts/release.sh dist: the above, then a notarized DMG and zip and the appcast
+#                  #   -> build/dist/MaskPad-<version>.dmg, MaskPad-<version>.zip, appcast.xml
+#   make publish   # Scripts/release.sh publish: dist, then create GitHub release v<version> from build/dist
 #
-# Requires Developer ID signing in Config/MaskPad.local.xcconfig and, for notarization, a notarytool
-# keychain profile: NOTARY_PROFILE from the environment, else NOTARY_PROFILE in
-# Config/MaskPad.local.xcconfig, else "MaskPad":
-#   xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>
-# The appcast is signed with the Sparkle EdDSA key in the login Keychain (Sparkle's generate_keys).
+# build/release and build/dist each get BUILD_INFO (version, commit, Xcode, signing and notarization) and
+# SHA256SUMS, so either folder says which build it holds even when the other is from a different run.
+# Intermediates (archive, export, DerivedData) go to build/intermediates and are rebuilt every run.
+#
+# Needs, and checks before building:
+# - Xcode and XcodeGen
+# - a Developer ID Application certificate for the team in Config/MaskPad.local.xcconfig
+# - dist: uv (runs dmgbuild, pinned below, for the DMG layout in Scripts/dmg_settings.py) and the DMG art
+#   in design/dmg (make icons)
+# - dist: a notarytool keychain profile, from NOTARY_PROFILE in the environment, else in
+#   Config/MaskPad.local.xcconfig, else "MaskPad":
+#     xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>
+# - dist: the Sparkle EdDSA private key in the login Keychain, matching SUPublicEDKey, and a build number
+#   higher than the live feed's
+# - publish: gh, logged in; a clean, pushed tree; a version without a GitHub release
 # Release notes, if present, come from docs/release-notes/<version>.md.
-# The DMG is built with dmgbuild (run through uv's uvx, pinned below) from Scripts/dmg_settings.py and the
-# art in design/dmg (rendered by Scripts/build_icons.sh).
 set -euo pipefail
 
 root=${0:A:h:h}
 cd "$root"
-notarize=true
-publish=false
-for arg in "$@"; do
-  case $arg in
-    --skip-notarize) notarize=false ;;
-    --publish) publish=true ;;
-    *) echo "Unknown option: $arg" >&2; exit 2 ;;
-  esac
-done
-if $publish && ! $notarize; then
-  echo "--publish requires notarization." >&2
-  exit 2
+mode=${1:-}
+case $mode in
+  release) notarize=false; publish=false ;;
+  dist) notarize=true; publish=false ;;
+  publish) notarize=true; publish=true ;;
+  *) echo "usage: Scripts/release.sh release|dist|publish" >&2; exit 2 ;;
+esac
+
+fail() { echo "error: $*" >&2; exit 1; }
+step() { echo "==> $*"; }
+need() { command -v "$1" >/dev/null || fail "$1 is missing; $2"; }
+
+# Same default as the Makefile: Xcode, even when xcode-select points at the Command Line Tools.
+if [[ -z ${DEVELOPER_DIR:-} ]]; then
+  DEVELOPER_DIR=$(xcode-select -p 2>/dev/null || true)
+  [[ -z $DEVELOPER_DIR || $DEVELOPER_DIR == *CommandLineTools* ]] && DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 fi
-export DEVELOPER_DIR=${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}
+export DEVELOPER_DIR
+[[ -x $DEVELOPER_DIR/usr/bin/xcodebuild ]] || fail "Xcode not found at $DEVELOPER_DIR; install it or set DEVELOPER_DIR."
 
 repo=gicek/MaskPad
 feed_url=https://github.com/$repo/releases/latest/download/appcast.xml
-out=$root/build/Release
-archive=$out/MaskPad.xcarchive
-export_dir=$out/export
-app=$export_dir/MaskPad.app
-sparkle_bin=$out/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin
+release_dir=$root/build/release
+dist_dir=$root/build/dist
+work=$root/build/intermediates
+packages=$root/build/SourcePackages  # shared with make build, so packages are fetched once
+archive=$work/MaskPad.xcarchive
+export_dir=$work/export
+sparkle_bin=$packages/artifacts/sparkle/Sparkle/bin
 dmg_art=$root/design/dmg
 dmgbuild=(uvx --quiet --from dmgbuild==1.6.7 --with ds_store==1.3.3 --with mac_alias==2.2.3 dmgbuild)
+xcodebuild=(xcodebuild -project MaskPad.xcodeproj -scheme MaskPad -configuration Release
+  -clonedSourcePackagesDirPath "$packages")
 
-# Check the DMG tooling before the slow build.
-command -v uvx >/dev/null || { echo "uv is required to build the DMG: brew install uv" >&2; exit 1; }
-for f in background.png background@2x.png volume.icns; do
-  [[ -f "$dmg_art/$f" ]] || { echo "design/dmg/$f is missing; run Scripts/build_icons.sh." >&2; exit 1; }
-done
-"${dmgbuild[@]}" --help >/dev/null
+# --- Preflight: everything that can fail is checked before the slow build. ---
 
+step "Checking prerequisites"
+need xcodegen "brew install xcodegen"
 xcodegen generate --quiet
-
-setting() {
-  xcodebuild -project MaskPad.xcodeproj -scheme MaskPad -configuration Release -showBuildSettings 2>/dev/null \
-    | awk -v key="$1" '$1 == key { print $3; exit }'
-}
+settings=$("${xcodebuild[@]}" -showBuildSettings 2>/dev/null)
+setting() { awk -v key="$1" '$1 == key { print $3; exit }' <<< "$settings"; }
 version=$(setting MARKETING_VERSION)
 build=$(setting CURRENT_PROJECT_VERSION)
 team=$(setting DEVELOPMENT_TEAM)
 profile=${NOTARY_PROFILE:-$(setting NOTARY_PROFILE)}
 profile=${profile:-MaskPad}
 tag=v$version
-if [[ -z "$team" ]]; then
-  echo "Developer ID signing is not configured; see Config/MaskPad.local.xcconfig.example." >&2
-  exit 1
+[[ -n $version && -n $build ]] || fail "Could not read the version from the build settings."
+[[ -n $team ]] || fail "Developer ID signing is not configured; see Config/MaskPad.local.xcconfig.example."
+identities=$(security find-identity -v -p codesigning)
+[[ $identities == *"Developer ID Application: "*"($team)"* ]] \
+  || fail "No Developer ID Application certificate for team $team in the keychain."
+
+if $notarize; then
+  need uvx "brew install uv"
+  for f in background.png background@2x.png volume.icns; do
+    [[ -f $dmg_art/$f ]] || fail "design/dmg/$f is missing; run make icons."
+  done
+  "${dmgbuild[@]}" --help >/dev/null || fail "dmgbuild could not be installed through uv."
+
+  xcrun notarytool history --keychain-profile "$profile" >/dev/null 2>&1 \
+    || fail "notarytool profile \"$profile\" is missing or invalid:
+  xcrun notarytool store-credentials $profile --apple-id <apple-id> --team-id $team"
+
+  # The appcast must be signed with the private half of SUPublicEDKey, or installed copies reject updates.
+  "${xcodebuild[@]}" -resolvePackageDependencies -quiet
+  expected=$(/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' MaskPad/Info.plist)
+  actual=$("$sparkle_bin/generate_keys" -p 2>/dev/null) \
+    || fail "No Sparkle EdDSA key in the login Keychain; restore it with: $sparkle_bin/generate_keys -f <backup>"
+  [[ $actual == "$expected" ]] || fail "The Sparkle key in the Keychain ($actual) does not match SUPublicEDKey ($expected)."
+
+  # Sparkle compares CFBundleVersion, so every release needs a higher build number than the live feed.
+  if live=$(curl -fsL "$feed_url" 2>/dev/null); then
+    live_build=$(sed -n 's/.*<sparkle:version>\([^<]*\)<.*/\1/p' <<< "$live" | sed -n 1p)
+    if [[ -n $live_build ]] && (( build <= live_build )); then
+      fail "CURRENT_PROJECT_VERSION ($build) must be greater than the published build ($live_build)."
+    fi
+  fi
 fi
 
-# Sparkle compares CFBundleVersion, so every release needs a higher build number than the live feed.
-# Check before the slow build, and before publishing, that the tree is clean and pushed.
 if $publish; then
-  if [[ -n "$(git status --porcelain)" ]]; then
-    echo "The working tree has uncommitted changes; commit them before publishing." >&2
-    exit 1
-  fi
+  need gh "brew install gh"
+  gh auth status >/dev/null 2>&1 || fail "gh is not logged in; run gh auth login."
+  [[ -z $(git status --porcelain) ]] || fail "The working tree has uncommitted changes; commit them before publishing."
   git fetch --quiet origin
-  if [[ -z "$(git branch -r --contains HEAD)" ]]; then
-    echo "HEAD is not on origin; push it before publishing." >&2
-    exit 1
-  fi
-  if gh release view "$tag" -R "$repo" >/dev/null 2>&1; then
-    echo "GitHub release $tag already exists; bump MARKETING_VERSION." >&2
-    exit 1
-  fi
-fi
-if $notarize && live=$(curl -fsL "$feed_url" 2>/dev/null); then
-  live_build=$(grep -o '<sparkle:version>[^<]*' <<< "$live" | head -1 | sed 's/.*>//')
-  if [[ -n "$live_build" ]] && (( build <= live_build )); then
-    echo "CURRENT_PROJECT_VERSION ($build) must be greater than the published build ($live_build)." >&2
-    exit 1
-  fi
+  [[ -n $(git branch -r --contains HEAD) ]] || fail "HEAD is not on origin; push it before publishing."
+  ! gh release view "$tag" -R "$repo" >/dev/null 2>&1 || fail "GitHub release $tag already exists; bump MARKETING_VERSION."
 fi
 
-rm -rf "$out"
-mkdir -p "$out"
+# --- Release: Developer ID–signed app and zip in build/release ---
 
-echo "==> Archiving MaskPad $version ($build)"
-xcodebuild archive -project MaskPad.xcodeproj -scheme MaskPad -configuration Release \
-  -destination "generic/platform=macOS" -archivePath "$archive" -derivedDataPath "$out/DerivedData" -quiet
+# The source state, recorded before building so BUILD_INFO describes what was built.
+commit=$(git rev-parse HEAD)
+dirty=$([[ -n $(git status --porcelain) ]] && echo yes || echo no)
+xcode=$(xcodebuild -version | paste -sd ' ' -)
+built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-echo "==> Exporting with Developer ID"
-cat > "$out/ExportOptions.plist" <<PLIST
+# write_info <dir> <notarized> <files...>: BUILD_INFO and SHA256SUMS for one output folder.
+write_info() {
+  local dir=$1 notarized=$2; shift 2
+  cat > "$dir/BUILD_INFO" <<INFO
+PRODUCT=MaskPad
+VERSION=$version
+BUILD=$build
+COMMIT=$commit
+DIRTY=$dirty
+BUILT_AT=$built_at
+XCODE=$xcode
+ARCHS=$(lipo -archs "$app/Contents/MacOS/MaskPad")
+SIGNED_BY=$identity
+NOTARIZED=$notarized
+INFO
+  (cd "$dir" && shasum -a 256 "$@" > SHA256SUMS)
+}
+
+rm -rf "$work" "$release_dir"
+mkdir -p "$work" "$release_dir"
+
+step "Archiving MaskPad $version ($build)"
+"${xcodebuild[@]}" archive -destination "generic/platform=macOS" -archivePath "$archive" \
+  -derivedDataPath "$work/DerivedData" -quiet
+
+step "Exporting with Developer ID"
+cat > "$work/ExportOptions.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -113,74 +163,96 @@ cat > "$out/ExportOptions.plist" <<PLIST
 </plist>
 PLIST
 xcodebuild -exportArchive -archivePath "$archive" -exportPath "$export_dir" \
-  -exportOptionsPlist "$out/ExportOptions.plist" -quiet
+  -exportOptionsPlist "$work/ExportOptions.plist" -quiet
+app=$release_dir/MaskPad.app
+ditto "$export_dir/MaskPad.app" "$app"
 
-echo "==> Checking the signature"
+step "Checking the signature"
+# Command output is captured before matching: with pipefail, `codesign | grep -q` can fail when grep exits
+# early and codesign gets SIGPIPE.
 codesign --verify --deep --strict "$app"
 details=$(codesign -dvv "$app" 2>&1)
-grep -q "flags=.*runtime" <<< "$details" || { echo "Hardened runtime is missing." >&2; exit 1; }
-grep -q "^Timestamp=" <<< "$details" || { echo "Secure timestamp is missing." >&2; exit 1; }
-if codesign -d --entitlements - --xml "$app" 2>/dev/null | grep -q "get-task-allow"; then
-  echo "The get-task-allow entitlement must not ship." >&2
-  exit 1
-fi
+[[ $details == *"flags="*"runtime"* ]] || fail "Hardened runtime is missing."
+[[ $details == *$'\nTimestamp='* ]] || fail "Secure timestamp is missing."
+entitlements=$(codesign -d --entitlements - --xml "$app" 2>/dev/null)
+[[ $entitlements != *get-task-allow* ]] || fail "The get-task-allow entitlement must not ship."
 # Sparkle's helpers are re-signed on export; each must carry our team ID or Sparkle refuses to install.
-# (Capture first: with pipefail, `codesign | grep -q` fails when grep exits early and codesign gets SIGPIPE.)
 sparkle=$app/Contents/Frameworks/Sparkle.framework/Versions/B
 for helper in "$sparkle/Autoupdate" "$sparkle/Updater.app" "$sparkle"/XPCServices/*.xpc(N); do
   helper_details=$(codesign -dvv "$helper" 2>&1)
-  grep -q "^TeamIdentifier=$team$" <<< "$helper_details" \
-    || { echo "$helper is not signed by team $team." >&2; exit 1; }
+  [[ $'\n'$helper_details$'\n' == *$'\nTeamIdentifier='"$team"$'\n'* ]] || fail "$helper is not signed by team $team."
 done
 
-echo "==> Packaging the DMG"
-dmg=$out/MaskPad-$version.dmg
-identity=$(sed -n 's/^Authority=//p' <<< "$details" | head -1)
-"${dmgbuild[@]}" -s "$root/Scripts/dmg_settings.py" -D app="$app" -D art="$dmg_art" MaskPad "$dmg" >/dev/null
+identity=$(sed -n '/^Authority=/{s///p;q;}' <<< "$details")
+# Named apart from the notarized zip in build/dist, so the two are never mixed up.
+ditto -c -k --keepParent "$app" "$release_dir/MaskPad-$version-unnotarized.zip"
+write_info "$release_dir" no "MaskPad-$version-unnotarized.zip"
+
+if ! $notarize; then
+  step "MaskPad $version ($build): signed, not notarized"
+  echo "    $release_dir"
+  sed 's/^/    /' "$release_dir/SHA256SUMS"
+  exit 0
+fi
+
+# --- Dist: notarized DMG and zip and the appcast in build/dist ---
+
+rm -rf "$dist_dir"
+mkdir -p "$dist_dir"
+dmg=$dist_dir/MaskPad-$version.dmg
+zip=$dist_dir/MaskPad-$version.zip
+
+step "Packaging the DMG"
+# dmgbuild still calls hdiutil verbs that print deprecation warnings; drop only those.
+"${dmgbuild[@]}" -s Scripts/dmg_settings.py -D app="$app" -D art="$dmg_art" MaskPad "$dmg" \
+  >/dev/null 2> >(grep -v 'is deprecated' >&2)
 codesign --sign "$identity" --timestamp "$dmg"
 codesign --verify --strict "$dmg"
 hdiutil verify -quiet "$dmg"
 
-zip=$out/MaskPad-$version.zip
-if $notarize; then
-  # One submission covers both: notarizing the DMG also records the app inside it, so the exported app
-  # (the same bits) can be stapled too before it is zipped for Sparkle.
-  echo "==> Notarizing (profile: $profile)"
-  xcrun notarytool submit "$dmg" --keychain-profile "$profile" --wait
-  xcrun stapler staple "$dmg"
-  xcrun stapler staple "$app"
-  spctl -a -t open --context context:primary-signature -vv "$dmg"
-  spctl -a -t exec -vv "$app"
+# One submission covers both: notarizing the DMG also records the app inside it, so a copy of the same
+# app can be stapled too and zipped for Sparkle. build/release keeps the unstapled app.
+step "Notarizing (profile: $profile; this usually takes a few minutes)"
+result=$(xcrun notarytool submit "$dmg" --keychain-profile "$profile" --wait --output-format json)
+submission=$(plutil -extract id raw - <<< "$result")
+notary_status=$(plutil -extract status raw - <<< "$result")
+if [[ $notary_status != Accepted ]]; then
+  xcrun notarytool log "$submission" --keychain-profile "$profile" >&2 || true
+  fail "Notarization finished with status \"$notary_status\" (submission $submission)."
 fi
+stapled=$work/stapled/MaskPad.app
+ditto "$app" "$stapled"
+xcrun stapler staple -q "$dmg"
+xcrun stapler staple -q "$stapled"
+spctl -a -t open --context context:primary-signature "$dmg"
+spctl -a -t exec "$stapled"
+ditto -c -k --keepParent "$stapled" "$zip"
 
-ditto -c -k --keepParent "$app" "$zip"
-echo "==> $dmg"
-echo "==> $zip"
-if ! $notarize; then
-  echo "    (not notarized, no appcast)"
-  exit 0
-fi
-
-echo "==> Generating the appcast"
+step "Generating the appcast"
 # Each release's appcast lists only that release; the feed URL always resolves to the latest one.
-staging=$out/appcast
+staging=$work/appcast
 mkdir -p "$staging"
 cp "$zip" "$staging/"
 notes=$root/docs/release-notes/$version.md
-[[ -f "$notes" ]] && cp "$notes" "$staging/MaskPad-$version.md"
+[[ -f $notes ]] && cp "$notes" "$staging/MaskPad-$version.md"
 "$sparkle_bin/generate_appcast" --embed-release-notes --maximum-versions 1 \
   --download-url-prefix "https://github.com/$repo/releases/download/$tag/" \
-  --link "https://github.com/$repo" -o "$out/appcast.xml" "$staging"
-grep -q 'sparkle:edSignature=' "$out/appcast.xml" || { echo "The appcast is not EdDSA-signed." >&2; exit 1; }
-echo "==> $out/appcast.xml"
+  --link "https://github.com/$repo" -o "$dist_dir/appcast.xml" "$staging"
+grep -q 'sparkle:edSignature=' "$dist_dir/appcast.xml" || fail "The appcast is not EdDSA-signed."
+write_info "$dist_dir" "yes (submission $submission)" "${dmg:t}" "${zip:t}"
 
 if $publish; then
-  echo "==> Publishing GitHub release $tag"
+  step "Publishing GitHub release $tag"
   notes_args=(--notes "")
-  [[ -f "$notes" ]] && notes_args=(--notes-file "$notes")
-  gh release create "$tag" "$dmg" "$zip" "$out/appcast.xml" -R "$repo" --target "$(git rev-parse HEAD)" \
+  [[ -f $notes ]] && notes_args=(--notes-file "$notes")
+  gh release create "$tag" "$dmg" "$zip" "$dist_dir/appcast.xml" -R "$repo" --target "$(git rev-parse HEAD)" \
     --title "MaskPad $version" "${notes_args[@]}"
-else
-  echo "    Publish with: Scripts/release.sh --publish"
-  echo "    (or upload MaskPad-$version.dmg, MaskPad-$version.zip and appcast.xml to a GitHub release tagged $tag)"
 fi
+
+step "MaskPad $version ($build): signed and notarized"
+echo "    $dist_dir"
+sed 's/^/    /' "$dist_dir/SHA256SUMS"
+if ! $publish; then
+  echo "    Publish with: make publish"
+fi
+exit 0

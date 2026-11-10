@@ -88,17 +88,49 @@ the string catalog. MaskPad runs on macOS 14 or later.
 
 ```sh
 brew install xcodegen
-xcodegen generate
-open MaskPad.xcodeproj
+make            # list all targets
+make build      # build the Debug app into build/debug
+make run        # build and launch it, quitting a running copy first
+make test       # run the unit tests
+make check      # string catalog check and unit tests; run before committing
+make clean      # remove build output, fetched packages and Xcode's DerivedData for this project
+make distclean  # clean, then remove the generated MaskPad.xcodeproj
 ```
 
-Or build and run the tests from the command line:
+Everything lands in `build/`, one folder per kind of build:
+
+| Folder | Made by | Contents |
+| --- | --- | --- |
+| `build/debug` | `make build`, `make run` | `MaskPad.app`, Debug |
+| `build/release` | `make release` (and `dist`) | `MaskPad.app` and `MaskPad-<version>-unnotarized.zip`, Developer ID–signed, not notarized |
+| `build/dist` | `make dist`, `make publish` | `MaskPad-<version>.dmg`, `MaskPad-<version>.zip`, `appcast.xml`, notarized and stapled |
+
+`build/release` and `build/dist` also hold `SHA256SUMS` and `BUILD_INFO`: version, build number, Git
+commit (and whether the tree had uncommitted changes), build time, Xcode, architectures, signing
+identity and notarization. The two folders can come from different runs, so check `BUILD_INFO` before
+sharing a file. Only `build/dist` is for distribution: an unnotarized app downloaded from the internet is
+blocked by Gatekeeper.
+
+`build/DerivedData`, `build/SourcePackages` and `build/intermediates` hold intermediates.
+
+None of these need Xcode open: they build with `xcodebuild` and generate the `.xcodeproj` from
+`project.yml` themselves (it is not committed). Swift packages are fetched once into
+`build/SourcePackages`, and Sparkle is pinned to an exact version in `project.yml`. Builds use the
+Xcode selected with `xcode-select`, or `/Applications/Xcode.app` when that is the Command Line Tools;
+set `DEVELOPER_DIR` to choose another. For full `xcodebuild` output, pass `XCODEBUILD_FLAGS=`.
+
+### Developing in Xcode
+
+To edit, debug or use SwiftUI previews in Xcode:
 
 ```sh
-xcodebuild -project MaskPad.xcodeproj -scheme MaskPad -derivedDataPath build/DerivedData test
+make open       # generate MaskPad.xcodeproj and open it in Xcode
+make project    # regenerate it only
 ```
 
-The `.xcodeproj` is generated from `project.yml` and is not committed.
+Regenerate after changing `project.yml` or adding, removing or renaming source files; the project picks
+up files from disk only when it is generated. Builds started in Xcode go to Xcode's own DerivedData
+folder, not `build/`; `make clean` removes that too.
 
 ### Signing
 
@@ -114,25 +146,39 @@ than through the Mac App Store.
 ### Release
 
 ```sh
-Scripts/release.sh                   # archive, export with Developer ID, DMG, notarize, staple, zip, appcast
-Scripts/release.sh --publish         # same, then create GitHub release v<version> with the DMG, zip and appcast
-Scripts/release.sh --skip-notarize   # archive, export, DMG and zip only (not notarized, no appcast)
+make release   # archive, export with Developer ID -> build/release (app and zip, not notarized)
+make dist      # release, then DMG, notarize, staple, zip, appcast -> build/dist
+make publish   # dist, then create GitHub release v<version> with the DMG, zip and appcast
 ```
 
-The results in `build/Release` are `MaskPad-<version>.dmg` for downloads, `MaskPad-<version>.zip` for
-Sparkle (both hold a universal Apple silicon and Intel app) and `appcast.xml`. The DMG is laid out by
-[dmgbuild](https://github.com/dmgbuild/dmgbuild) from `Scripts/dmg_settings.py`; the script runs it
-through `uvx`, so [uv](https://docs.astral.sh/uv/) must be installed (`brew install uv`). One notarization
-covers both: the DMG is submitted, and its ticket is stapled to the DMG and to the app before zipping. Before each release, raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
-in `project.yml`: Sparkle compares the build number, and the script refuses a build number that isn't
-higher than the published one. Release notes are read from `docs/release-notes/<version>.md` if it exists.
-`--publish` also requires a clean, pushed working tree.
-Notarization uses a `notarytool` keychain profile: the `NOTARY_PROFILE` environment variable, else
-`NOTARY_PROFILE` in `Config/MaskPad.local.xcconfig`, else `MaskPad`:
+Each runs `make check` first, then `Scripts/release.sh`. Release builds are universal (Apple silicon
+and Intel). In `build/dist`, the DMG is for downloads and the zip is for Sparkle.
+
+Before each release, raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`: Sparkle
+compares the build number, and the script refuses one that isn't higher than the published one. Release
+notes are read from `docs/release-notes/<version>.md` if it exists.
+
+The script checks everything it needs before the slow build, and says how to fix what is missing:
+
+- a Developer ID Application certificate for the team in `Config/MaskPad.local.xcconfig`
+- for `dist` and `publish`: [uv](https://docs.astral.sh/uv/) (`brew install uv`), which runs a pinned
+  [dmgbuild](https://github.com/dmgbuild/dmgbuild) to lay out the DMG from `Scripts/dmg_settings.py`,
+  and the DMG art in `design/dmg` (`make icons`)
+- for `dist` and `publish`: a `notarytool` keychain profile, and the Sparkle private key in the login
+  Keychain matching `SUPublicEDKey` (see [Updates](#updates))
+- for `publish`: [gh](https://cli.github.com), logged in; a clean, pushed working tree; a version
+  without a GitHub release yet
+
+The notarytool profile is the `NOTARY_PROFILE` environment variable, else `NOTARY_PROFILE` in
+`Config/MaskPad.local.xcconfig`, else `MaskPad`:
 
 ```sh
 xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>
 ```
+
+One notarization covers both files: the DMG is submitted, and its ticket is stapled to the DMG and to the
+app before it is zipped (the app in `build/release` stays unstapled). If Apple rejects the submission,
+the script prints the notary log.
 
 ### Updates
 
@@ -140,10 +186,11 @@ MaskPad updates through [Sparkle](https://sparkle-project.org). The app reads
 `https://github.com/gicek/MaskPad/releases/latest/download/appcast.xml`, so the appcast attached to the
 newest GitHub release is the live feed. Every update is verified against the EdDSA public key
 (`SUPublicEDKey` in `project.yml`); the private key is in the release Mac's login Keychain, and
-`generate_appcast` signs with it. Back it up — without it, existing installs can't be updated:
+`generate_appcast` signs with it. Back it up — without it, existing installs can't be updated (the
+tool is in `build/SourcePackages` after any build):
 
 ```sh
-build/Release/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x sparkle-key.txt
+build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x sparkle-key.txt
 ```
 
 ### Tests
@@ -157,8 +204,8 @@ separate defaults domain, and no global shortcut or menu bar item is created.
 Strings live in `Scripts/translations.py` and are compiled into the string catalog:
 
 ```sh
-python3 Scripts/build_strings.py           # regenerate the catalog
-python3 Scripts/build_strings.py --check   # validate only
+make strings         # regenerate the catalog
+make check-strings   # validate only
 ```
 
 The script fails when a string in the code has no translation, a translation is unused, placeholders
@@ -170,7 +217,7 @@ The source artwork is in `design/logo`, and the DMG window background in `design
 Regenerate the app icon, the menu bar icon and the DMG art (background and volume icon) with:
 
 ```sh
-Scripts/build_icons.sh   # requires Node and uv
+make icons   # requires Node and uv; runs Scripts/build_icons.sh
 ```
 
 The volume icon is drawn by `Scripts/build_dmg_volume_icon.py` with Pillow (which uv installs on the fly)
