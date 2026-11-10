@@ -139,6 +139,52 @@
         }
       }
     },
+    "Adds the maskpad command to /usr/local/bin. May ask for an administrator password.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fügt den Befehl maskpad zu /usr/local/bin hinzu. Eventuell ist ein Administratorpasswort nötig."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade el comando maskpad a /usr/local/bin. Puede pedir una contraseña de administrador."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoute la commande maskpad à /usr/local/bin. Un mot de passe administrateur peut être demandé."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maskpad コマンドを /usr/local/bin に追加します。管理者パスワードが必要な場合があります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maskpad 명령을 /usr/local/bin에 추가합니다. 관리자 암호가 필요할 수 있습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将 maskpad 命令添加到 /usr/local/bin。可能需要输入管理员密码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將 maskpad 指令加入 /usr/local/bin。可能需要輸入管理者密碼。"
+          }
+        }
+      }
+    },
     "After 1 hour": {
       "localizations": {
         "de": {
@@ -691,6 +737,52 @@
         }
       }
     },
+    "Another file named maskpad is already in /usr/local/bin.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In /usr/local/bin gibt es bereits eine andere Datei namens maskpad."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya hay otro archivo llamado maskpad en /usr/local/bin."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un autre fichier nommé maskpad se trouve déjà dans /usr/local/bin."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/usr/local/bin には maskpad という名前の別のファイルがすでにあります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/usr/local/bin에 maskpad라는 다른 파일이 이미 있습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/usr/local/bin 中已有另一个名为 maskpad 的文件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/usr/local/bin 中已有另一個名為 maskpad 的檔案。"
+          }
+        }
+      }
+    },
     "Apps under the mask keep running. Computer Use tools that work per window are unaffected; remote desktops see the keypad and can unlock.": {
       "localizations": {
         "de": {
@@ -1059,6 +1151,52 @@
         }
       }
     },
+    "Command line tool": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Befehlszeilenwerkzeug"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herramienta de línea de comandos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outil en ligne de commande"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コマンドラインツール"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "명령줄 도구"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令行工具"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令列工具"
+          }
+        }
+      }
+    },
     "Confirm passcode": {
       "localizations": {
         "de": {
@@ -1147,6 +1285,52 @@
           "stringUnit": {
             "state": "translated",
             "value": "無法修改系統設定。"
+          }
+        }
+      }
+    },
+    "Couldn't change the command line tool.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Befehlszeilenwerkzeug konnte nicht geändert werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se ha podido cambiar la herramienta de línea de comandos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de modifier l’outil en ligne de commande."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コマンドラインツールを変更できませんでした。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "명령줄 도구를 변경할 수 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法更改命令行工具。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法更改命令列工具。"
           }
         }
       }
@@ -1657,6 +1841,52 @@
         }
       }
     },
+    "Install": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installer"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インストール"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설치"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安裝"
+          }
+        }
+      }
+    },
     "Keyboard Shortcut": {
       "localizations": {
         "de": {
@@ -1837,6 +2067,98 @@
           "stringUnit": {
             "state": "translated",
             "value": "MaskPad 想要更改 macOS 螢幕共享結束後是否重新鎖定此 Mac。"
+          }
+        }
+      }
+    },
+    "MaskPad wants to install the maskpad command.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad möchte den Befehl maskpad installieren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad quiere instalar el comando maskpad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad souhaite installer la commande maskpad."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad が maskpad コマンドをインストールしようとしています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad에서 maskpad 명령을 설치하려고 합니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad 要安装 maskpad 命令。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad 要安裝 maskpad 指令。"
+          }
+        }
+      }
+    },
+    "MaskPad wants to remove the maskpad command.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad möchte den Befehl maskpad entfernen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad quiere eliminar el comando maskpad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad souhaite supprimer la commande maskpad."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad が maskpad コマンドを削除しようとしています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad에서 maskpad 명령을 제거하려고 합니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad 要移除 maskpad 命令。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad 要移除 maskpad 指令。"
           }
         }
       }
@@ -2347,6 +2669,52 @@
         }
       }
     },
+    "Remove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entfernen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제거"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
+          }
+        }
+      }
+    },
     "Reset": {
       "localizations": {
         "de": {
@@ -2761,6 +3129,52 @@
         }
       }
     },
+    "The maskpad command points to another copy of MaskPad. Install it again to use this one.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Befehl maskpad verweist auf eine andere MaskPad-Kopie. Installiere ihn erneut, um diese zu verwenden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El comando maskpad apunta a otra copia de MaskPad. Vuelve a instalarlo para usar esta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La commande maskpad pointe vers une autre copie de MaskPad. Installez-la de nouveau pour utiliser celle-ci."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maskpad コマンドは別の MaskPad を指しています。このコピーを使うには、もう一度インストールしてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maskpad 명령이 다른 MaskPad 사본을 가리킵니다. 이 사본을 사용하려면 다시 설치하세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maskpad 命令指向另一个 MaskPad 副本。重新安装即可改用当前这个。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maskpad 指令指向另一個 MaskPad 副本。重新安裝即可改用目前這個。"
+          }
+        }
+      }
+    },
     "This shortcut is used by another app. Choose a different one.": {
       "localizations": {
         "de": {
@@ -3033,6 +3447,52 @@
           "stringUnit": {
             "state": "translated",
             "value": "閒置時自動開啟"
+          }
+        }
+      }
+    },
+    "Type maskpad on in Terminal to turn on the mask.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib maskpad on im Terminal ein, um die Maske einzuschalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escribe maskpad on en Terminal para activar la máscara."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tapez maskpad on dans Terminal pour activer le masque."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ターミナルで maskpad on と入力するとマスクがオンになります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "터미널에서 maskpad on을 입력하면 마스크가 켜집니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在终端中输入 maskpad on 即可开启遮罩。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在終端機中輸入 maskpad on 即可開啟遮罩。"
           }
         }
       }

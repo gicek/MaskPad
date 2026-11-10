@@ -48,10 +48,11 @@ MaskPad can be turned on, but never off, from outside: any app can cover the scr
 at the Mac (or through Screen Sharing) can remove the mask, with the passcode. If there is no passcode
 or no Accessibility permission yet, MaskPad opens Settings instead.
 
-**Command line.** The `maskpad` tool is MaskPad's own executable. Link it into a folder on your `PATH`:
+**Command line.** In Settings > General, **Install** next to "Command line tool" adds the `maskpad`
+command to `/usr/local/bin` (it may ask for an administrator password); **Remove** takes it away. The
+command is a link to MaskPad's own executable, so Settings offers to install it again if MaskPad moves.
 
 ```sh
-ln -s /Applications/MaskPad.app/Contents/MacOS/MaskPad /usr/local/bin/maskpad
 maskpad on        # turn the mask on, starting MaskPad if needed
 maskpad status    # print "on" or "off"
 ```

@@ -27,6 +27,9 @@ struct SettingsView: View {
     @State private var relockRestores = true
     @State private var screenSharingActive = false
     @State private var relockChanging = false
+    @State private var commandLineToolState = CommandLineToolInstaller.state
+    @State private var commandLineToolChanging = false
+    @State private var commandLineToolFailed = false
     /// Measured content height. Window height is min(content, `maxHeight`); the rest scrolls.
     @State private var contentHeight: CGFloat = Self.maxHeight
 
@@ -64,6 +67,7 @@ struct SettingsView: View {
     private func refreshSystemState() {
         canBlockLocalInput = MaskController.canBlockLocalInput
         hasPasscode = MaskPasscodeStore.shared.hasPasscode
+        commandLineToolState = CommandLineToolInstaller.state
         settings.refreshLaunchAtLogin()
     }
 
@@ -264,6 +268,9 @@ struct SettingsView: View {
             }
 
             SettingsDivider()
+            commandLineToolRows
+
+            SettingsDivider()
             SettingsRow(L("Check for updates automatically")) {
                 Toggle("", isOn: $updater.automaticallyChecksForUpdates)
                     .labelsHidden()
@@ -276,6 +283,53 @@ struct SettingsView: View {
                     .controlSize(.small)
                     .disabled(updater.canCheckForUpdates == false && updater.hasPendingUpdate == false)
             }
+        }
+    }
+
+    /// The `maskpad` command in /usr/local/bin (`CommandLineToolInstaller`).
+    @ViewBuilder
+    private var commandLineToolRows: some View {
+        SettingsRow(L("Command line tool")) {
+            switch commandLineToolState {
+            case .notInstalled, .otherCopy:
+                Button(L("Install")) { changeCommandLineTool(install: true) }
+                    .controlSize(.small)
+                    .disabled(commandLineToolChanging)
+            case .installed:
+                Button(L("Remove")) { changeCommandLineTool(install: false) }
+                    .controlSize(.small)
+                    .disabled(commandLineToolChanging)
+            case .otherFile:
+                EmptyView()
+            }
+        }
+        switch commandLineToolState {
+        case .notInstalled:
+            SettingsNote(L("Adds the maskpad command to /usr/local/bin. May ask for an administrator password."))
+        case .installed:
+            SettingsNote(L("Type maskpad on in Terminal to turn on the mask."))
+        case .otherCopy:
+            SettingsNote(L("The maskpad command points to another copy of MaskPad. Install it again to use this one."), isWarning: true)
+        case .otherFile:
+            SettingsNote(L("Another file named maskpad is already in /usr/local/bin."), isWarning: true)
+        }
+        if commandLineToolFailed {
+            SettingsNote(L("Couldn't change the command line tool."), isWarning: true)
+        }
+    }
+
+    private func changeCommandLineTool(install: Bool) {
+        commandLineToolChanging = true
+        Task {
+            let outcome = install
+                ? await CommandLineToolInstaller.install(prompt: L("MaskPad wants to install the maskpad command."))
+                : await CommandLineToolInstaller.remove(prompt: L("MaskPad wants to remove the maskpad command."))
+            commandLineToolChanging = false
+            switch outcome {
+            case .applied, .cancelled: commandLineToolFailed = false
+            case .failed: commandLineToolFailed = true
+            }
+            commandLineToolState = CommandLineToolInstaller.state
         }
     }
 
