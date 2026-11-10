@@ -29,6 +29,7 @@ final class MaskPadAppDelegate: NSObject, NSApplicationDelegate {
         GlobalHotKeyCenter.shared.onTrigger = { MaskActions.run($0) }
         GlobalHotKeyCenter.shared.start(store: HotKeyBindingStore.shared)
         MaskAutoEngage.shared.start()
+        AppUpdater.shared.start()
 
         // First run: open settings if there's no passcode or no Accessibility permission.
         if MaskPasscodeStore.shared.hasPasscode == false || MaskController.canBlockLocalInput == false {

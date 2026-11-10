@@ -25,6 +25,8 @@ that operate your apps — while anyone walking by can neither see nor use the M
   password the mask is gone and you can set a new passcode.
 - **Optional**: turn on automatically after a period of inactivity, dim the screens after 20 seconds,
   launch at login, and a global shortcut (⌃⌘L by default).
+- **Updates itself** through Sparkle: checks daily (can be turned off in Settings), or choose
+  **Check for Updates** from the menu bar icon. Updates never check or relaunch while the mask is on.
 - Available in English, 简体中文, 繁體中文, 日本語, Español, 한국어, Français and Deutsch.
 
 ## Getting Started
@@ -112,16 +114,33 @@ than through the Mac App Store.
 ### Release
 
 ```sh
-Scripts/release.sh                   # archive, export with Developer ID, notarize, staple, zip
-Scripts/release.sh --skip-notarize   # same without notarization
+Scripts/release.sh                   # archive, export with Developer ID, notarize, staple, zip, appcast
+Scripts/release.sh --publish         # same, then create GitHub release v<version> with the zip and appcast
+Scripts/release.sh --skip-notarize   # archive, export, zip only (no appcast)
 ```
 
-The result is `build/Release/MaskPad-<version>.zip`, a universal (Apple silicon and Intel) app.
+The result is `build/Release/MaskPad-<version>.zip`, a universal (Apple silicon and Intel) app, and
+`build/Release/appcast.xml`. Before each release, raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
+in `project.yml`: Sparkle compares the build number, and the script refuses a build number that isn't
+higher than the published one. Release notes are read from `docs/release-notes/<version>.md` if it exists.
+`--publish` also requires a clean, pushed working tree.
 Notarization uses a `notarytool` keychain profile: the `NOTARY_PROFILE` environment variable, else
 `NOTARY_PROFILE` in `Config/MaskPad.local.xcconfig`, else `MaskPad`:
 
 ```sh
 xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>
+```
+
+### Updates
+
+MaskPad updates through [Sparkle](https://sparkle-project.org). The app reads
+`https://github.com/gicek/MaskPad/releases/latest/download/appcast.xml`, so the appcast attached to the
+newest GitHub release is the live feed. Every update is verified against the EdDSA public key
+(`SUPublicEDKey` in `project.yml`); the private key is in the release Mac's login Keychain, and
+`generate_appcast` signs with it. Back it up — without it, existing installs can't be updated:
+
+```sh
+build/Release/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x sparkle-key.txt
 ```
 
 ### Tests
@@ -156,14 +175,14 @@ Scripts/build_icons.sh   # requires Node
 /usr/bin/log show --predicate 'subsystem == "com.gicek.maskpad"'
 ```
 
-MaskPad logs when the mask turns on or off, when a real system lock is detected, and when the shortcut
-can't be registered. It never logs key input. Use `/usr/bin/log`, because zsh has a built-in `log`
+MaskPad logs when the mask turns on or off, when a real system lock is detected, when the shortcut
+can't be registered, and when an update relaunch waits for the mask to turn off. It never logs key input. Use `/usr/bin/log`, because zsh has a built-in `log`
 command.
 
 ## Project Layout
 
 ```
-MaskPad/App          app entry, menu bar menu, settings model, logging
+MaskPad/App          app entry, menu bar menu, settings model, updater, logging
 MaskPad/Mask         mask windows, input blocking, keypad, passcode, lock detection, dimming
 MaskPad/HotKeys      global shortcut
 MaskPad/Permissions  Accessibility onboarding

@@ -8,6 +8,11 @@ options:
   deploymentTarget:
     macOS: "14.0"
 
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.10.1
+
 fileGroups:
   - Config/MaskPad.xcconfig
   - Config/MaskPad.local.xcconfig.example
@@ -32,6 +37,8 @@ targets:
       Release: Config/MaskPad.xcconfig
     sources:
       - path: MaskPad
+    dependencies:
+      - package: Sparkle
     info:
       path: MaskPad/Info.plist
       properties:
@@ -43,6 +50,12 @@ targets:
         LSUIElement: true
         NSHighResolutionCapable: true
         NSHumanReadableCopyright: "© 2026 gicek"
+        # Sparkle in-app updates. The feed is the appcast.xml attached to the latest GitHub release; every
+        # update is verified against this EdDSA public key (the private key lives in the release Mac's Keychain).
+        SUFeedURL: https://github.com/gicek/MaskPad/releases/latest/download/appcast.xml
+        SUPublicEDKey: M+ujV4U9U66+vZ7WznIXqax87bNNthJcK9iiknp4UTs=
+        SUEnableAutomaticChecks: true
+        SUVerifyUpdateBeforeExtraction: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.gicek.maskpad

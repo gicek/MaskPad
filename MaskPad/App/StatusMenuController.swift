@@ -1,12 +1,13 @@
 import AppKit
 import Combine
 
-/// Status bar item and menu: Turn On Screen Mask / Settings… / Quit.
+/// Status bar item and menu: Turn On Screen Mask / Settings / Check for Updates / Quit.
 @MainActor
 final class StatusMenuController: NSObject, NSMenuDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let menu = NSMenu()
     private let engageItem = NSMenuItem()
+    private let updateItem = NSMenuItem()
     private var cancellables: Set<AnyCancellable> = []
 
     override init() {
@@ -25,10 +26,12 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
         let settingsItem = NSMenuItem(title: L("Settings"), action: #selector(openSettings), keyEquivalent: ",")
         settingsItem.target = self
+        updateItem.target = self
+        updateItem.action = #selector(checkForUpdates)
         let quitItem = NSMenuItem(title: L("Quit MaskPad"), action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
 
-        menu.items = [engageItem, .separator(), settingsItem, .separator(), quitItem]
+        menu.items = [engageItem, .separator(), settingsItem, updateItem, .separator(), quitItem]
         // Text-only menu. macOS 27 adds a system symbol to standard items such as Settings on its own;
         // hide images on every item so the menu stays consistent.
         if #available(macOS 27, *) {
@@ -48,6 +51,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.refresh() }
             .store(in: &cancellables)
+        AppUpdater.shared.$hasPendingUpdate
+            .merge(with: AppUpdater.shared.$canCheckForUpdates)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.refresh() }
+            .store(in: &cancellables)
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) { refresh() }
@@ -57,6 +65,10 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private func refresh() {
         engageItem.title = L("Turn On Screen Mask")
         engageItem.isEnabled = MaskController.shared.isEngaged == false
+        // A found update stays clickable even while Sparkle's session is open: clicking brings its alert forward.
+        let updater = AppUpdater.shared
+        updateItem.title = updater.hasPendingUpdate ? L("Update Available") : L("Check for Updates")
+        updateItem.isEnabled = updater.hasPendingUpdate || updater.canCheckForUpdates
         if GlobalHotKeyCenter.shared.unavailableActions.contains(.engageMask) == false,
            let chord = HotKeyBindingStore.shared.chord(for: .engageMask),
            let key = KeyChordSymbol.menuKeyEquivalent(for: chord.keyCode) {
@@ -75,6 +87,10 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     @objc private func openSettings() {
         SettingsWindowController.shared.show()
+    }
+
+    @objc private func checkForUpdates() {
+        AppUpdater.shared.checkForUpdates()
     }
 
     @objc private func quit() {

@@ -1,27 +1,42 @@
 #!/bin/zsh
-# Builds a Developer ID–signed, notarized MaskPad-<version>.zip in build/Release.
+# Builds a Developer ID–signed, notarized MaskPad-<version>.zip and its Sparkle appcast.xml in build/Release.
 #
-#   Scripts/release.sh                   # archive, export, notarize, staple, zip
-#   Scripts/release.sh --skip-notarize   # archive, export, zip (not notarized)
+#   Scripts/release.sh                   # archive, export, notarize, staple, zip, appcast
+#   Scripts/release.sh --publish         # same, then create GitHub release v<version> with zip + appcast
+#   Scripts/release.sh --skip-notarize   # archive, export, zip (not notarized, no appcast)
 #
 # Requires Developer ID signing in Config/MaskPad.local.xcconfig and, for notarization, a notarytool
 # keychain profile: NOTARY_PROFILE from the environment, else NOTARY_PROFILE in
 # Config/MaskPad.local.xcconfig, else "MaskPad":
 #   xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>
+# The appcast is signed with the Sparkle EdDSA key in the login Keychain (Sparkle's generate_keys).
+# Release notes, if present, come from docs/release-notes/<version>.md.
 set -euo pipefail
 
 root=${0:A:h:h}
 cd "$root"
 notarize=true
-[[ "${1:-}" == "--skip-notarize" ]] && notarize=false
+publish=false
+for arg in "$@"; do
+  case $arg in
+    --skip-notarize) notarize=false ;;
+    --publish) publish=true ;;
+    *) echo "Unknown option: $arg" >&2; exit 2 ;;
+  esac
+done
+if $publish && ! $notarize; then
+  echo "--publish requires notarization." >&2
+  exit 2
+fi
 export DEVELOPER_DIR=${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}
 
+repo=gicek/MaskPad
+feed_url=https://github.com/$repo/releases/latest/download/appcast.xml
 out=$root/build/Release
 archive=$out/MaskPad.xcarchive
 export_dir=$out/export
 app=$export_dir/MaskPad.app
-rm -rf "$out"
-mkdir -p "$out"
+sparkle_bin=$out/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin
 
 xcodegen generate --quiet
 
@@ -30,15 +45,45 @@ setting() {
     | awk -v key="$1" '$1 == key { print $3; exit }'
 }
 version=$(setting MARKETING_VERSION)
+build=$(setting CURRENT_PROJECT_VERSION)
 team=$(setting DEVELOPMENT_TEAM)
 profile=${NOTARY_PROFILE:-$(setting NOTARY_PROFILE)}
 profile=${profile:-MaskPad}
+tag=v$version
 if [[ -z "$team" ]]; then
   echo "Developer ID signing is not configured; see Config/MaskPad.local.xcconfig.example." >&2
   exit 1
 fi
 
-echo "==> Archiving MaskPad $version"
+# Sparkle compares CFBundleVersion, so every release needs a higher build number than the live feed.
+# Check before the slow build, and before publishing, that the tree is clean and pushed.
+if $publish; then
+  if [[ -n "$(git status --porcelain)" ]]; then
+    echo "The working tree has uncommitted changes; commit them before publishing." >&2
+    exit 1
+  fi
+  git fetch --quiet origin
+  if [[ -z "$(git branch -r --contains HEAD)" ]]; then
+    echo "HEAD is not on origin; push it before publishing." >&2
+    exit 1
+  fi
+  if gh release view "$tag" -R "$repo" >/dev/null 2>&1; then
+    echo "GitHub release $tag already exists; bump MARKETING_VERSION." >&2
+    exit 1
+  fi
+fi
+if $notarize && live=$(curl -fsL "$feed_url" 2>/dev/null); then
+  live_build=$(grep -o '<sparkle:version>[^<]*' <<< "$live" | head -1 | sed 's/.*>//')
+  if [[ -n "$live_build" ]] && (( build <= live_build )); then
+    echo "CURRENT_PROJECT_VERSION ($build) must be greater than the published build ($live_build)." >&2
+    exit 1
+  fi
+fi
+
+rm -rf "$out"
+mkdir -p "$out"
+
+echo "==> Archiving MaskPad $version ($build)"
 xcodebuild archive -project MaskPad.xcodeproj -scheme MaskPad -configuration Release \
   -destination "generic/platform=macOS" -archivePath "$archive" -derivedDataPath "$out/DerivedData" -quiet
 
@@ -67,6 +112,14 @@ if codesign -d --entitlements - --xml "$app" 2>/dev/null | grep -q "get-task-all
   echo "The get-task-allow entitlement must not ship." >&2
   exit 1
 fi
+# Sparkle's helpers are re-signed on export; each must carry our team ID or Sparkle refuses to install.
+# (Capture first: with pipefail, `codesign | grep -q` fails when grep exits early and codesign gets SIGPIPE.)
+sparkle=$app/Contents/Frameworks/Sparkle.framework/Versions/B
+for helper in "$sparkle/Autoupdate" "$sparkle/Updater.app" "$sparkle"/XPCServices/*.xpc(N); do
+  helper_details=$(codesign -dvv "$helper" 2>&1)
+  grep -q "^TeamIdentifier=$team$" <<< "$helper_details" \
+    || { echo "$helper is not signed by team $team." >&2; exit 1; }
+done
 
 zip=$out/MaskPad-$version.zip
 if $notarize; then
@@ -80,4 +133,31 @@ fi
 
 ditto -c -k --keepParent "$app" "$zip"
 echo "==> $zip"
-$notarize || echo "    (not notarized)"
+if ! $notarize; then
+  echo "    (not notarized, no appcast)"
+  exit 0
+fi
+
+echo "==> Generating the appcast"
+# Each release's appcast lists only that release; the feed URL always resolves to the latest one.
+staging=$out/appcast
+mkdir -p "$staging"
+cp "$zip" "$staging/"
+notes=$root/docs/release-notes/$version.md
+[[ -f "$notes" ]] && cp "$notes" "$staging/MaskPad-$version.md"
+"$sparkle_bin/generate_appcast" --embed-release-notes --maximum-versions 1 \
+  --download-url-prefix "https://github.com/$repo/releases/download/$tag/" \
+  --link "https://github.com/$repo" -o "$out/appcast.xml" "$staging"
+grep -q 'sparkle:edSignature=' "$out/appcast.xml" || { echo "The appcast is not EdDSA-signed." >&2; exit 1; }
+echo "==> $out/appcast.xml"
+
+if $publish; then
+  echo "==> Publishing GitHub release $tag"
+  notes_args=(--notes "")
+  [[ -f "$notes" ]] && notes_args=(--notes-file "$notes")
+  gh release create "$tag" "$zip" "$out/appcast.xml" -R "$repo" --target "$(git rev-parse HEAD)" \
+    --title "MaskPad $version" "${notes_args[@]}"
+else
+  echo "    Publish with: Scripts/release.sh --publish"
+  echo "    (or upload MaskPad-$version.zip and appcast.xml to a GitHub release tagged $tag)"
+fi

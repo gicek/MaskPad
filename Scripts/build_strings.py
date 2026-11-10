@@ -22,7 +22,7 @@ from translations import LANGS, T  # noqa: E402
 
 # Types of interpolated variables, keyed by the literal Swift interpolation expression.
 INT_VARS = {"remaining", "minutes"}
-STRING_VARS = {"Self.appName"}
+STRING_VARS = {"Self.appName", "Self.appVersion"}
 
 CALL = re.compile(r'\bL\("((?:[^"\\]|\\.)*)"\)')
 INTERPOLATION = re.compile(r"\\\(([^()]*)\)")

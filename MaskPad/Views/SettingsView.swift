@@ -10,6 +10,7 @@ struct SettingsView: View {
     @ObservedObject var hotKeys: HotKeyBindingStore
     @ObservedObject private var hotKeyCenter = GlobalHotKeyCenter.shared
     @ObservedObject private var accessibilityGuide = AccessibilityGuide.shared
+    @ObservedObject private var updater = AppUpdater.shared
     /// Anchor for the permission banner: the guide flies from here to System Settings and back.
     @State private var accessibilityAnchor = GuideAnchor()
 
@@ -30,6 +31,7 @@ struct SettingsView: View {
     @State private var contentHeight: CGFloat = Self.maxHeight
 
     private static let maxHeight: CGFloat = 660
+    private static let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
 
     var body: some View {
         ScrollView(.vertical) {
@@ -259,6 +261,20 @@ struct SettingsView: View {
             }
             if settings.launchAtLoginChangeFailed {
                 SettingsNote(L("Couldn't update Login Items."), isWarning: true)
+            }
+
+            SettingsDivider()
+            SettingsRow(L("Check for updates automatically")) {
+                Toggle("", isOn: $updater.automaticallyChecksForUpdates)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+            }
+            HStack {
+                SettingsNote(L("Version \(Self.appVersion)"))
+                Button(L("Check Now")) { updater.checkForUpdates() }
+                    .controlSize(.small)
+                    .disabled(updater.canCheckForUpdates == false && updater.hasPendingUpdate == false)
             }
         }
     }
