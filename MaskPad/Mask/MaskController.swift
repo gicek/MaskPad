@@ -422,7 +422,7 @@ final class MaskController: ObservableObject {
             window.collectionBehavior = [
                 .canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle,
             ]
-            window.contentView = NSHostingView(rootView: MaskUnlockView(model: model))
+            window.contentView = MaskHostingView(rootView: MaskUnlockView(model: model))
             window.makeKeyAndOrderFront(nil)
             return window
         }
@@ -435,6 +435,13 @@ final class MaskController: ObservableObject {
             screen.displayID.map { CGDisplayIsBuiltin($0) == 0 } ?? false
         }
     }
+}
+
+/// Takes the first click even when MaskPad isn't the active app. Other apps can come to the front while
+/// masked (automation tools, a hot corner opening Quick Note); without this, the first click on the keypad
+/// only activates MaskPad and its digit is lost, so a correct passcode fails once.
+private final class MaskHostingView<Content: View>: NSHostingView<Content> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 }
 
 /// Borderless windows can't become key by default, which breaks focus and button highlighting.
