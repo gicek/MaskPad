@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="400" viewBox="0 0 700 400">
+  <!-- DMG window background (master; Scripts/build_icons.sh renders background.png and background@2x.png).
+       MaskPad sits at (150, 196) and Applications at (550, 196) with 128 pt icons; Scripts/dmg_settings.py
+       uses the same coordinates. Colors come from design/logo. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F7F9FF"/>
+      <stop offset="1" stop-color="#E4EBF8"/>
+    </linearGradient>
+    <!-- Soft light pooled behind the icons. -->
+    <radialGradient id="glow" cx="350" cy="196" r="300" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(350 196) scale(1 0.55) translate(-350 -196)">
+      <stop offset="0" stop-color="#C9D6F2" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#C9D6F2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4F8DF7"/>
+      <stop offset="1" stop-color="#2A4FB8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="700" height="400" fill="url(#bg)"/>
+  <rect width="700" height="400" fill="url(#glow)"/>
+
+  <!-- The six passcode dots from the unlock screen, filling in toward Applications, then a chevron. -->
+  <g fill="url(#blue)" stroke="#3D6FDB" stroke-width="1.5">
+    <circle cx="279" cy="196" r="5.5" fill-opacity="0"    stroke-opacity="0.35"/>
+    <circle cx="300" cy="196" r="5.5" fill-opacity="0.18" stroke-opacity="0.45"/>
+    <circle cx="321" cy="196" r="5.5" fill-opacity="0.38" stroke-opacity="0.55"/>
+    <circle cx="342" cy="196" r="5.5" fill-opacity="0.6"  stroke-opacity="0.7"/>
+    <circle cx="363" cy="196" r="5.5" fill-opacity="0.8"  stroke-opacity="0.85"/>
+    <circle cx="384" cy="196" r="5.5" fill-opacity="1"    stroke-opacity="1"/>
+  </g>
+  <path d="M410 186 L420 196 L410 206" fill="none" stroke="#2F5BC9" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

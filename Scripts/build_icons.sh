@@ -1,6 +1,7 @@
 #!/bin/zsh
-# Regenerates the app icon and menu bar icon in the asset catalog from design/logo.
-# Requires Node (renders with resvg via `npx @resvg/resvg-js-cli`).
+# Regenerates the app icon and menu bar icon in the asset catalog from design/logo, and the DMG
+# background and volume icon in design/dmg (used by Scripts/release.sh).
+# Requires Node (renders with resvg via `npx @resvg/resvg-js-cli`) and uv (runs the Pillow volume icon script).
 set -euo pipefail
 
 root=${0:A:h:h}
@@ -40,3 +41,11 @@ done
 
 cp "$logo/maskpad-logo-1024-menubar.svg" "$assets/MenuBarIcon.imageset/MenuBarIcon.svg"
 echo "Icons written to $assets"
+
+# DMG art: the window background at 1x and 2x (dmgbuild combines them into one TIFF), and the mounted
+# volume icon (the system disk icon with the logo on it).
+dmg=$root/design/dmg
+render "$dmg/background.svg" 700 "$dmg/background.png"
+render "$dmg/background.svg" 1400 "$dmg/background@2x.png"
+uv run --quiet --script "$root/Scripts/build_dmg_volume_icon.py"
+echo "DMG art written to $dmg"

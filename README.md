@@ -163,11 +163,15 @@ don't match, or an interpolated value's type isn't registered in `INT_VARS` / `S
 
 ## Icons
 
-The source artwork is in `design/logo`. Regenerate the app icon and menu bar icon with:
+The source artwork is in `design/logo`, and the DMG window background in `design/dmg/background.svg`.
+Regenerate the app icon, the menu bar icon and the DMG art (background and volume icon) with:
 
 ```sh
-Scripts/build_icons.sh   # requires Node
+Scripts/build_icons.sh   # requires Node and uv
 ```
+
+The volume icon is drawn by `Scripts/build_dmg_volume_icon.py` with Pillow (which uv installs on the fly)
+from this Mac's removable disk icon and the logo; `design/dmg/volume.png` is a preview of it.
 
 ## Logging
 
