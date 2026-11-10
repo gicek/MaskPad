@@ -1,9 +1,10 @@
 #!/bin/zsh
-# Builds a Developer ID–signed, notarized MaskPad-<version>.zip and its Sparkle appcast.xml in build/Release.
+# Builds a Developer ID–signed, notarized MaskPad-<version>.dmg (for downloads), MaskPad-<version>.zip
+# (for Sparkle) and its appcast.xml in build/Release.
 #
-#   Scripts/release.sh                   # archive, export, notarize, staple, zip, appcast
-#   Scripts/release.sh --publish         # same, then create GitHub release v<version> with zip + appcast
-#   Scripts/release.sh --skip-notarize   # archive, export, zip (not notarized, no appcast)
+#   Scripts/release.sh                   # archive, export, DMG, notarize, staple, zip, appcast
+#   Scripts/release.sh --publish         # same, then create GitHub release v<version> with DMG + zip + appcast
+#   Scripts/release.sh --skip-notarize   # archive, export, DMG, zip (not notarized, no appcast)
 #
 # Requires Developer ID signing in Config/MaskPad.local.xcconfig and, for notarization, a notarytool
 # keychain profile: NOTARY_PROFILE from the environment, else NOTARY_PROFILE in
@@ -11,6 +12,8 @@
 #   xcrun notarytool store-credentials MaskPad --apple-id <apple-id> --team-id <team-id>
 # The appcast is signed with the Sparkle EdDSA key in the login Keychain (Sparkle's generate_keys).
 # Release notes, if present, come from docs/release-notes/<version>.md.
+# The DMG is built with dmgbuild (run through uv's uvx, pinned below) from Scripts/dmg_settings.py and the
+# art in design/dmg (rendered by Scripts/build_icons.sh).
 set -euo pipefail
 
 root=${0:A:h:h}
@@ -37,6 +40,15 @@ archive=$out/MaskPad.xcarchive
 export_dir=$out/export
 app=$export_dir/MaskPad.app
 sparkle_bin=$out/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/bin
+dmg_art=$root/design/dmg
+dmgbuild=(uvx --quiet --from dmgbuild==1.6.7 --with ds_store==1.3.3 --with mac_alias==2.2.3 dmgbuild)
+
+# Check the DMG tooling before the slow build.
+command -v uvx >/dev/null || { echo "uv is required to build the DMG: brew install uv" >&2; exit 1; }
+for f in background.png background@2x.png volume.icns; do
+  [[ -f "$dmg_art/$f" ]] || { echo "design/dmg/$f is missing; run Scripts/build_icons.sh." >&2; exit 1; }
+done
+"${dmgbuild[@]}" --help >/dev/null
 
 xcodegen generate --quiet
 
@@ -121,17 +133,28 @@ for helper in "$sparkle/Autoupdate" "$sparkle/Updater.app" "$sparkle"/XPCService
     || { echo "$helper is not signed by team $team." >&2; exit 1; }
 done
 
+echo "==> Packaging the DMG"
+dmg=$out/MaskPad-$version.dmg
+identity=$(sed -n 's/^Authority=//p' <<< "$details" | head -1)
+"${dmgbuild[@]}" -s "$root/Scripts/dmg_settings.py" -D app="$app" -D art="$dmg_art" MaskPad "$dmg" >/dev/null
+codesign --sign "$identity" --timestamp "$dmg"
+codesign --verify --strict "$dmg"
+hdiutil verify -quiet "$dmg"
+
 zip=$out/MaskPad-$version.zip
 if $notarize; then
+  # One submission covers both: notarizing the DMG also records the app inside it, so the exported app
+  # (the same bits) can be stapled too before it is zipped for Sparkle.
   echo "==> Notarizing (profile: $profile)"
-  ditto -c -k --keepParent "$app" "$out/notarize.zip"
-  xcrun notarytool submit "$out/notarize.zip" --keychain-profile "$profile" --wait
+  xcrun notarytool submit "$dmg" --keychain-profile "$profile" --wait
+  xcrun stapler staple "$dmg"
   xcrun stapler staple "$app"
+  spctl -a -t open --context context:primary-signature -vv "$dmg"
   spctl -a -t exec -vv "$app"
-  rm "$out/notarize.zip"
 fi
 
 ditto -c -k --keepParent "$app" "$zip"
+echo "==> $dmg"
 echo "==> $zip"
 if ! $notarize; then
   echo "    (not notarized, no appcast)"
@@ -155,9 +178,9 @@ if $publish; then
   echo "==> Publishing GitHub release $tag"
   notes_args=(--notes "")
   [[ -f "$notes" ]] && notes_args=(--notes-file "$notes")
-  gh release create "$tag" "$zip" "$out/appcast.xml" -R "$repo" --target "$(git rev-parse HEAD)" \
+  gh release create "$tag" "$dmg" "$zip" "$out/appcast.xml" -R "$repo" --target "$(git rev-parse HEAD)" \
     --title "MaskPad $version" "${notes_args[@]}"
 else
   echo "    Publish with: Scripts/release.sh --publish"
-  echo "    (or upload MaskPad-$version.zip and appcast.xml to a GitHub release tagged $tag)"
+  echo "    (or upload MaskPad-$version.dmg, MaskPad-$version.zip and appcast.xml to a GitHub release tagged $tag)"
 fi

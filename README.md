@@ -114,13 +114,16 @@ than through the Mac App Store.
 ### Release
 
 ```sh
-Scripts/release.sh                   # archive, export with Developer ID, notarize, staple, zip, appcast
-Scripts/release.sh --publish         # same, then create GitHub release v<version> with the zip and appcast
-Scripts/release.sh --skip-notarize   # archive, export, zip only (no appcast)
+Scripts/release.sh                   # archive, export with Developer ID, DMG, notarize, staple, zip, appcast
+Scripts/release.sh --publish         # same, then create GitHub release v<version> with the DMG, zip and appcast
+Scripts/release.sh --skip-notarize   # archive, export, DMG and zip only (not notarized, no appcast)
 ```
 
-The result is `build/Release/MaskPad-<version>.zip`, a universal (Apple silicon and Intel) app, and
-`build/Release/appcast.xml`. Before each release, raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
+The results in `build/Release` are `MaskPad-<version>.dmg` for downloads, `MaskPad-<version>.zip` for
+Sparkle (both hold a universal Apple silicon and Intel app) and `appcast.xml`. The DMG is laid out by
+[dmgbuild](https://github.com/dmgbuild/dmgbuild) from `Scripts/dmg_settings.py`; the script runs it
+through `uvx`, so [uv](https://docs.astral.sh/uv/) must be installed (`brew install uv`). One notarization
+covers both: the DMG is submitted, and its ticket is stapled to the DMG and to the app before zipping. Before each release, raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`
 in `project.yml`: Sparkle compares the build number, and the script refuses a build number that isn't
 higher than the published one. Release notes are read from `docs/release-notes/<version>.md` if it exists.
 `--publish` also requires a clean, pushed working tree.
