@@ -5,7 +5,18 @@ locking the Mac. Everything underneath keeps running — downloads, builds, remo
 that operate your apps — while anyone walking by can neither see nor use the Mac. Unlock it with a
 6-digit passcode.
 
-![MaskPad lock screen](docs/images/lock-screen.png)
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/images/lock-screen.png" alt="MaskPad keypad on the screen mask"><br>
+      <sub>Enter the passcode to unlock</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/images/message-screen.png" alt="MaskPad message on the screen mask"><br>
+      <sub>An optional message, shown before the keypad</sub>
+    </td>
+  </tr>
+</table>
 
 ## Features
 
