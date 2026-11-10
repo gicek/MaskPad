@@ -59,49 +59,16 @@ enum ScreenSharingRelock {
         isScreenSharingActive() && currentRestoresLock()
     }
 
-    enum ChangeOutcome: Equatable {
-        case applied
-        case cancelled
-        case failed(String)
-    }
+    typealias ChangeOutcome = AdministratorShell.Outcome
 
     /// Changes the system setting: `false` writes NO (stay unlocked), `true` deletes the key (system default).
-    /// Uses osascript `with administrator privileges` for the auth prompt, off the main thread.
-    /// The command is a fixed constant with no external input interpolated.
+    /// Runs with administrator privileges (`AdministratorShell`); the command is a fixed constant with no
+    /// external input interpolated.
     static func setRestoresLock(_ restoresLock: Bool, prompt: String) async -> ChangeOutcome {
         let command = restoresLock
             ? "/usr/bin/defaults delete \(preferencesPath) \(restoreKey)"
             : "/usr/bin/defaults write \(preferencesPath) \(restoreKey) -bool NO"
-        let script = "do shell script \"\(command)\" with prompt \"\(appleScriptEscaped(prompt))\" with administrator privileges"
-        return await Task.detached {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-            process.arguments = ["-e", script]
-            let stderr = Pipe()
-            process.standardError = stderr
-            process.standardOutput = FileHandle.nullDevice
-            do {
-                try process.run()
-            } catch {
-                return .failed(error.localizedDescription)
-            }
-            let data = stderr.fileHandleForReading.readDataToEndOfFile()
-            process.waitUntilExit()
-            let message = String(decoding: data, as: UTF8.self)
-            return outcome(status: process.terminationStatus, stderr: message)
-        }.value
-    }
-
-    /// Maps osascript's exit status and stderr to an outcome. Cancelling the auth prompt yields AppleScript error -128.
-    static func outcome(status: Int32, stderr: String) -> ChangeOutcome {
-        if status == 0 { return .applied }
-        if stderr.contains("-128") { return .cancelled }
-        return .failed(stderr.trimmingCharacters(in: .whitespacesAndNewlines))
-    }
-
-    static func appleScriptEscaped(_ text: String) -> String {
-        text.replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
+        return await AdministratorShell.run(command, prompt: prompt)
     }
 
     private static func run(_ path: String, _ arguments: [String]) -> String? {

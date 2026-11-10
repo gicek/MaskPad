@@ -80,13 +80,13 @@ struct ScreenSharingRelockTests {
     }
 
     @Test func osascriptOutcome() {
-        #expect(ScreenSharingRelock.outcome(status: 0, stderr: "") == .applied)
-        #expect(ScreenSharingRelock.outcome(status: 1, stderr: "execution error: User canceled. (-128)") == .cancelled)
-        #expect(ScreenSharingRelock.outcome(status: 1, stderr: " boom \n") == .failed("boom"))
+        #expect(AdministratorShell.outcome(status: 0, stderr: "") == .applied)
+        #expect(AdministratorShell.outcome(status: 1, stderr: "execution error: User canceled. (-128)") == .cancelled)
+        #expect(AdministratorShell.outcome(status: 1, stderr: " boom \n") == .failed("boom"))
     }
 
     @Test func appleScriptEscaping() {
-        #expect(ScreenSharingRelock.appleScriptEscaped(#"say "hi" \ bye"#) == #"say \"hi\" \\ bye"#)
+        #expect(AdministratorShell.appleScriptEscaped(#"say "hi" \ bye"#) == #"say \"hi\" \\ bye"#)
     }
 }
 
