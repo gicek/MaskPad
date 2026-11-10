@@ -76,7 +76,7 @@ open: project ## Generate the project and open it in Xcode
 
 ##@ Release (Developer ID; see README for the full flow)
 
-bump: ## Next build number, and VERSION=x.y.z if given; creates the release notes template
+bump: ## Next build number, and VERSION=x.y.z if given; creates release notes templates in every language
 	Scripts/bump_version.sh $(VERSION)
 
 release: check ## make check, then a signed, not notarized app and zip into build/release

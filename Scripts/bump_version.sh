@@ -1,6 +1,8 @@
 #!/bin/zsh
 # Prepares the next release: sets MARKETING_VERSION, raises CURRENT_PROJECT_VERSION by one, and creates
-# docs/release-notes/<version>.md from a template if it does not exist. Run it with make bump.
+# the release notes templates that don't exist yet: docs/release-notes/<version>.md in English and
+# <version>.<lang>.md for each of the app's languages (LANGS in Scripts/translations.py). Run it with
+# make bump.
 #
 #   Scripts/bump_version.sh 1.0.1   # make bump VERSION=1.0.1: new version, next build number
 #   Scripts/bump_version.sh         # make bump: same version, next build number only
@@ -36,16 +38,21 @@ echo "MARKETING_VERSION        $current_version -> $version"
 echo "CURRENT_PROJECT_VERSION  $current_build -> $build"
 
 # The TODO line marks an unedited template; make publish refuses release notes that still contain it.
-notes=docs/release-notes/$version.md
-if [[ ! -f $notes ]]; then
-  mkdir -p "${notes:h}"
-  cat > "$notes" <<NOTES
-TODO: describe what changed in MaskPad $version, then delete this line.
-
--
-NOTES
+langs=(${(z)"$(PYTHONDONTWRITEBYTECODE=1 python3 -c 'import sys; sys.path.insert(0, "Scripts"); from translations import LANGS; print(*LANGS)')"})
+(( ${#langs} )) || fail "Could not read LANGS from Scripts/translations.py."
+mkdir -p docs/release-notes
+for lang in en $langs; do
+  if [[ $lang == en ]]; then
+    notes=docs/release-notes/$version.md
+    todo="TODO: describe what changed in MaskPad $version, then delete this line."
+  else
+    notes=docs/release-notes/$version.$lang.md
+    todo="TODO: translate docs/release-notes/$version.md into $lang, then delete this line."
+  fi
+  [[ -f $notes ]] && continue
+  printf '%s\n\n- \n' "$todo" > "$notes"
   echo "Created $notes"
-fi
+done
 
 echo
-echo "Next: write $notes, commit, push, then make publish."
+echo "Next: write docs/release-notes/$version.md and its translations, commit, push, then make publish."

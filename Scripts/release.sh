@@ -23,8 +23,10 @@
 # - dist: the Sparkle EdDSA private key in the login Keychain, matching SUPublicEDKey, and a build number
 #   higher than the live feed's
 # - publish: gh, logged in; a clean, pushed tree; a version without a GitHub release; release notes
-# Release notes come from docs/release-notes/<version>.md (make bump creates it from a template): dist
-# warns when they are missing or unedited, publish refuses.
+# Release notes come from docs/release-notes: <version>.md in English and <version>.<lang>.md for each of
+# the app's languages (make bump creates them from a template). The appcast carries all of them and
+# Sparkle shows the one in the app's language (Scripts/localize_appcast.py); the GitHub release shows the
+# English notes. dist warns when any are missing or unedited, publish refuses.
 set -euo pipefail
 
 root=${0:A:h:h}
@@ -79,20 +81,16 @@ tag=v$version
 [[ -n $version && -n $build ]] || fail "Could not read the version from the build settings."
 [[ -n $team ]] || fail "Developer ID signing is not configured; see Config/MaskPad.local.xcconfig.example."
 
-# Release notes: present, edited (no TODO line from the make bump template) and not empty.
+# Release notes in every language: present, edited (no TODO line from the template) and not empty.
 notes=$root/docs/release-notes/$version.md
-notes_problem=
-if [[ ! -f $notes ]]; then
-  notes_problem="docs/release-notes/$version.md is missing; create it with make bump or by hand."
-elif grep -q 'TODO:' "$notes"; then
-  notes_problem="docs/release-notes/$version.md still has the TODO line from the template."
-elif ! grep -q '[[:alnum:]]' "$notes"; then
-  notes_problem="docs/release-notes/$version.md is empty."
+missing_notes=$(PYTHONDONTWRITEBYTECODE=1 python3 Scripts/localize_appcast.py --missing "$version")
+if [[ -n $missing_notes ]]; then
+  problem="Release notes for $version are missing, empty or unedited in: $missing_notes (docs/release-notes; make bump creates them)."
+  $publish && fail "$problem"
+  $notarize && echo "warning: $problem The appcast leaves those languages out." >&2
 fi
-if [[ -n $notes_problem ]]; then
-  $publish && fail "$notes_problem"
-  $notarize && echo "warning: $notes_problem The appcast will have no release notes." >&2
-fi
+english_notes=true
+[[ " $missing_notes " == *" en "* ]] && english_notes=false
 identities=$(security find-identity -v -p codesigning)
 [[ $identities == *"Developer ID Application: "*"($team)"* ]] \
   || fail "No Developer ID Application certificate for team $team in the keychain."
@@ -269,11 +267,18 @@ step "Generating the appcast"
 staging=$work/appcast
 mkdir -p "$staging"
 cp "$zip" "$staging/"
-[[ -z $notes_problem ]] && cp "$notes" "$staging/MaskPad-$version.md"
+# Only the English notes go to generate_appcast, which embeds them; it would turn <version>.<lang>.md files
+# into links to separately hosted notes. The other languages are embedded afterwards.
+if $english_notes; then
+  cp "$notes" "$staging/MaskPad-$version.md"
+fi
 "$sparkle_bin/generate_appcast" --embed-release-notes --maximum-versions 1 \
   --download-url-prefix "https://github.com/$repo/releases/download/$tag/" \
   --link "https://github.com/$repo" -o "$dist_dir/appcast.xml" "$staging"
 grep -q 'sparkle:edSignature=' "$dist_dir/appcast.xml" || fail "The appcast is not EdDSA-signed."
+if $english_notes; then
+  PYTHONDONTWRITEBYTECODE=1 python3 Scripts/localize_appcast.py "$dist_dir/appcast.xml" "$version" | sed 's/^/    /'
+fi
 write_info "$dist_dir" "yes (submission $submission)" "${dmg:t}" "${zip:t}"
 
 step "MaskPad $version ($build): signed and notarized"

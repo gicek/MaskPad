@@ -181,8 +181,8 @@ than through the Mac App Store.
 Publishing a new version to GitHub:
 
 ```sh
-make bump VERSION=1.2.3   # set the version, raise the build number, create docs/release-notes/1.2.3.md
-                          # write the release notes, then commit and push
+make bump VERSION=1.2.3   # set the version, raise the build number, create release notes templates
+                          # write the release notes in every language, then commit and push
 make publish              # build, notarize and upload a draft GitHub release (not live yet)
 make verify-release       # download the draft and check everything users and Sparkle will get
 make go-live              # verify again, publish the draft, wait until the update feed serves it
@@ -191,7 +191,7 @@ make go-live              # verify again, publish the draft, wait until the upda
 Only the first three lines and testing the downloaded DMG are manual; `make bump` without `VERSION`
 raises only the build number. Until `make go-live`, the release is a draft: nobody can see it, and
 installed copies don't offer the update. `make verify-release` also works on a published release
-(`VERSION=x.y.z` for an older one), and then also checks the live feed.
+(`VERSION=x.y.z` for an older one); for the latest release it also checks the live feed.
 
 To build without publishing:
 
@@ -206,9 +206,14 @@ make dist      # release, then DMG, notarize, staple, zip, appcast -> build/dist
 `appcast.xml` and `SHA256SUMS`.
 
 Sparkle compares the build number, so every release needs a higher one; `dist` and `publish` refuse a
-build number that isn't higher than the live one. Release notes come from
-`docs/release-notes/<version>.md`: `publish` refuses them when missing, empty or still the template, and
-`dist` warns.
+build number that isn't higher than the live one.
+
+Release notes are written in every language the app supports: `docs/release-notes/<version>.md` in
+English and `<version>.<lang>.md` for each language in `Scripts/translations.py` (`zh-Hans`, `zh-Hant`,
+`ja`, `es`, `ko`, `fr`, `de`). The appcast embeds all of them, and the update window shows the notes in
+MaskPad's current language, or in English for other languages; the GitHub release shows the English
+notes. `publish` refuses notes that are missing, empty or still the template, and `dist` warns.
+`verify-release` checks that the appcast has every language.
 
 The script checks everything it needs before the slow build, and says how to fix what is missing:
 
