@@ -213,7 +213,36 @@ struct SettingsView: View {
             SettingsNote(L("After 20 seconds without activity, hides the keypad and dims the screen."))
 
             SettingsDivider()
+            SettingsRow(L("Show a message")) {
+                Toggle("", isOn: $settings.showsMessage)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+            }
+            if settings.showsMessage {
+                messageEditor
+            }
+            SettingsNote(L("Shows text on the screen mask."))
+
+            SettingsDivider()
             SettingsNote(L("Apps under the mask keep running. Computer Use tools that work per window are unaffected; remote desktops see the keypad and can unlock."))
+        }
+    }
+
+    /// The mask message (`MaskMessage`); `MaskSettings.message` keeps it within the limits as it's typed.
+    private var messageEditor: some View {
+        VStack(alignment: .trailing, spacing: 4) {
+            TextEditor(text: $settings.message)
+                .font(.system(size: 13))
+                .scrollContentBackground(.hidden)
+                .padding(6)
+                .frame(height: 64)
+                .background(RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: .textBackgroundColor)))
+                .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color(nsColor: .separatorColor)))
+            Text(verbatim: "\(settings.message.count)/\(MaskMessage.maxLength)")
+                .font(.caption)
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
         }
     }
 

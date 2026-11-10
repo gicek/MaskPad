@@ -111,6 +111,7 @@ final class MaskController: ObservableObject {
         ]
 
         let model = MaskUnlockViewModel(
+            message: MaskSettings.shared.maskMessage,
             onLockSystem: { [weak self] in self?.lockSystem() },
             verify: { passcode.matches($0) },
             onUnlock: { [weak self] in self?.disengage() }
@@ -346,8 +347,8 @@ final class MaskController: ObservableObject {
                 lastActivity = Date()
                 dimmer.wake()
             } else if Date().timeIntervalSince(lastActivity) >= Self.dimDelay {
-                // Always wake to the keypad, not the "Forgot passcode" page.
-                unlockModel?.showKeypad()
+                // Wake to the first page (the message if set, else the keypad), never "Forgot passcode".
+                unlockModel?.showStartPage()
                 dimmer.dim()
             }
         }
@@ -391,8 +392,8 @@ final class MaskController: ObservableObject {
             window.orderOut(nil)
         }
         windows = []
-        // The run loop retains the cooldown timer; stop it explicitly or it outlives the model.
-        unlockModel?.stopCooldown()
+        // The run loop retains the model's timers; stop them explicitly or they outlive the model.
+        unlockModel?.stopTimers()
         unlockModel = nil
         if let previousPresentationOptions {
             NSApp.presentationOptions = previousPresentationOptions

@@ -1,17 +1,14 @@
 import SwiftUI
 
-/// Shared view model for the unlock keypad. Each screen shows its own keypad, but input and page
-/// state are shared across all screens.
+/// Shared view model for the unlock pages. Each screen shows its own copy, but input and page state are
+/// shared across all screens. Which page shows, and how to get between them, is `MaskUnlockFlow`.
 @MainActor
 final class MaskUnlockViewModel: ObservableObject {
-    enum Page: Equatable {
-        /// Number keypad.
-        case keypad
-        /// Instructions for a forgotten passcode.
-        case forgotPasscode
-    }
+    typealias Page = MaskUnlockFlow.Page
 
-    @Published private(set) var page: Page = .keypad
+    /// The message shown before the keypad, or nil to start on the keypad.
+    let message: String?
+    @Published private(set) var flow: MaskUnlockFlow
     @Published private(set) var state = MaskUnlockState()
     /// Incremented on a wrong code to drive the shake animation.
     @Published private(set) var shakeToken = 0
@@ -26,28 +23,54 @@ final class MaskUnlockViewModel: ObservableObject {
     private let verify: (String) -> Bool
     private let onUnlock: () -> Void
     private var cooldownTimer: Timer?
+    /// Checks every second whether to go back to the first page (`MaskUnlockFlow.returnDelay`).
+    private var returnTimer: Timer?
 
     init(
+        message: String? = nil,
         onLockSystem: @escaping () -> Void,
         verify: @escaping (String) -> Bool,
         onUnlock: @escaping () -> Void
     ) {
+        self.message = message
+        flow = MaskUnlockFlow(hasMessage: message != nil, now: Date())
         self.onLockSystem = onLockSystem
         self.verify = verify
         self.onUnlock = onUnlock
+        returnTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.restartIfIdle(now: Date()) }
+        }
     }
 
+    var page: Page { flow.page }
     var enteredCount: Int { state.entered.count }
 
-    func showForgotPasscode() { page = .forgotPasscode }
+    /// The message page's Unlock button.
+    func unlock() { flow.unlock(now: Date()) }
 
-    func showKeypad() { page = .keypad }
+    func showForgotPasscode() { flow.showForgotPasscode(now: Date()) }
+
+    /// Back on the "Forgot Passcode" page.
+    func back() { flow.back(now: Date()) }
 
     func lockSystem() { onLockSystem() }
 
-    /// Digits typed on the "Forgot passcode" page still count, and switch back to the keypad to show progress.
+    /// The first page, with the digits entered cleared. When the screen wakes from dimming.
+    func showStartPage() {
+        flow.restart(now: Date())
+        state.clearEntry()
+    }
+
+    /// Back to the first page, digits cleared, after `MaskUnlockFlow.returnDelay` without input.
+    func restartIfIdle(now: Date) {
+        if flow.restartIfIdle(now: now) {
+            state.clearEntry()
+        }
+    }
+
+    /// A digit from the on-screen keypad or the keyboard; ignored on the message page (`MaskUnlockFlow`).
     func tap(digit: Character) {
-        showKeypad()
+        guard flow.input(now: Date()) else { return }
         switch state.appendDigit(digit, now: Date(), verify: verify) {
         case .unlocked:
             cooldownTimer?.invalidate()
@@ -60,17 +83,21 @@ final class MaskUnlockViewModel: ObservableObject {
         }
     }
 
+    /// Delete from the on-screen keypad or the keyboard; ignored on the message page.
     func deleteDigit() {
-        showKeypad()
+        guard flow.input(now: Date()) else { return }
         state.deleteDigit()
     }
 
-    /// Stops the cooldown timer when the mask is dismissed. The run loop retains the `Timer`, so it
-    /// would keep firing after the model is released if the mask is dismissed during cooldown by another path.
-    func stopCooldown() {
+    /// Stops the timers when the mask is dismissed. The run loop retains a `Timer`, so it would keep
+    /// firing after the model is released (the cooldown one if the mask is dismissed during cooldown by
+    /// another path, the return-to-first-page one always).
+    func stopTimers() {
         cooldownTimer?.invalidate()
         cooldownTimer = nil
         cooldownRemaining = nil
+        returnTimer?.invalidate()
+        returnTimer = nil
     }
 
     private func startCooldownTicker() {
@@ -103,9 +130,12 @@ struct MaskUnlockView: View {
     private static let dotSide: CGFloat = 15
 
     var body: some View {
-        // Both pages live in the mask window, so window level and input blocking are unaffected.
-        Group {
+        // All pages live in the mask window, so window level and input blocking are unaffected.
+        // Each page is centered on the screen. A ZStack keeps a page that is fading out on top of the
+        // next one; a Group could stack them and push the next one down.
+        ZStack {
             switch model.page {
+            case .message: messagePage
             case .keypad: keypadPage
             case .forgotPasscode: forgotPasscodePage
             }
@@ -122,6 +152,32 @@ struct MaskUnlockView: View {
                 externalDisplayHint
             }
         }
+    }
+
+    /// The message from Settings, large, with Unlock leading to the keypad. Text and emoji, up to three
+    /// lines (`MaskMessage`); long lines wrap.
+    private var messagePage: some View {
+        VStack(spacing: 36) {
+            Text(model.message ?? "")
+                .font(.system(size: 34, weight: .regular))
+                .foregroundStyle(.white.opacity(0.92))
+                .multilineTextAlignment(.center)
+                .lineSpacing(6)
+                .frame(maxWidth: 760)
+
+            Button(action: personPress(model.unlock)) {
+                Text(L("Unlock"))
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 10)
+                    .background(Capsule().fill(Color.white.opacity(0.18)))
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 40)
+        .transition(.opacity)
     }
 
     private var keypadPage: some View {
@@ -184,7 +240,7 @@ struct MaskUnlockView: View {
             }
             .buttonStyle(.plain)
 
-            Button(action: personPress(model.showKeypad)) {
+            Button(action: personPress(model.back)) {
                 HStack(spacing: 6) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 13, weight: .semibold))

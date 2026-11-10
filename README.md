@@ -13,8 +13,12 @@ that operate your apps — while anyone walking by can neither see nor use the M
 - **Blocks local input**: keyboard shortcuts, app switching, Force Quit, right-click, scrolling and
   gestures all stop working, and hot corners don't fire (the pointer can't reach the screen corners).
   Only the mouse pointer and clicks or touches on the keypad get through.
+- **Can show your own message** in large type on the mask, such as "‼️Please don't shut down or
+  close the lid‼️ Thanks": up to 120 characters and 3 lines, with an Unlock button that leads to the
+  keypad. Keyboard digits only count after Unlock, and the mask returns to the message after 30
+  seconds without input.
 - **Unlocks with a 6-digit passcode**, typed on the on-screen keypad or on the keyboard. Five wrong
-  attempts trigger a 30-second cooldown.
+  attempts trigger a 30-second cooldown, and digits left half-entered are cleared after 30 seconds.
 - **Shows the date, time and battery level** in the top-right corner of the mask, formatted for the
   app's language. The battery turns red below 20 % when not plugged in.
 - **Keeps your work running**: apps under the mask keep rendering, and tools that operate individual

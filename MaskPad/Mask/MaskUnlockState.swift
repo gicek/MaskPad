@@ -50,6 +50,11 @@ struct MaskUnlockState: Equatable {
         return .rejected
     }
 
+    /// Clears the digits entered; failures and cooldown stay.
+    mutating func clearEntry() {
+        entered = ""
+    }
+
     mutating func deleteDigit() {
         guard entered.isEmpty == false else { return }
         entered.removeLast()

@@ -15,6 +15,26 @@ final class MaskSettings: ObservableObject {
         didSet { defaults.set(autoDim, forKey: Self.autoDimKey) }
     }
 
+    /// Show `message` on the mask before the keypad (`MaskMessage`).
+    @Published var showsMessage: Bool {
+        didSet { defaults.set(showsMessage, forKey: Self.showsMessageKey) }
+    }
+
+    /// The mask message as typed, kept within `MaskMessage` limits.
+    @Published var message: String {
+        didSet {
+            // Assigning here doesn't run didSet again.
+            let limited = MaskMessage.limited(message)
+            if limited != message { message = limited }
+            defaults.set(message, forKey: Self.messageKey)
+        }
+    }
+
+    /// The message the mask shows, or nil when it's off or empty.
+    var maskMessage: String? {
+        showsMessage ? MaskMessage.displayed(message) : nil
+    }
+
     /// Minutes of idle time before auto-engaging; 0 = never. Always one of `autoEngageOptions`.
     @Published var autoEngageMinutes: Int {
         didSet { defaults.set(autoEngageMinutes, forKey: Self.autoEngageMinutesKey) }
@@ -40,6 +60,8 @@ final class MaskSettings: ObservableObject {
     private let defaults: UserDefaults
     private static let autoDimKey = "autoDim"
     private static let autoEngageMinutesKey = "autoEngageMinutes"
+    private static let showsMessageKey = "showsMessage"
+    private static let messageKey = "message"
     /// Separate defaults domain for tests, cleared on each init so real user preferences are untouched.
     static let testSuiteName = "com.gicek.maskpad.tests"
 
@@ -54,6 +76,8 @@ final class MaskSettings: ObservableObject {
         // Values outside the options (old versions, manual edits) would show a blank picker; fall back to never.
         let minutes = self.defaults.integer(forKey: Self.autoEngageMinutesKey)
         autoEngageMinutes = Self.autoEngageOptions.contains(minutes) ? minutes : 0
+        showsMessage = self.defaults.bool(forKey: Self.showsMessageKey)
+        message = MaskMessage.limited(self.defaults.string(forKey: Self.messageKey) ?? "")
         if TestEnvironment.isRunningInTests == false {
             refreshLaunchAtLogin()
         }
