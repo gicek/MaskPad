@@ -26,6 +26,8 @@ that operate your apps — while anyone walking by can neither see nor use the M
   password the mask is gone and you can set a new passcode.
 - **Optional**: turn on automatically after a period of inactivity, dim the screens after 20 seconds,
   launch at login, and a global shortcut (⌃⌘L by default).
+- **Turns on from other apps**: the `maskpad` command line and the `maskpad://on` URL, so a script, an
+  AI agent or a launcher can cover the screen, for example when a long task starts.
 - **Updates itself** through Sparkle: checks daily (can be turned off in Settings), or choose
   **Check for Updates** from the menu bar icon. Updates never check or relaunch while the mask is on.
 - Available in English, 简体中文, 繁體中文, 日本語, Español, 한국어, Français and Deutsch.
@@ -40,11 +42,34 @@ that operate your apps — while anyone walking by can neither see nor use the M
 
 Opening MaskPad again while it is running shows Settings.
 
+## Turning the Mask On from Other Apps
+
+MaskPad can be turned on, but never off, from outside: any app can cover the screen, and only a person
+at the Mac (or through Screen Sharing) can remove the mask, with the passcode. If there is no passcode
+or no Accessibility permission yet, MaskPad opens Settings instead.
+
+**Command line.** The `maskpad` tool is MaskPad's own executable. Link it into a folder on your `PATH`:
+
+```sh
+ln -s /Applications/MaskPad.app/Contents/MacOS/MaskPad /usr/local/bin/maskpad
+maskpad on        # turn the mask on, starting MaskPad if needed
+maskpad status    # print "on" or "off"
+```
+
+`maskpad on` waits until the mask is on and exits with 0, or with 1 if it can't be turned on (no
+passcode or no Accessibility permission), so scripts and agents can check the result.
+
+**URL.** `maskpad://on` turns the mask on and `maskpad://status` does nothing visible; open them with
+`open -g maskpad://on` or from any app that opens links.
+
+Third-party launchers and automation tools that can run a command or open a URL can use either one.
+
 ## Security
 
 MaskPad protects an unattended Mac from someone sitting down at it. It is not a replacement for the
 macOS login password or FileVault.
 
+- **Any app can turn the mask on**, through `maskpad://on` or the `maskpad` tool; none can turn it off.
 - **Remote input is not blocked.** Input from macOS Screen Sharing and from tools that send events
   directly to apps bypasses the mask by design, so anyone with remote access to the Mac can still use
   it.
@@ -257,21 +282,23 @@ from this Mac's removable disk icon and the logo; `design/dmg/volume.png` is a p
 ```
 
 MaskPad logs when the mask turns on or off, when a real system lock is detected, when the shortcut
-can't be registered, and when an update relaunch waits for the mask to turn off. It never logs key input. Use `/usr/bin/log`, because zsh has a built-in `log`
-command.
+can't be registered, when an update relaunch waits for the mask to turn off, when a press on the mask
+comes from another process and is ignored, and each `maskpad://` command with its result. It never
+logs key input. Use `/usr/bin/log`, because zsh has a built-in `log` command.
 
 ## Project Layout
 
 ```
-MaskPad/App          app entry, menu bar menu, settings model, updater, logging
+MaskPad/App          app entry, menu bar menu, settings model, updater, logging, maskpad command
 MaskPad/Mask         mask windows, input blocking, keypad, passcode, lock detection, dimming
 MaskPad/HotKeys      global shortcut
 MaskPad/Permissions  Accessibility onboarding
 MaskPad/Views        settings window
 MaskPad/Resources    asset catalog and string catalog
 Tests                unit tests
-Scripts              string catalog and icon generators
+Scripts              build, release, string catalog and icon scripts
 design/logo          source artwork
+design/dmg           DMG background and volume icon
 docs/images          README images
 ```
 

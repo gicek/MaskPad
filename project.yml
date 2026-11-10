@@ -56,6 +56,10 @@ targets:
         SUPublicEDKey: M+ujV4U9U66+vZ7WznIXqax87bNNthJcK9iiknp4UTs=
         SUEnableAutomaticChecks: true
         SUVerifyUpdateBeforeExtraction: true
+        # maskpad://on and maskpad://status, for launchers, Shortcuts, scripts and the maskpad tool (MaskCommand).
+        CFBundleURLTypes:
+          - CFBundleURLName: com.gicek.maskpad
+            CFBundleURLSchemes: [maskpad]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.gicek.maskpad

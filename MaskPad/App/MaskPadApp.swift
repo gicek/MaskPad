@@ -3,6 +3,10 @@ import AppKit
 @main
 enum MaskPadMain {
     static func main() {
+        // `maskpad on` and friends: the same executable, run as a command-line tool (see `CommandLineTool`).
+        if let status = CommandLineTool.run(arguments: CommandLine.arguments) {
+            exit(status)
+        }
         let app = NSApplication.shared
         // The test host runs an empty app: no status item, hotkeys, or auto-engage.
         let delegate: NSApplicationDelegate = TestEnvironment.isRunningInTests
@@ -41,6 +45,14 @@ final class MaskPadAppDelegate: NSObject, NSApplicationDelegate {
     /// power button still end the process; that's the documented recovery path, and the login password still protects the Mac.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         MaskController.shared.isEngaged ? .terminateCancel : .terminateNow
+    }
+
+    /// `maskpad://` URLs from launchers, Shortcuts, `open` or the `maskpad` tool (see `MaskCommand`).
+    /// Delivered after `applicationDidFinishLaunching`, also when the URL launched the app.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            MaskActions.handle(url)
+        }
     }
 
     /// Reopening the running app (Finder, `open`, Launchpad) shows settings; otherwise it would appear to do nothing.
