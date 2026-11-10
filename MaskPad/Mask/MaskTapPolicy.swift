@@ -9,6 +9,8 @@ import CoreGraphics
 ///   a swallowed left mouse-down also swallows its drags and mouse-up.
 /// - Physical digit and Delete keys go to the unlock keypad; the event itself is swallowed.
 /// - Otherwise only pointer moves and left clicks (for the keypad) pass; everything else is swallowed.
+/// - Pointer moves and left drags into a screen corner are moved out of it, so hot corners can't fire
+///   (see `HotCornerGuard`).
 struct MaskTapPolicy {
     struct Event {
         var type: CGEventType
@@ -16,12 +18,15 @@ struct MaskTapPolicy {
         var flags: CGEventFlags = []
         var isRepeat = false
         var sourcePID: Int64 = 0
+        var location: CGPoint = .zero
         /// NX_SYSDEFINED subtype 8 (brightness, volume, media keys); counts as a user keypress.
         var isAuxControlButton = false
     }
 
     enum Verdict: Equatable {
         case pass
+        /// Pass, with the event's location changed to this point.
+        case passAt(CGPoint)
         case swallow
         /// Swallow and forward the key to the unlock keypad.
         case unlockKey(MaskUnlockKey)
@@ -31,6 +36,8 @@ struct MaskTapPolicy {
     var releasePassThroughKeys: Set<Int64> = []
     /// A wake swallowed a left mouse-down; also swallow its drags and mouse-up to avoid a half click.
     var swallowingWakeClick = false
+    /// Display bounds for keeping the pointer out of the corners; set by the controller.
+    var hotCornerGuard = HotCornerGuard()
 
     /// Events normally allowed: pointer moves and left button down/up/drag.
     static let allowedTypes: Set<CGEventType> = [.mouseMoved, .leftMouseDown, .leftMouseUp, .leftMouseDragged]
@@ -68,6 +75,11 @@ struct MaskTapPolicy {
            ) {
             return .unlockKey(key)
         }
-        return Self.allowedTypes.contains(event.type) ? .pass : .swallow
+        guard Self.allowedTypes.contains(event.type) else { return .swallow }
+        if event.type == .mouseMoved || event.type == .leftMouseDragged,
+           let location = hotCornerGuard.adjusted(event.location) {
+            return .passAt(location)
+        }
+        return .pass
     }
 }

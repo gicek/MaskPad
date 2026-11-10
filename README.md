@@ -11,7 +11,8 @@ that operate your apps — while anyone walking by can neither see nor use the M
 
 - **Covers every display**, including full-screen apps, the menu bar, the Dock and notifications.
 - **Blocks local input**: keyboard shortcuts, app switching, Force Quit, right-click, scrolling and
-  gestures all stop working. Only the mouse pointer and clicks on the keypad get through.
+  gestures all stop working, and hot corners don't fire (the pointer can't reach the screen corners).
+  Only the mouse pointer and clicks or touches on the keypad get through.
 - **Unlocks with a 6-digit passcode**, typed on the on-screen keypad or on the keyboard. Five wrong
   attempts trigger a 30-second cooldown.
 - **Shows the date, time and battery level** in the top-right corner of the mask, formatted for the

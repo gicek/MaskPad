@@ -36,6 +36,12 @@ final class MaskInputBlocker: @unchecked Sendable {
     /// Pass/swallow state and rules (see `MaskTapPolicy`).
     fileprivate var policy = MaskTapPolicy()
 
+    /// Display bounds for the hot-corner guard; set by the controller on engage and display changes.
+    var hotCornerDisplays: [CGRect] {
+        get { policy.hotCornerGuard.displays }
+        set { policy.hotCornerGuard.displays = newValue }
+    }
+
     /// Keys still held when the mask engages; set by the controller before `start()`.
     var releasePassThroughKeys: Set<Int64> {
         get { policy.releasePassThroughKeys }
@@ -121,6 +127,7 @@ private func maskTapCallback(
         flags: event.flags,
         isRepeat: event.getIntegerValueField(.keyboardEventAutorepeat) != 0,
         sourcePID: event.getIntegerValueField(.eventSourceUnixProcessID),
+        location: event.location,
         // NX_SYSDEFINED (14) counts as a user keypress only for subtype 8 (brightness, volume, media);
         // other subtypes may come from the system and must not wake the display.
         isAuxControlButton: type.rawValue == 14 && NSEvent(cgEvent: event)?.subtype.rawValue == 8
@@ -132,6 +139,10 @@ private func maskTapCallback(
     )
     switch verdict {
     case .pass:
+        return Unmanaged.passUnretained(event)
+    case .passAt(let location):
+        // At the HID level the pointer hasn't moved yet; it goes where the event says.
+        event.location = location
         return Unmanaged.passUnretained(event)
     case .swallow:
         return nil

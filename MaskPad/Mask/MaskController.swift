@@ -89,6 +89,8 @@ final class MaskController: ObservableObject {
         blocker.releasePassThroughKeys = Self.heldMainKeys(
             isKeyDown: { CGEventSource.keyState(.combinedSessionState, key: $0) }
         )
+        // Keep the pointer out of the screen corners so hot corners can't fire (see `HotCornerGuard`).
+        blocker.hotCornerDisplays = HotCornerGuard.activeDisplayBounds()
         guard blocker.start() else {
             blocker.releasePassThroughKeys = []
             return .inputBlockerUnavailable
@@ -123,6 +125,7 @@ final class MaskController: ObservableObject {
         ) { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.isEngaged, let model = self.unlockModel else { return }
+                self.blocker.hotCornerDisplays = HotCornerGuard.activeDisplayBounds()
                 self.buildWindows(model: model)
                 // Dim overlays were built for the old screen set; wake and restart the timer.
                 // Connecting a display also implies someone is present.
