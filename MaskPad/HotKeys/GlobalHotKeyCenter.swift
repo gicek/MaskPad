@@ -95,9 +95,9 @@ final class GlobalHotKeyCenter: ObservableObject {
         // Register in enum order so precedence matches the UI's top-to-bottom order, not dictionary order.
         for action in MacHotKeyAction.allCases {
             guard let chord = bindings[action] else { continue }
-            // Never register a chord without modifiers: it would swallow a plain key system-wide.
-            // The recorder already rejects these; this is a backstop.
-            guard chord.hasModifier else {
+            // Never register a chord without ⌘/⌥/⌃: it would swallow a plain or shifted key system-wide.
+            // The recorder already rejects these; this is a backstop for hand-edited preferences.
+            guard chord.isValidHotKey else {
                 failed.insert(action)
                 continue
             }

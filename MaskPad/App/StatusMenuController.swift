@@ -39,6 +39,9 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
                 item.preferredImageVisibility = .hidden
             }
         }
+        // `refresh()` sets `isEnabled` itself; with automatic enabling AppKit would turn every item with a
+        // valid target back on whenever the menu opens.
+        menu.autoenablesItems = false
         menu.delegate = self
         statusItem.menu = menu
         refresh()

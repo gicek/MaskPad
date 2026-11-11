@@ -62,10 +62,13 @@ struct KeyChord: Codable, Hashable, Sendable {
 
     /// Global hotkeys need at least one of ⌘/⌥/⌃. A hotkey takes the chord system-wide, so a bare
     /// or ⇧-only key would fire while typing in any app.
+    var isValidHotKey: Bool {
+        modifiers.intersection([.command, .option, .control]).isEmpty == false
+    }
+
+    /// Why the chord can't be a global hotkey, for the settings UI; nil if it can.
     var hotKeyProblem: String? {
-        modifiers.intersection([.command, .option, .control]).isEmpty
-            ? L("A global shortcut needs at least one of Command, Option, or Control.")
-            : nil
+        isValidHotKey ? nil : L("A global shortcut needs at least one of Command, Option, or Control.")
     }
 }
 
