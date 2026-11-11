@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: make check
+    # MaskPad builds with the macOS 27 SDK (Xcode 27), which GitHub hosts on this image.
+    runs-on: xcode-27
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Show the toolchain
+        run: xcodebuild -version && xcodegen --version
+      # String catalog check and unit tests, ad-hoc signed (no certificate needed).
+      - name: make check
+        run: make check
