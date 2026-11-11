@@ -4,8 +4,8 @@
     python3 Scripts/localize_appcast.py <appcast.xml> <version>       # rewrite the appcast
     python3 Scripts/localize_appcast.py --missing <version>           # list missing or unedited notes
 
-Release notes live in docs/release-notes: <version>.md in English and <version>.<lang>.md for each
-language in Scripts/translations.py (LANGS), the same languages as the app. generate_appcast embeds the
+Release notes live in docs/release-notes/<version>: en.md and <lang>.md for each language in
+Scripts/translations.py (LANGS), the same languages as the app. generate_appcast embeds the
 English notes as the item's <description>; this marks it xml:lang="en" and adds one <description
 xml:lang="..."> per language after it, in Markdown like the English one.
 
@@ -27,7 +27,7 @@ TEMPLATE_MARK = "TODO:"
 
 
 def notes_path(version, lang):
-    return NOTES / (f"{version}.md" if lang == "en" else f"{version}.{lang}.md")
+    return NOTES / version / f"{lang}.md"
 
 
 def missing(version):

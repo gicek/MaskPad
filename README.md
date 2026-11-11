@@ -243,9 +243,9 @@ make dist      # release, then DMG, notarize, staple, zip, appcast -> build/dist
 Sparkle compares the build number, so every release needs a higher one; `dist` and `publish` refuse a
 build number that isn't higher than the live one.
 
-Release notes are written in every language the app supports: `docs/release-notes/<version>.md` in
-English and `<version>.<lang>.md` for each language in `Scripts/translations.py` (`zh-Hans`, `zh-Hant`,
-`ja`, `es`, `ko`, `fr`, `de`). The appcast embeds all of them, and the update window shows the notes in
+Release notes are written in every language the app supports, one folder per version:
+`docs/release-notes/<version>/en.md` and `<lang>.md` for each language in `Scripts/translations.py`
+(`zh-Hans`, `zh-Hant`, `ja`, `es`, `ko`, `fr`, `de`). The appcast embeds all of them, and the update window shows the notes in
 MaskPad's current language, or in English for other languages; the GitHub release shows the English
 notes. `publish` refuses notes that are missing, empty or still the template, and `dist` warns.
 `verify-release` checks that the appcast has every language.
