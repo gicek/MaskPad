@@ -1473,6 +1473,52 @@
         }
       }
     },
+    "Doesn't turn on when idle while a video, call, presentation, game or screen recording keeps the display awake.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird bei Inaktivität nicht aktiviert, solange ein Video, ein Anruf, eine Präsentation, ein Spiel oder eine Bildschirmaufnahme den Bildschirm aktiv hält."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se activa por inactividad mientras un vídeo, una llamada, una presentación, un juego o una grabación de pantalla mantienen la pantalla encendida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne s’active pas en cas d’inactivité tant qu’une vidéo, un appel, une présentation, un jeu ou un enregistrement d’écran maintient l’écran allumé."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ビデオ、通話、プレゼンテーション、ゲーム、画面収録がディスプレイをスリープさせていない間は、操作がなくてもオンになりません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비디오, 통화, 프레젠테이션, 게임 또는 화면 기록이 디스플레이를 켜진 상태로 유지하는 동안에는 유휴 시에도 켜지지 않습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "视频、通话、演示、游戏或录屏让显示器保持唤醒时，闲置也不会自动开启。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "影片、通話、簡報、遊戲或螢幕錄製讓顯示器保持喚醒時，閒置也不會自動開啟。"
+          }
+        }
+      }
+    },
     "Drag %@ into the list above to allow Accessibility": {
       "localizations": {
         "de": {
@@ -3815,6 +3861,52 @@
           "stringUnit": {
             "state": "translated",
             "value": "版本 %@"
+          }
+        }
+      }
+    },
+    "Wait during video and calls": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Videos und Anrufen warten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esperar durante vídeos y llamadas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attendre pendant les vidéos et les appels"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ビデオや通話中は待機"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비디오 및 통화 중에는 대기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "视频和通话期间等待"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "視訊和通話期間等待"
           }
         }
       }

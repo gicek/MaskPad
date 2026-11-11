@@ -204,6 +204,16 @@ struct SettingsView: View {
             SettingsNote(L("Until the mask turns on, the Mac won't lock or sleep on its own."))
 
             SettingsDivider()
+            SettingsRow(L("Wait during video and calls")) {
+                Toggle("", isOn: $settings.autoEngageWaitsForMedia)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .disabled(hasPasscode == false || settings.autoEngageMinutes == 0)
+            }
+            SettingsNote(L("Doesn't turn on when idle while a video, call, presentation, game or screen recording keeps the display awake."))
+
+            SettingsDivider()
             SettingsRow(L("Automatically hide and dim")) {
                 Toggle("", isOn: $settings.autoDim)
                     .labelsHidden()
