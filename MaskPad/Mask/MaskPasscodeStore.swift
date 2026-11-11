@@ -9,7 +9,8 @@ import Security
 ///
 /// In tests it stays in memory: the test host is the real app, so touching the keychain would change
 /// the developer's real passcode and could block on a keychain authorization prompt after re-signing.
-final class MaskPasscodeStore: @unchecked Sendable {
+@MainActor
+final class MaskPasscodeStore {
     static let shared = MaskPasscodeStore()
 
     /// Posted after the passcode is saved or cleared (the keychain has no change notification),
@@ -53,14 +54,20 @@ final class MaskPasscodeStore: @unchecked Sendable {
             saved = true
         } else {
             guard let data = try? JSONEncoder().encode(passcode) else { return false }
-            SecItemDelete(baseQuery as CFDictionary)
-            var attributes = baseQuery
-            attributes[kSecValueData as String] = data
-            // Readable after lock/restart, but not migrated to other machines.
-            attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-            saved = SecItemAdd(attributes as CFDictionary, nil) == errSecSuccess
+            // Update in place, adding only when there is no item yet: deleting first would lose the
+            // old passcode if the add then failed.
+            let update = [kSecValueData as String: data]
+            var status = SecItemUpdate(baseQuery as CFDictionary, update as CFDictionary)
+            if status == errSecItemNotFound {
+                var attributes = baseQuery
+                attributes[kSecValueData as String] = data
+                // Readable after lock/restart, but not migrated to other machines.
+                attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+                status = SecItemAdd(attributes as CFDictionary, nil)
+            }
+            saved = status == errSecSuccess
         }
-        // On failure the old item is already deleted, so drop the cache and re-read.
+        // On failure the keychain is unchanged, but re-read it rather than trust the cache.
         cachedHasPasscode = saved ? true : nil
         if saved {
             NotificationCenter.default.post(name: Self.didChangeNotification, object: nil)

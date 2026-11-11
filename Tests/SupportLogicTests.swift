@@ -111,6 +111,7 @@ struct AutoEngageIdleTests {
     }
 }
 
+@MainActor
 struct PasscodeStoreIsolationTests {
     /// In tests, storage is in-memory only and never touches the real keychain; the cache updates on save and clear.
     @Test func memoryStoreRoundTrip() throws {
