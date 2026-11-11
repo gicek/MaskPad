@@ -29,8 +29,8 @@ enum MaskCommand: String, CaseIterable, Equatable {
     /// accepted as the reply ID, so a URL can't make the app post an arbitrary notification object.
     static func parse(_ url: URL) -> Request? {
         guard url.scheme?.lowercased() == scheme,
-              let host = url.host?.lowercased(), let command = MaskCommand(rawValue: host),
-              url.path.isEmpty || url.path == "/"
+              let host = url.host(percentEncoded: false)?.lowercased(), let command = MaskCommand(rawValue: host),
+              ["", "/"].contains(url.path(percentEncoded: false))
         else { return nil }
         let reply = URLComponents(url: url, resolvingAgainstBaseURL: false)?
             .queryItems?.first { $0.name == "reply" }?.value

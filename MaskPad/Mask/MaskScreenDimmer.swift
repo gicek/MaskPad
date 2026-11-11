@@ -27,7 +27,7 @@ final class MaskScreenDimmer {
         }
         observeTermination()
         showOverlays()
-        MaskCursorHider.shared.hide(for: .dimmed)
+        MaskCursorHider.shared.hide()
     }
 
     /// Wakes the display. Called on every local mouse move (tap callback, main thread), so brightness
@@ -35,7 +35,7 @@ final class MaskScreenDimmer {
     func wake() {
         guard isDimmed else { return }
         isDimmed = false
-        MaskCursorHider.shared.show(for: .dimmed)
+        MaskCursorHider.shared.show()
         removeOverlays()
         retryPendingRestore()
     }

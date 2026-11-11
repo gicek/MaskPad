@@ -1,3 +1,4 @@
+import Carbon.HIToolbox
 import CoreGraphics
 import Foundation
 
@@ -24,11 +25,11 @@ enum SystemLock {
         return unsafeBitCast(symbol, to: LockFn.self)
     }()
 
-    /// Synthesizes ⌃⌘Q (Q is key code 12). Fallback only; has no effect if the user remapped the lock shortcut.
+    /// Synthesizes ⌃⌘Q. Fallback only; has no effect if the user remapped the lock shortcut.
     private static func postLockShortcut() {
         let source = CGEventSource(stateID: .hidSystemState)
         for keyDown in [true, false] {
-            guard let event = CGEvent(keyboardEventSource: source, virtualKey: 12, keyDown: keyDown) else { continue }
+            guard let event = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(kVK_ANSI_Q), keyDown: keyDown) else { continue }
             event.flags = [.maskControl, .maskCommand]
             event.postTagged(tap: .cghidEventTap)
         }

@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import Carbon.HIToolbox
 import Combine
 import SwiftUI
 
@@ -177,7 +178,10 @@ final class MaskController: ObservableObject {
     }
 
     /// Key codes for modifiers (left/right Command, Shift, Option, Control, Fn) and Caps Lock.
-    private static let modifierKeyCodes: Set<CGKeyCode> = [54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+    private static let modifierKeyCodes: Set<CGKeyCode> = Set([
+        kVK_Command, kVK_RightCommand, kVK_Shift, kVK_RightShift, kVK_Option, kVK_RightOption,
+        kVK_Control, kVK_RightControl, kVK_Function, kVK_CapsLock,
+    ].map(CGKeyCode.init))
 
     /// Non-modifier keys currently held (checks key codes 0–127).
     static func heldMainKeys(isKeyDown: (CGKeyCode) -> Bool) -> Set<Int64> {
@@ -188,13 +192,13 @@ final class MaskController: ObservableObject {
 
     /// Modifier keys to release for the held flags (both sides). Caps Lock is a toggle and is left alone.
     static func modifierKeysToRelease(heldFlags: CGEventFlags) -> [CGKeyCode] {
-        var keyCodes: [CGKeyCode] = []
-        if heldFlags.contains(.maskCommand) { keyCodes += [55, 54] }   // Left/right Command
-        if heldFlags.contains(.maskControl) { keyCodes += [59, 62] }   // Left/right Control
-        if heldFlags.contains(.maskAlternate) { keyCodes += [58, 61] } // Left/right Option
-        if heldFlags.contains(.maskShift) { keyCodes += [56, 60] }     // Left/right Shift
-        if heldFlags.contains(.maskSecondaryFn) { keyCodes += [63] }   // Fn
-        return keyCodes
+        var keyCodes: [Int] = []
+        if heldFlags.contains(.maskCommand) { keyCodes += [kVK_Command, kVK_RightCommand] }
+        if heldFlags.contains(.maskControl) { keyCodes += [kVK_Control, kVK_RightControl] }
+        if heldFlags.contains(.maskAlternate) { keyCodes += [kVK_Option, kVK_RightOption] }
+        if heldFlags.contains(.maskShift) { keyCodes += [kVK_Shift, kVK_RightShift] }
+        if heldFlags.contains(.maskSecondaryFn) { keyCodes += [kVK_Function] }
+        return keyCodes.map(CGKeyCode.init)
     }
 
     // MARK: - Dismiss on system lock
@@ -379,7 +383,6 @@ final class MaskController: ObservableObject {
         activationObserver = nil
         dimmer.wake()
         dimmer.retryPendingRestore()
-        MaskCursorHider.shared.showAll()
         autoDimEnabled = false
         screenSharingProbeInFlight = false
         sleepAssertion.release()

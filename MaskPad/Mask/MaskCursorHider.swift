@@ -1,9 +1,8 @@
 import CoreGraphics
 import Foundation
 
-/// Hides the system cursor while masked, tracked per reason: `dimmed` (no arrow over a black screen)
-/// and `remoteInput` (while another tool drives the real cursor).
-/// Hidden while any reason is active; this class owns the system hide count and keeps it balanced.
+/// Hides the system cursor while the mask is dimmed (no arrow over a black screen). This class owns the
+/// system hide count and keeps it balanced.
 ///
 /// - Hiding from the background requires `SetsCursorInBackground` on the connection:
 ///   `CGDisplayHideCursor` otherwise only works for the frontmost app, and other tools may bring
@@ -12,17 +11,12 @@ import Foundation
 ///   `didActivateApplication`; showing balances every hide call actually made.
 @MainActor
 final class MaskCursorHider {
-    enum Reason: Hashable {
-        case dimmed
-        case remoteInput
-    }
-
     static let shared = MaskCursorHider()
 
-    private var reasons: Set<Reason> = []
+    private(set) var isHidden = false
     private var backgroundControlEnabled = false
-    /// Hide calls actually made on this connection; can exceed the reason count due to `reassert()`.
-    /// Showing balances all of them (extra shows are harmless; too few would leave it hidden).
+    /// Hide calls actually made on this connection; more than one after `reassert()`.
+    /// Showing balances all of them (too few would leave the cursor hidden).
     private var hideCalls = 0
     /// Injected system calls, so tests don't hide the developer's cursor.
     private let hideCursor: () -> Void
@@ -39,12 +33,9 @@ final class MaskCursorHider {
         self.enableBackgroundCursorControl = enableBackgroundCursorControl
     }
 
-    var isHidden: Bool { reasons.isEmpty == false }
-
-    func hide(for reason: Reason) {
-        let wasHidden = isHidden
-        reasons.insert(reason)
-        guard wasHidden == false else { return }
+    func hide() {
+        guard isHidden == false else { return }
+        isHidden = true
         if backgroundControlEnabled == false {
             backgroundControlEnabled = true
             enableBackgroundCursorControl()
@@ -58,28 +49,19 @@ final class MaskCursorHider {
         hideNow()
     }
 
-    func show(for reason: Reason) {
-        guard reasons.remove(reason) != nil, reasons.isEmpty else { return }
-        showNow()
-    }
-
-    /// Called when the mask is dismissed: shows the cursor regardless of remaining reasons.
-    func showAll() {
+    /// Shows the cursor again, undoing every hide call made. No-op if not hidden.
+    func show() {
         guard isHidden else { return }
-        reasons = []
-        showNow()
+        isHidden = false
+        for _ in 0 ..< hideCalls {
+            showCursor()
+        }
+        hideCalls = 0
     }
 
     private func hideNow() {
         hideCursor()
         hideCalls += 1
-    }
-
-    private func showNow() {
-        for _ in 0 ..< max(hideCalls, 1) {
-            showCursor()
-        }
-        hideCalls = 0
     }
 
     nonisolated static func setsCursorInBackground() {
