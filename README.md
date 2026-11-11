@@ -53,7 +53,8 @@ that operate your apps — while anyone walking by can neither see nor use the M
 - **Turns on from other apps**: the `maskpad` command line and the `maskpad://on` URL, so a script, an
   AI agent or a launcher can cover the screen, for example when a long task starts.
 - **Updates itself** through Sparkle: checks daily (can be turned off in Settings), or choose
-  **Check for Updates** from the menu bar icon. Updates never check or relaunch while the mask is on.
+  **Check for Updates** from the menu bar icon. Updates never check or relaunch while the mask is on;
+  a check that came due meanwhile runs when the mask turns off.
 - Available in English, 简体中文, 繁體中文, 日本語, Español, 한국어, Français and Deutsch.
 
 ## Getting Started
@@ -323,10 +324,10 @@ from this Mac's removable disk icon and the logo; `design/dmg/volume.png` is a p
 ```
 
 MaskPad logs when the mask turns on or off, when a real system lock is detected, when the shortcut
-can't be registered, when an update relaunch waits for the mask to turn off, when a press on the mask
-comes from another process and is ignored, when the network goes offline or comes back while masked,
-and each `maskpad://` command with its result. It never
-logs key input. Use `/usr/bin/log`, because zsh has a built-in `log` command.
+can't be registered, when an update relaunch or check waits for the mask to turn off, when a press on
+the mask comes from another process and is ignored, when the network goes offline or comes back while
+masked, and each `maskpad://` command with its result. It never logs key input. Use `/usr/bin/log`,
+because zsh has a built-in `log` command.
 
 ## Project Layout
 
