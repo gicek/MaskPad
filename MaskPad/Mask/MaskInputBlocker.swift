@@ -52,8 +52,6 @@ final class MaskInputBlocker: @unchecked Sendable {
         onUnlockKey = handler
     }
 
-    var isActive: Bool { tap != nil }
-
     func setLocalActivityHandler(_ handler: (() -> Bool)?) {
         onLocalActivity = handler
         policy.swallowingWakeClick = false

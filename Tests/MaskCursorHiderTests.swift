@@ -1,8 +1,8 @@
 import XCTest
 @testable import MaskPad
 
-/// System cursor hiding is reference-counted, so hides and shows must stay balanced even when the
-/// screen-off and remote-input reasons interleave; otherwise the cursor stays hidden or never hides.
+/// System cursor hiding is reference-counted, so hides and shows must stay balanced; otherwise the cursor
+/// stays hidden or never hides.
 @MainActor
 final class MaskCursorHiderTests: XCTestCase {
     private var hides = 0
@@ -17,60 +17,46 @@ final class MaskCursorHiderTests: XCTestCase {
         )
     }
 
-    func testOverlappingReasonsHideOnceAndShowOnceAllAreGone() {
+    func testRepeatedHidesHideOnceAndShowOnce() {
         let hider = makeHider()
-        hider.hide(for: .dimmed)
-        hider.hide(for: .remoteInput)
-        hider.hide(for: .remoteInput)
+        hider.hide()
+        hider.hide()
         XCTAssertEqual(hides, 1)
-
-        hider.show(for: .dimmed)
-        XCTAssertEqual(shows, 0)
         XCTAssertTrue(hider.isHidden)
-        hider.show(for: .remoteInput)
+
+        hider.show()
         XCTAssertEqual(shows, 1)
         XCTAssertFalse(hider.isHidden)
     }
 
-    func testShowingAReasonThatIsNotHiddenDoesNothing() {
+    func testShowingWhenNotHiddenDoesNothing() {
         let hider = makeHider()
-        hider.show(for: .remoteInput)
+        hider.show()
         XCTAssertEqual(shows, 0)
-        hider.hide(for: .dimmed)
-        hider.show(for: .remoteInput)
-        XCTAssertEqual(shows, 0)
-        XCTAssertTrue(hider.isHidden)
-    }
-
-    func testShowAllBalancesRegardlessOfReasons() {
-        let hider = makeHider()
-        hider.showAll()
-        XCTAssertEqual(shows, 0)
-        hider.hide(for: .dimmed)
-        hider.hide(for: .remoteInput)
-        hider.showAll()
-        XCTAssertEqual(hides, shows)
-        XCTAssertFalse(hider.isHidden)
+        hider.hide()
+        hider.show()
+        hider.show()
+        XCTAssertEqual(shows, 1)
     }
 
     /// Switching apps makes the system show the cursor and `reassert` hides it again; showing must undo
     /// every hide, or the cursor stays hidden.
     func testReassertedHidesAreAllBalancedOnShow() {
         let hider = makeHider()
-        hider.hide(for: .remoteInput)
+        hider.hide()
         hider.reassert()
         hider.reassert()
         XCTAssertEqual(hides, 3)
-        hider.show(for: .remoteInput)
+        hider.show()
         XCTAssertEqual(shows, 3)
         // The next cycle starts from zero.
-        hider.hide(for: .dimmed)
-        hider.showAll()
+        hider.hide()
+        hider.show()
         XCTAssertEqual(shows, 4)
     }
 
-    /// Switching apps without a hide reason does not hide the cursor.
-    func testReassertWithoutReasonsDoesNothing() {
+    /// Switching apps while the cursor isn't hidden does not hide it.
+    func testReassertWhenNotHiddenDoesNothing() {
         let hider = makeHider()
         hider.reassert()
         XCTAssertEqual(hides, 0)
@@ -79,9 +65,9 @@ final class MaskCursorHiderTests: XCTestCase {
     /// The background cursor-hiding connection property is set only once.
     func testBackgroundCursorControlIsEnabledOnce() {
         let hider = makeHider()
-        hider.hide(for: .dimmed)
-        hider.show(for: .dimmed)
-        hider.hide(for: .remoteInput)
+        hider.hide()
+        hider.show()
+        hider.hide()
         XCTAssertEqual(backgroundEnables, 1)
         XCTAssertEqual(hides, 2)
     }

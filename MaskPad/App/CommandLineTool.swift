@@ -138,7 +138,7 @@ enum CommandLineTool {
         return reply.result
     }
 
-    /// The MaskPad.app this executable is in. Through a symbolic link (`~/.local/bin/maskpad`),
+    /// The MaskPad.app this executable is in. Through a symbolic link (`/usr/local/bin/maskpad`),
     /// `Bundle.main` is the link's folder, so the real executable path is resolved instead:
     /// MaskPad.app/Contents/MacOS/MaskPad.
     private static let appBundle: Bundle? = {

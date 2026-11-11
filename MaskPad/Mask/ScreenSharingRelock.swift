@@ -49,22 +49,16 @@ enum ScreenSharingRelock {
     }
 
     /// Whether a Screen Sharing session is active. If netstat fails, assumes not (avoids false alerts).
+    /// Spawns a process; avoid the main thread.
     static func isScreenSharingActive() -> Bool {
         guard let output = run("/usr/sbin/netstat", ["-an", "-p", "tcp"]) else { return false }
         return hasInboundSession(netstatOutput: output)
     }
 
-    /// True when connected via Screen Sharing and disconnecting would re-lock. Spawns a process; avoid the main thread.
-    static func needsAttention() -> Bool {
-        isScreenSharingActive() && currentRestoresLock()
-    }
-
-    typealias ChangeOutcome = AdministratorShell.Outcome
-
     /// Changes the system setting: `false` writes NO (stay unlocked), `true` deletes the key (system default).
     /// Runs with administrator privileges (`AdministratorShell`); the command is a fixed constant with no
     /// external input interpolated.
-    static func setRestoresLock(_ restoresLock: Bool, prompt: String) async -> ChangeOutcome {
+    static func setRestoresLock(_ restoresLock: Bool, prompt: String) async -> AdministratorShell.Outcome {
         let command = restoresLock
             ? "/usr/bin/defaults delete \(preferencesPath) \(restoreKey)"
             : "/usr/bin/defaults write \(preferencesPath) \(restoreKey) -bool NO"

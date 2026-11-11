@@ -229,6 +229,7 @@ struct MaskUnlockView: View {
                 .foregroundStyle(.white.opacity(0.85))
 
             Text(L("The Mac locks first. Log in with your Mac password and the mask turns off, then reset the passcode in MaskPad Settings."))
+
             Button(action: personPress(model.lockSystem)) {
                 Text(L("Unlock with Mac Password"))
                     .font(.system(size: 16, weight: .medium))
