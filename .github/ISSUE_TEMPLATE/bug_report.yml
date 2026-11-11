@@ -1,0 +1,44 @@
+name: Bug report
+description: Something in MaskPad doesn't work as described
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A way to remove or get around the mask without the passcode is a security issue:
+        please report it privately (see SECURITY.md) instead of here.
+  - type: input
+    id: version
+    attributes:
+      label: MaskPad version
+      description: Settings > General, or `maskpad version`
+      placeholder: "1.0.3"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac model
+      placeholder: "macOS 15.5, MacBook Air (M3)"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include displays (built-in, external), remote access (Screen Sharing or other) and tools running under the mask, if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Output of `/usr/bin/log show --last 10m --predicate 'subsystem == "com.gicek.maskpad"'`. MaskPad never logs key input.
+      render: text

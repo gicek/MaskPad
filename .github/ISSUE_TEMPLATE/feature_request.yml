@@ -1,0 +1,19 @@
+name: Feature request
+description: Suggest a change or an addition
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The situation and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help?
+  - type: markdown
+    attributes:
+      value: |
+        MaskPad never lets software turn the mask off (no shortcut, URL or command); requests for that will be declined.

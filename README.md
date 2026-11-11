@@ -1,5 +1,10 @@
 # MaskPad
 
+[![CI](https://github.com/gicek/MaskPad/actions/workflows/ci.yml/badge.svg)](https://github.com/gicek/MaskPad/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/gicek/MaskPad)](https://github.com/gicek/MaskPad/releases/latest)
+![macOS 14 or later](https://img.shields.io/badge/macOS-14%2B-blue)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 MaskPad is a macOS menu bar app that covers your screens and blocks the keyboard and mouse without
 locking the Mac. Everything underneath keeps running — downloads, builds, remote sessions and AI agents
 that operate your apps — while anyone walking by can neither see nor use the Mac. Unlock it with a
@@ -49,7 +54,10 @@ that operate your apps — while anyone walking by can neither see nor use the M
 
 ## Getting Started
 
-1. Build and launch MaskPad (see [Building](#building)). Its icon appears in the menu bar.
+1. Download `MaskPad-<version>.dmg` from the
+   [latest release](https://github.com/gicek/MaskPad/releases/latest), open it and drag MaskPad to
+   Applications (or build it yourself, see [Building](#building)). MaskPad needs macOS 14 or later and
+   runs on Apple silicon and Intel. Launch it; its icon appears in the menu bar.
 2. In **Settings**, click **Open System Settings** in the Accessibility banner and drag MaskPad into
    the list. MaskPad needs this permission to block the keyboard and mouse.
 3. Set a 6-digit passcode.
@@ -70,10 +78,12 @@ command is a link to MaskPad's own executable, so Settings offers to install it 
 ```sh
 maskpad on        # turn the mask on, starting MaskPad if needed
 maskpad status    # print "on" or "off"
+maskpad version   # print the MaskPad version
 ```
 
 `maskpad on` waits until the mask is on and exits with 0, or with 1 if it can't be turned on (no
-passcode or no Accessibility permission), so scripts and agents can check the result.
+passcode or no Accessibility permission), so scripts and agents can check the result. Both commands exit
+with 3 if MaskPad doesn't answer within 15 seconds, and an unknown command exits with 2.
 
 **URL.** `maskpad://on` turns the mask on and `maskpad://status` does nothing visible; open them with
 `open -g maskpad://on` or from any app that opens links.
@@ -318,10 +328,16 @@ MaskPad/Views        settings window
 MaskPad/Resources    asset catalog and string catalog
 Tests                unit tests
 Scripts              build, release, string catalog and icon scripts
+.github              CI workflow, issue and pull request templates
 design/logo          source artwork
 design/dmg           DMG background and volume icon
 docs/images          README images
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Report security issues privately, as described in
+[SECURITY.md](SECURITY.md).
 
 ## License
 
