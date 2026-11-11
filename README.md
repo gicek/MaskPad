@@ -36,7 +36,10 @@ that operate your apps — while anyone walking by can neither see nor use the M
 - **Unlocks with a 6-digit passcode**, typed on the on-screen keypad or on the keyboard. Five wrong
   attempts trigger a 30-second cooldown, and digits left half-entered are cleared after 30 seconds.
 - **Shows the date, time and battery level** in the top-right corner of the mask, formatted for the
-  app's language. The battery turns red below 20 % when not plugged in.
+  app's language. The battery turns red below 20 % when not plugged in, and a red "Offline" appears
+  while the Mac has no network connection.
+- **Shows that someone tried**: the keypad says how many wrong passcodes were entered since the mask
+  turned on.
 - **Keeps your work running**: apps under the mask keep rendering, and tools that operate individual
   windows (such as Computer Use agents) keep working. The Mac doesn't sleep or lock on its own while
   masked.
@@ -135,7 +138,9 @@ macOS login password or FileVault.
   Original brightness is saved before dimming and restored on wake or on the next launch.
 - **The status bar** formats the date and time with the app's localization language and the system
   region's conventions (12/24-hour clock), and reads the internal battery from IOKit power sources.
-  Macs without a battery show only the date and time.
+  Macs without a battery show only the date and time. "Offline" comes from `NWPathMonitor`: it means no
+  usable network path over Wi‑Fi, Ethernet or cellular for 5 seconds (a VPN's tunnel interface alone
+  doesn't count), not that a particular server is unreachable.
 - **The global shortcut** uses Carbon `RegisterEventHotKey`, which needs no extra permission.
 - **Auto-engage** polls the HID idle time. Unlocking the mask and an active Screen Sharing session
   count as activity, since remote input doesn't reset the HID idle time. So does an app that holds a
@@ -319,7 +324,8 @@ from this Mac's removable disk icon and the logo; `design/dmg/volume.png` is a p
 
 MaskPad logs when the mask turns on or off, when a real system lock is detected, when the shortcut
 can't be registered, when an update relaunch waits for the mask to turn off, when a press on the mask
-comes from another process and is ignored, and each `maskpad://` command with its result. It never
+comes from another process and is ignored, when the network goes offline or comes back while masked,
+and each `maskpad://` command with its result. It never
 logs key input. Use `/usr/bin/log`, because zsh has a built-in `log` command.
 
 ## Project Layout

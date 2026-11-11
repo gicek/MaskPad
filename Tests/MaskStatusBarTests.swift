@@ -1,3 +1,4 @@
+import Network
 import Testing
 @testable import MaskPad
 
@@ -22,5 +23,24 @@ struct BatteryStatusTests {
         #expect(BatteryStatus(level: 20, isCharging: false, isOnPower: false).isLow == false)
         #expect(BatteryStatus(level: 10, isCharging: true, isOnPower: true).isLow == false)
         #expect(BatteryStatus(level: 10, isCharging: false, isOnPower: true).isLow == false)
+    }
+}
+
+struct NetworkStatusTests {
+    @Test func realInterfaceOnSatisfiedPathIsConnected() {
+        #expect(NetworkStatus.isConnected(isSatisfied: true, interfaces: [.wifi]))
+        #expect(NetworkStatus.isConnected(isSatisfied: true, interfaces: [.other, .wiredEthernet]))
+    }
+
+    @Test func unsatisfiedPathIsOffline() {
+        #expect(NetworkStatus.isConnected(isSatisfied: false, interfaces: [.wifi]) == false)
+        #expect(NetworkStatus.isConnected(isSatisfied: false, interfaces: []) == false)
+    }
+
+    /// A VPN or proxy app keeps its tunnel up as the default route after Wi-Fi is turned off, and the
+    /// system still reports the path as satisfied.
+    @Test func tunnelAloneIsOffline() {
+        #expect(NetworkStatus.isConnected(isSatisfied: true, interfaces: [.other, .other]) == false)
+        #expect(NetworkStatus.isConnected(isSatisfied: true, interfaces: [.loopback]) == false)
     }
 }

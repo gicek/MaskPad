@@ -5,6 +5,24 @@
 LANGS = ['zh-Hans', 'zh-Hant', 'ja', 'es', 'ko', 'fr', 'de']
 
 T = {
+"%lld wrong passcode attempts": (
+ "密码已输错 %lld 次",
+ "密碼已輸錯 %lld 次",
+ "パスコードを%lld回間違えました",
+ "%lld intentos de código incorrectos",
+ "암호를 %lld회 잘못 입력했습니다",
+ "%lld tentatives de code incorrectes",
+ "%lld falsche Codeversuche",
+),
+"1 wrong passcode attempt": (
+ "密码已输错 1 次",
+ "密碼已輸錯 1 次",
+ "パスコードを1回間違えました",
+ "1 intento de código incorrecto",
+ "암호를 1회 잘못 입력했습니다",
+ "1 tentative de code incorrecte",
+ "1 falscher Codeversuch",
+),
 "6 digits, used to unlock the mask.": (
  "6 位数字，用于解锁遮罩。",
  "6 位數字，用於解鎖遮罩。",
@@ -400,6 +418,15 @@ T = {
  "설정 안 됨",
  "Non défini",
  "Nicht festgelegt",
+),
+"Offline": (
+ "离线",
+ "離線",
+ "オフライン",
+ "Sin conexión",
+ "오프라인",
+ "Hors ligne",
+ "Offline",
 ),
 "Open Login Items": (
  "打开登录项",

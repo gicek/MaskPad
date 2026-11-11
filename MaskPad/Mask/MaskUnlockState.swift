@@ -10,6 +10,9 @@ struct MaskUnlockState: Equatable {
 
     private(set) var entered = ""
     private(set) var failedAttempts = 0
+    /// Wrong codes entered since the mask turned on. Never reset, so the owner coming back sees that
+    /// someone tried (their own typos count too).
+    private(set) var totalFailedAttempts = 0
     private(set) var lockedUntil: Date?
 
     enum Outcome: Equatable {
@@ -44,6 +47,7 @@ struct MaskUnlockState: Equatable {
             return .unlocked
         }
         failedAttempts += 1
+        totalFailedAttempts += 1
         if failedAttempts >= Self.maxAttempts {
             lockedUntil = now.addingTimeInterval(Self.cooldown)
         }

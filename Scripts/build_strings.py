@@ -21,7 +21,7 @@ sys.path.insert(0, str(root / "Scripts"))
 from translations import LANGS, T  # noqa: E402
 
 # Types of interpolated variables, keyed by the literal Swift interpolation expression.
-INT_VARS = {"remaining"}
+INT_VARS = {"remaining", "attempts"}
 STRING_VARS = {"Self.appName", "Self.appVersion"}
 
 CALL = re.compile(r'\bL\("((?:[^"\\]|\\.)*)"\)')

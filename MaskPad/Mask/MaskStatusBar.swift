@@ -2,12 +2,24 @@ import Foundation
 import IOKit.ps
 import SwiftUI
 
-/// Date, time and battery shown in the top-right corner of the mask.
+/// Date, time and battery shown in the top-right corner of the mask, and a warning while the Mac is
+/// offline (`NetworkStatus`).
 /// Formatting follows the language MaskPad is running in, with the system region's conventions
 /// (e.g. 12/24-hour clock).
 struct MaskStatusBar: View {
+    @StateObject private var network = NetworkStatus()
+
     var body: some View {
         HStack(spacing: 22) {
+            if network.isOffline {
+                HStack(spacing: 6) {
+                    Image(systemName: "network.slash")
+                        .font(.system(size: 15, weight: .regular))
+                    Text(L("Offline"))
+                }
+                .foregroundStyle(Self.warningColor)
+                .accessibilityElement(children: .combine)
+            }
             TimelineView(.everyMinute) { context in
                 HStack(spacing: 10) {
                     Text(context.date, format: Self.dateFormat)
@@ -21,7 +33,7 @@ struct MaskStatusBar: View {
                             .font(.system(size: 17, weight: .regular))
                         Text(Double(battery.level) / 100, format: .percent.locale(Self.locale))
                     }
-                    .foregroundStyle(battery.isLow ? Color(red: 1, green: 0.27, blue: 0.23) : .white.opacity(0.75))
+                    .foregroundStyle(battery.isLow ? Self.warningColor : .white.opacity(0.75))
                     .accessibilityElement(children: .combine)
                 }
             }
@@ -29,6 +41,9 @@ struct MaskStatusBar: View {
         .font(.system(size: 15, weight: .medium).monospacedDigit())
         .foregroundStyle(.white.opacity(0.75))
     }
+
+    /// Low battery and no network: what can stop the work under the mask.
+    private static let warningColor = Color(red: 1, green: 0.27, blue: 0.23)
 
     /// The app's localization language combined with the system region.
     static let locale: Locale = {
