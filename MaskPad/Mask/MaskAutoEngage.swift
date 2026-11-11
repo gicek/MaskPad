@@ -6,13 +6,17 @@ import IOKit
 /// (0 = never), like the screen saver's idle trigger.
 ///
 /// There's no idle notification, so it polls `IOHIDSystem`'s `HIDIdleTime`. It engages when the
-/// threshold is reached, a passcode is set, the mask is off, the screen isn't locked, and no Screen
-/// Sharing session is connected.
+/// threshold is reached, a passcode is set, the mask is off, the screen isn't locked, no Screen
+/// Sharing session is connected, and nobody is watching the screen.
+///
+/// **Someone watching counts as activity** (unless turned off in Settings): like the system's own idle
+/// lock, it waits while an app keeps the display awake for video, a call, a presentation, a game or
+/// screen recording (`DisplaySleepBlockers`). The idle time starts over when that ends.
 ///
 /// **HID idle time doesn't see remote input** (Screen Sharing, Computer Use tools), so these also count as activity:
 /// - the moment the mask is dismissed (a remote unlock doesn't reset HID idle);
 /// - the moment the screen unlocks (Apple Watch / Touch ID don't go through HID);
-/// - a Screen Sharing session detected when the threshold is hit (restarts the timer).
+/// - a Screen Sharing session, or someone watching, detected when the threshold is hit (restarts the timer).
 /// Otherwise the mask would re-engage on the next poll after every remote unlock.
 ///
 /// While auto-engage can actually happen (threshold set, passcode set, Accessibility granted, not locked),
@@ -33,11 +37,12 @@ final class MaskAutoEngage {
 
     /// Lock state from the previous poll, to detect the moment of unlock.
     private var wasScreenLocked = false
-    /// Last unlock, mask dismissal, and Screen Sharing detection; each counts as user activity.
+    /// Last unlock, mask dismissal, and detection of Screen Sharing or of someone watching; each counts
+    /// as user activity.
     private var unlockedAt: Date?
     private var disengagedAt: Date?
-    private var remoteSeenAt: Date?
-    private var screenSharingProbeInFlight = false
+    private var presenceSeenAt: Date?
+    private var presenceProbeInFlight = false
 
     /// A failure has already been reported. Auto-engage runs unattended, so reopening Settings every poll
     /// would be spam; reset by settings/passcode changes or a success.
@@ -98,20 +103,25 @@ final class MaskAutoEngage {
               isLocked == false,
               MaskController.shared.isEngaged == false,
               MaskPasscodeStore.shared.hasPasscode,
-              screenSharingProbeInFlight == false,
+              presenceProbeInFlight == false,
               Self.effectiveIdleSeconds(
                   hidIdle: Self.systemIdleSeconds(), now: Date(),
-                  activity: [unlockedAt, disengagedAt, remoteSeenAt]
+                  activity: [unlockedAt, disengagedAt, presenceSeenAt]
               ) >= thresholdSeconds
         else { return }
 
-        // Threshold reached: check for Screen Sharing in the background. If connected, treat it as activity.
-        screenSharingProbeInFlight = true
+        // Threshold reached: check in the background for Screen Sharing (spawns a process) and for
+        // someone watching the screen. Either one is treated as activity.
+        presenceProbeInFlight = true
+        let waitsForMedia = MaskSettings.shared.autoEngageWaitsForMedia
         Task {
-            let sharing = await Task.detached { ScreenSharingRelock.isScreenSharingActive() }.value
-            screenSharingProbeInFlight = false
-            if sharing {
-                remoteSeenAt = Date()
+            let present = await Task.detached {
+                (waitsForMedia && DisplaySleepBlockers.isSomeoneWatching())
+                    || ScreenSharingRelock.isScreenSharingActive()
+            }.value
+            presenceProbeInFlight = false
+            if present {
+                presenceSeenAt = Date()
             } else {
                 engage()
             }

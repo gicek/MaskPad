@@ -45,7 +45,8 @@ that operate your apps — while anyone walking by can neither see nor use the M
 - **Forgot your passcode?** "Unlock with Mac Password" locks the Mac; after you log in with your Mac
   password the mask is gone and you can set a new passcode.
 - **Optional**: turn on automatically after a period of inactivity, dim the screens after 20 seconds,
-  launch at login, and a global shortcut (⌃⌘L by default).
+  launch at login, and a global shortcut (⌃⌘L by default). Like the macOS idle lock, turning on when
+  idle waits while a video, a call, a presentation, a game or screen recording keeps the display awake.
 - **Turns on from other apps**: the `maskpad` command line and the `maskpad://on` URL, so a script, an
   AI agent or a launcher can cover the screen, for example when a long task starts.
 - **Updates itself** through Sparkle: checks daily (can be turned off in Settings), or choose
@@ -137,7 +138,11 @@ macOS login password or FileVault.
   Macs without a battery show only the date and time.
 - **The global shortcut** uses Carbon `RegisterEventHotKey`, which needs no extra permission.
 - **Auto-engage** polls the HID idle time. Unlocking the mask and an active Screen Sharing session
-  count as activity, since remote input doesn't reset the HID idle time.
+  count as activity, since remote input doesn't reset the HID idle time. So does an app that holds a
+  `PreventUserIdleDisplaySleep` power assertion (`DisplaySleepBlockers`), which is how macOS itself
+  knows someone is watching; the idle time starts over when it ends. Keep-awake tools such as
+  `caffeinate` and Amphetamine are recognized by name and don't count, because unattended tasks run
+  under them. This can be turned off in Settings.
 
 ## Building
 
@@ -279,8 +284,8 @@ build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x sparkle-key.
 ### Tests
 
 Unit tests cover the passcode, keypad, input-tap rules, lock detection, brightness recovery, idle
-detection and shortcuts. Tests never touch real state: the passcode store is in memory, settings use a
-separate defaults domain, and no global shortcut or menu bar item is created.
+detection, power assertions and shortcuts. Tests never touch real state: the passcode store is in
+memory, settings use a separate defaults domain, and no global shortcut or menu bar item is created.
 
 ## Localization
 

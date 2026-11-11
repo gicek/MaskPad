@@ -40,6 +40,12 @@ final class MaskSettings: ObservableObject {
         didSet { defaults.set(autoEngageMinutes, forKey: Self.autoEngageMinutesKey) }
     }
 
+    /// Idle auto-engage waits while an app keeps the display awake for a person: video, calls,
+    /// presentations, games, screen recording (`DisplaySleepBlockers`).
+    @Published var autoEngageWaitsForMedia: Bool {
+        didSet { defaults.set(autoEngageWaitsForMedia, forKey: Self.autoEngageWaitsForMediaKey) }
+    }
+
     /// Login item status. The system is the source of truth; re-read after toggling and when settings comes to the front.
     enum LoginItemState: Equatable {
         case off
@@ -60,6 +66,7 @@ final class MaskSettings: ObservableObject {
     private let defaults: UserDefaults
     private static let autoDimKey = "autoDim"
     private static let autoEngageMinutesKey = "autoEngageMinutes"
+    private static let autoEngageWaitsForMediaKey = "autoEngageWaitsForMedia"
     private static let showsMessageKey = "showsMessage"
     private static let messageKey = "message"
     /// Separate defaults domain for tests, cleared on each init so real user preferences are untouched.
@@ -76,6 +83,7 @@ final class MaskSettings: ObservableObject {
         // Values outside the options (old versions, manual edits) would show a blank picker; fall back to never.
         let minutes = self.defaults.integer(forKey: Self.autoEngageMinutesKey)
         autoEngageMinutes = Self.autoEngageOptions.contains(minutes) ? minutes : 0
+        autoEngageWaitsForMedia = self.defaults.object(forKey: Self.autoEngageWaitsForMediaKey) as? Bool ?? true
         showsMessage = self.defaults.bool(forKey: Self.showsMessageKey)
         message = MaskMessage.limited(self.defaults.string(forKey: Self.messageKey) ?? "")
         if TestEnvironment.isRunningInTests == false {
