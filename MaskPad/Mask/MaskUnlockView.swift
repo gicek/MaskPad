@@ -44,6 +44,8 @@ final class MaskUnlockViewModel: ObservableObject {
 
     var page: Page { flow.page }
     var enteredCount: Int { state.entered.count }
+    /// Wrong codes entered since the mask turned on.
+    var failedAttemptCount: Int { state.totalFailedAttempts }
 
     /// The message page's Unlock button.
     func unlock() { flow.unlock(now: Date()) }
@@ -190,8 +192,14 @@ struct MaskUnlockView: View {
                 .modifier(ShakeEffect(animatableData: CGFloat(model.shakeToken)))
                 .animation(.default, value: model.shakeToken)
 
+            // One line for both notices: the cooldown while it runs, otherwise how many wrong codes were
+            // entered since the mask turned on, so the owner coming back knows someone tried.
             if let remaining = model.cooldownRemaining {
                 Text(L("Too many attempts. Try again in \(remaining)s"))
+                    .font(.callout)
+                    .foregroundStyle(.orange)
+            } else if model.failedAttemptCount > 0 {
+                Text(failedAttemptsText(model.failedAttemptCount))
                     .font(.callout)
                     .foregroundStyle(.orange)
             }
@@ -214,6 +222,10 @@ struct MaskUnlockView: View {
             .buttonStyle(.plain)
         }
         .transition(.opacity)
+    }
+
+    private func failedAttemptsText(_ attempts: Int) -> String {
+        attempts == 1 ? L("1 wrong passcode attempt") : L("\(attempts) wrong passcode attempts")
     }
 
     /// Forgot passcode: lock the Mac, log in with the Mac password to dismiss the mask, then reset the

@@ -65,4 +65,23 @@ final class MaskUnlockStateTests: XCTestCase {
         state.deleteDigit()
         XCTAssertTrue(state.entered.isEmpty)
     }
+
+    /// The total keeps counting across cooldowns and correct entry of digits, for the notice on the keypad.
+    func testTotalFailedAttemptsIsNeverReset() {
+        var state = MaskUnlockState()
+        for _ in 0 ..< MaskUnlockState.maxAttempts {
+            XCTAssertEqual(type("000000", into: &state, now: epoch) { _ in false }, .rejected)
+        }
+        XCTAssertEqual(state.totalFailedAttempts, MaskUnlockState.maxAttempts)
+        // Ignored while cooling down.
+        XCTAssertEqual(type("000000", into: &state, now: epoch) { _ in false }, .throttled)
+        XCTAssertEqual(state.totalFailedAttempts, MaskUnlockState.maxAttempts)
+        // After the cooldown the per-round count starts over; the total goes on.
+        let later = epoch.addingTimeInterval(MaskUnlockState.cooldown + 1)
+        XCTAssertEqual(type("000000", into: &state, now: later) { _ in false }, .rejected)
+        XCTAssertEqual(state.failedAttempts, 1)
+        XCTAssertEqual(state.totalFailedAttempts, MaskUnlockState.maxAttempts + 1)
+        state.clearEntry()
+        XCTAssertEqual(state.totalFailedAttempts, MaskUnlockState.maxAttempts + 1)
+    }
 }
