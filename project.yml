@@ -9,6 +9,10 @@ options:
     macOS: "14.0"
 
 packages:
+  MediaRemoteAdapter:
+    url: https://github.com/ejbills/mediaremote-adapter.git
+    # Pin the helper and its Swift wrapper together; there are no versioned releases.
+    revision: 7d5b6cc99b933ae2a2378d11ee9798acf6b69009
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
     exactVersion: 2.10.1  # pinned so releases are reproducible (Package.resolved is not committed)
@@ -38,6 +42,9 @@ targets:
     sources:
       - path: MaskPad
     dependencies:
+      - package: MediaRemoteAdapter
+        embed: true
+        codeSign: true
       - package: Sparkle
     info:
       path: MaskPad/Info.plist
@@ -88,6 +95,8 @@ targets:
       - path: Tests
     dependencies:
       - target: MaskPad
+      - package: MediaRemoteAdapter
+        embed: false
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

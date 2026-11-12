@@ -44,6 +44,7 @@ final class MaskController: ObservableObject {
 
     private var windows: [NSWindow] = []
     private let blocker = MaskInputBlocker()
+    private let nowPlaying = MaskNowPlaying()
     private var unlockModel: MaskUnlockViewModel?
     /// Touch ID while the keypad shows (`MaskTouchIDSession`); does nothing when off in Settings.
     private var touchID: MaskTouchIDSession?
@@ -130,6 +131,7 @@ final class MaskController: ObservableObject {
             }
         )
         unlockModel = model
+        nowPlaying.start()
         buildWindows(model: model, touchID: touchID)
 
         // Rebuild windows when displays are added/removed or change resolution.
@@ -395,6 +397,7 @@ final class MaskController: ObservableObject {
     func disengage() {
         guard isEngaged else { return }
         isEngaged = false
+        nowPlaying.stop()
         Log.mask.notice("disengaged")
         stopSystemLockMonitoring()
         idleTimer?.invalidate()
@@ -460,7 +463,7 @@ final class MaskController: ObservableObject {
                 .canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle,
             ]
             window.contentView = MaskHostingView(rootView: MaskUnlockView(
-                model: model, touchID: touchID, window: ObjectIdentifier(window)
+                model: model, touchID: touchID, window: ObjectIdentifier(window), media: nowPlaying
             ))
             // Exactly the screen, whatever the content asks for (see `MaskHostingView`).
             window.setFrame(screen.frame, display: false)

@@ -42,7 +42,8 @@ again after every rebuild; [Signing](README.md#signing) explains how to avoid th
 - When unsure, keep the mask: wrongly keeping it costs one passcode entry, wrongly removing it is a
   bypass.
 - Key input is never logged.
-- No new dependencies without discussion; Sparkle is the only one.
+- Discuss new dependencies before adding them. Sparkle and MediaRemoteAdapter are the current dependencies,
+  pinned in `project.yml`.
 - Private frameworks are looked up at run time (`dlsym`), and every use has a fallback when the symbol is
   missing.
 

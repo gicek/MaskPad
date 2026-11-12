@@ -142,6 +142,7 @@ struct MaskUnlockView: View {
     @ObservedObject var touchID: MaskTouchIDSession
     /// The mask window this copy is in; the key window shows the system's Touch ID view (`MaskTouchIDIcon`).
     let window: ObjectIdentifier
+    @ObservedObject var media: MaskNowPlaying
 
     private static let keySide: CGFloat = 72
     private static let keySpacing: CGFloat = 20
@@ -162,9 +163,16 @@ struct MaskUnlockView: View {
         .animation(.easeInOut(duration: 0.2), value: model.page)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
-            MaskStatusBar()
+            GeometryReader { geometry in
+                VStack(alignment: .trailing, spacing: 20) {
+                    MaskStatusBar()
+                    // Leave the centered keypad and a gutter clear even at 800 x 600.
+                    MaskNowPlayingView(media: media, width: min(324, max(180, (geometry.size.width - 300) / 2 - 56)))
+                }
                 .padding(.top, 22)
                 .padding(.trailing, 28)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            }
         }
         .overlay(alignment: .bottom) {
             if model.showsExternalDisplayHint {

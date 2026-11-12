@@ -28,7 +28,7 @@ that operate your apps — while anyone walking by can neither see nor use the M
 - **Covers every display**, including full-screen apps, the menu bar, the Dock and notifications.
 - **Blocks local input**: keyboard shortcuts, app switching, Force Quit, right-click, scrolling and
   gestures all stop working, and hot corners don't fire (the pointer can't reach the screen corners).
-  Only the mouse pointer and clicks or touches on the keypad get through.
+  Only the mouse pointer and clicks or touches on the mask's buttons get through.
 - **Can show your own message** in large type on the mask, such as "‼️Please don't shut down or
   close the lid‼️ Thanks": up to 120 characters and 3 lines, with an Unlock button that leads to the
   keypad. Keyboard digits only count after Unlock, and the mask returns to the message after 30
@@ -40,6 +40,9 @@ that operate your apps — while anyone walking by can neither see nor use the M
 - **Shows the date, time and battery level** in the top-right corner of the mask, formatted for the
   app's language. The battery turns red below 20 % when not plugged in, and a red "Offline" appears
   while the Mac has no network connection.
+- **Controls the current media player** from the mask: a compact card shows the title, artist,
+  available artwork and playback progress, with previous, play/pause and next buttons. It follows
+  macOS Now Playing across supported music apps and browsers, and hides when no media is available.
 - **Shows that someone tried**: the keypad says how many wrong passcodes were entered since the mask
   turned on.
 - **Keeps your work running**: apps under the mask keep rendering, and tools that operate individual
@@ -106,7 +109,7 @@ macOS login password or FileVault.
 - **Remote input is not blocked.** Input from macOS Screen Sharing and from tools that send events
   directly to apps bypasses the mask by design, so anyone with remote access to the Mac can still use
   it.
-- **Only a person can use the keypad.** The mask's buttons accept clicks from a real mouse or
+- **Only a person can use the mask's buttons.** The mask's buttons accept clicks from a real mouse or
   trackpad, touches on a touch screen and clicks through Screen Sharing; the passcode can also be typed
   on a physical keyboard. Clicks, key presses and Accessibility actions from other processes, such as
   Computer Use agents working under the mask, are ignored, so they can't enter digits, start the
@@ -122,7 +125,7 @@ macOS login password or FileVault.
 - **Locking the Mac removes the mask.** Anyone at the keyboard can use "Unlock with Mac Password" to
   lock the Mac, which interrupts whatever was running; getting back in still requires the Mac password.
   Closing the lid only removes the mask when macOS actually asks for the password on wake.
-- **Private frameworks.** MaskPad uses SkyLight, DisplayServices and login.framework, which future
+- **Private frameworks.** MaskPad uses SkyLight, DisplayServices, login.framework and MediaRemote, which future
   macOS versions may change.
 
 ## How It Works
@@ -149,6 +152,13 @@ macOS login password or FileVault.
   usable network path over Wi‑Fi, Ethernet or cellular for 5 seconds (a VPN's tunnel interface alone
   doesn't count), not that a particular server is unreachable.
 - **The global shortcut** uses Carbon `RegisterEventHotKey`, which needs no extra permission.
+- **Now Playing** uses [MediaRemoteAdapter](https://github.com/ejbills/mediaremote-adapter), a
+  BSD-3-Clause Swift package based on [ungive/mediaremote-adapter](https://github.com/ungive/mediaremote-adapter).
+  Its bundled helper reads the system MediaRemote session through `/usr/bin/perl`, including on macOS
+  15.4 and later. All mask windows share one listener, stopped when the mask is dismissed. Track
+  information is displayed only on the mask and is never logged. Playback controls accept the same
+  person-originated clicks as the keypad. Apps must publish Now Playing metadata to appear; video
+  sessions may appear too. The integration uses private system APIs and can be affected by macOS updates.
 - **Auto-engage** polls the HID idle time. Unlocking the mask and an active Screen Sharing session
   count as activity, since remote input doesn't reset the HID idle time. So does an app that holds a
   `PreventUserIdleDisplaySleep` power assertion (`DisplaySleepBlockers`), which is how macOS itself
@@ -190,7 +200,7 @@ blocked by Gatekeeper.
 
 None of these need Xcode open: they build with `xcodebuild` and generate the `.xcodeproj` from
 `project.yml` themselves (it is not committed). Swift packages are fetched once into
-`build/SourcePackages`, and Sparkle is pinned to an exact version in `project.yml`. Builds use the
+`build/SourcePackages`, and Sparkle and MediaRemoteAdapter are pinned in `project.yml`. Builds use the
 Xcode selected with `xcode-select`, or `/Applications/Xcode.app` when that is the Command Line Tools;
 set `DEVELOPER_DIR` to choose another. For full `xcodebuild` output, pass `XCODEBUILD_FLAGS=`.
 
