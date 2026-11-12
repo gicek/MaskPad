@@ -109,6 +109,47 @@ final class MaskUnlockViewModelTests: XCTestCase {
         XCTAssertTrue(model.state.isThrottled(at: Date()))
     }
 
+    // MARK: - Touch ID
+
+    /// Touch ID waits for a finger only while the keypad shows: the model reports each time the keypad
+    /// comes up or goes away, and nothing for the page it starts on or for input on the keypad.
+    func testReportsWhenTheKeypadShows() {
+        var reports: [Bool] = []
+        let model = MaskUnlockViewModel(
+            message: "Hi", onLockSystem: {}, verify: { $0 == "123456" }, onUnlock: {},
+            onKeypadShown: { reports.append($0) }
+        )
+        addTeardownBlock { model.stopTimers() }
+        XCTAssertEqual(reports, [])
+
+        model.unlock()
+        XCTAssertEqual(reports, [true])
+        model.tap(digit: "1")
+        model.deleteDigit()
+        XCTAssertEqual(reports, [true])
+
+        model.showForgotPasscode()
+        XCTAssertEqual(reports, [true, false])
+        // A digit typed on "Forgot Passcode" switches back to the keypad.
+        model.tap(digit: "1")
+        XCTAssertEqual(reports, [true, false, true])
+
+        model.showStartPage()
+        XCTAssertEqual(reports, [true, false, true, false])
+    }
+
+    /// Without a message the keypad stays up through an idle restart: no report, Touch ID keeps waiting.
+    func testIdleRestartOnKeypadReportsNothing() {
+        var reports: [Bool] = []
+        let model = MaskUnlockViewModel(
+            onLockSystem: {}, verify: { $0 == "123456" }, onUnlock: {}, onKeypadShown: { reports.append($0) }
+        )
+        addTeardownBlock { model.stopTimers() }
+        model.restartIfIdle(now: Date().addingTimeInterval(MaskUnlockFlow.returnDelay + 1))
+        model.showStartPage()
+        XCTAssertEqual(reports, [])
+    }
+
     // MARK: - Keypad
 
     func testStartsOnKeypadAndTogglesPages() {

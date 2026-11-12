@@ -4,7 +4,7 @@ import Carbon.HIToolbox
 import Combine
 import SwiftUI
 
-/// Screen mask: full-screen cover, local input blocking, and keypad unlock. Hides the screen and
+/// Screen mask: full-screen cover, local input blocking, and unlock by passcode or Touch ID. Hides the screen and
 /// prevents local input without locking the system.
 ///
 /// - **The mask window uses alpha 0.99 with isOpaque = false** so WindowServer doesn't treat covered
@@ -45,6 +45,8 @@ final class MaskController: ObservableObject {
     private var windows: [NSWindow] = []
     private let blocker = MaskInputBlocker()
     private var unlockModel: MaskUnlockViewModel?
+    /// Touch ID while the keypad shows (`MaskTouchIDSession`); does nothing when off in Settings.
+    private var touchID: MaskTouchIDSession?
     private var previousPresentationOptions: NSApplication.PresentationOptions?
     private var screenObserver: NSObjectProtocol?
 
@@ -111,14 +113,22 @@ final class MaskController: ObservableObject {
             .disableForceQuit, .disableSessionTermination, .disableHideApplication,
         ]
 
+        let touchID = MaskTouchIDSession(isEnabled: MaskSettings.shared.touchIDUnlock) { [weak self] in
+            Log.mask.notice("unlocked with Touch ID")
+            self?.disengage()
+        }
+        self.touchID = touchID
         let model = MaskUnlockViewModel(
             message: MaskSettings.shared.maskMessage,
             onLockSystem: { [weak self] in self?.lockSystem() },
             verify: { passcode.matches($0) },
-            onUnlock: { [weak self] in self?.disengage() }
+            onUnlock: { [weak self] in self?.disengage() },
+            onKeypadShown: { shown in
+                if shown { touchID.start() } else { touchID.stop() }
+            }
         )
         unlockModel = model
-        buildWindows(model: model)
+        buildWindows(model: model, touchID: touchID)
 
         // Rebuild windows when displays are added/removed or change resolution.
         screenObserver = NotificationCenter.default.addObserver(
@@ -126,9 +136,10 @@ final class MaskController: ObservableObject {
             object: nil, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
-                guard let self, self.isEngaged, let model = self.unlockModel else { return }
+                guard let self, self.isEngaged, let model = self.unlockModel, let touchID = self.touchID
+                else { return }
                 self.blocker.hotCornerDisplays = HotCornerGuard.activeDisplayBounds()
-                self.buildWindows(model: model)
+                self.buildWindows(model: model, touchID: touchID)
                 // Dim overlays were built for the old screen set; wake and restart the timer.
                 // Connecting a display also implies someone is present.
                 self.lastActivity = Date()
@@ -398,17 +409,21 @@ final class MaskController: ObservableObject {
         // The run loop retains the model's timers; stop them explicitly or they outlive the model.
         unlockModel?.stopTimers()
         unlockModel = nil
+        touchID?.stop()
+        touchID = nil
         if let previousPresentationOptions {
             NSApp.presentationOptions = previousPresentationOptions
         }
         previousPresentationOptions = nil
     }
 
-    private func buildWindows(model: MaskUnlockViewModel) {
+    private func buildWindows(model: MaskUnlockViewModel, touchID: MaskTouchIDSession) {
+        // The Touch ID view lives in one of the windows; a wait can't move to a new one.
+        touchID.stop()
         for window in windows {
             window.orderOut(nil)
         }
-        windows = NSScreen.screens.map { screen in
+        windows = NSScreen.screens.enumerated().map { index, screen in
             let window = MaskWindow(
                 contentRect: screen.frame,
                 styleMask: .borderless,
@@ -426,7 +441,10 @@ final class MaskController: ObservableObject {
             window.collectionBehavior = [
                 .canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle,
             ]
-            window.contentView = MaskHostingView(rootView: MaskUnlockView(model: model))
+            // The Touch ID view goes on the main screen (the first one).
+            window.contentView = MaskHostingView(rootView: MaskUnlockView(
+                model: model, touchID: touchID, hostsTouchIDSensor: index == 0
+            ))
             // Exactly the screen, whatever the content asks for (see `MaskHostingView`).
             window.setFrame(screen.frame, display: false)
             window.makeKeyAndOrderFront(nil)
@@ -434,6 +452,9 @@ final class MaskController: ObservableObject {
         }
         // An external display unplugged while dimmed won't restore its brightness on its own, so show a hint.
         model.showsExternalDisplayHint = MaskSettings.shared.autoDim && Self.hasExternalDisplay()
+        if model.page == .keypad {
+            touchID.start()
+        }
     }
 
     private static func hasExternalDisplay() -> Bool {

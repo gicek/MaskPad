@@ -1,7 +1,7 @@
 import os
 
 /// Runtime logs: `/usr/bin/log show --predicate 'subsystem == "com.gicek.maskpad"'`.
-/// Only mask on/off, real screen-lock detection, hotkey registration failures, postponed update relaunches
+/// Only mask on/off, Touch ID unlocks and failed waits (the error code), real screen-lock detection, hotkey registration failures, postponed update relaunches
 /// and checks, ignored mask button presses, the network going offline or coming back while masked, and `maskpad://`
 /// commands are logged; never keystroke content.
 enum Log {

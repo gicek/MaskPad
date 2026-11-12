@@ -16,6 +16,10 @@ struct SettingsView: View {
 
     @State private var hasPasscode = MaskPasscodeStore.shared.hasPasscode
     @State private var canBlockLocalInput = MaskController.canBlockLocalInput
+    /// Read once: a Touch ID sensor doesn't come and go while Settings is open.
+    @State private var hasTouchID = MaskTouchIDSession.isSensorPresent
+    /// macOS locked Touch ID after too many unrecognized fingers; it needs the Mac password.
+    @State private var touchIDLocked = MaskTouchIDSession.isLockedOut
     @State private var newCode = ""
     @State private var confirmCode = ""
     /// Passcode errors (wrong length, mismatch, Keychain failure), shown at the bottom of the section.
@@ -67,6 +71,7 @@ struct SettingsView: View {
     private func refreshSystemState() {
         canBlockLocalInput = MaskController.canBlockLocalInput
         hasPasscode = MaskPasscodeStore.shared.hasPasscode
+        touchIDLocked = MaskTouchIDSession.isLockedOut
         commandLineToolState = CommandLineToolInstaller.state
         settings.refreshLaunchAtLogin()
     }
@@ -184,6 +189,27 @@ struct SettingsView: View {
             }
             if let passcodeError {
                 SettingsNote(passcodeError, isWarning: true)
+            }
+            if hasTouchID {
+                SettingsDivider()
+                SettingsRow(L("Unlock with Touch ID")) {
+                    Toggle("", isOn: $settings.touchIDUnlock)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .controlSize(.small)
+                }
+                if touchIDLocked, settings.touchIDUnlock {
+                    HStack(spacing: 12) {
+                        SettingsNote(L("Touch ID is locked. Enter your Mac password to use it again."), isWarning: true)
+                        Button(L("Enter Password")) {
+                            Task {
+                                _ = await MaskTouchIDSession.unlockWithMacPassword()
+                                touchIDLocked = MaskTouchIDSession.isLockedOut
+                            }
+                        }
+                        .controlSize(.small)
+                    }
+                }
             }
         }
     }

@@ -8,7 +8,12 @@ final class MaskUnlockViewModel: ObservableObject {
 
     /// The message shown before the keypad, or nil to start on the keypad.
     let message: String?
-    @Published private(set) var flow: MaskUnlockFlow
+    @Published private(set) var flow: MaskUnlockFlow {
+        didSet {
+            let shown = flow.page == .keypad
+            if shown != (oldValue.page == .keypad) { onKeypadShown(shown) }
+        }
+    }
     @Published private(set) var state = MaskUnlockState()
     /// Incremented on a wrong code to drive the shake animation.
     @Published private(set) var shakeToken = 0
@@ -22,6 +27,9 @@ final class MaskUnlockViewModel: ObservableObject {
     private let onLockSystem: () -> Void
     private let verify: (String) -> Bool
     private let onUnlock: () -> Void
+    /// The keypad came up (true) or went away (false); not called for the page the mask starts on.
+    /// Touch ID waits for a finger only while the keypad shows (`MaskTouchIDSession`).
+    private let onKeypadShown: (Bool) -> Void
     private var cooldownTimer: Timer?
     /// Checks every second whether to go back to the first page (`MaskUnlockFlow.returnDelay`).
     private var returnTimer: Timer?
@@ -30,13 +38,15 @@ final class MaskUnlockViewModel: ObservableObject {
         message: String? = nil,
         onLockSystem: @escaping () -> Void,
         verify: @escaping (String) -> Bool,
-        onUnlock: @escaping () -> Void
+        onUnlock: @escaping () -> Void,
+        onKeypadShown: @escaping (Bool) -> Void = { _ in }
     ) {
         self.message = message
         flow = MaskUnlockFlow(hasMessage: message != nil, now: Date())
         self.onLockSystem = onLockSystem
         self.verify = verify
         self.onUnlock = onUnlock
+        self.onKeypadShown = onKeypadShown
         returnTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.restartIfIdle(now: Date()) }
         }
@@ -65,7 +75,11 @@ final class MaskUnlockViewModel: ObservableObject {
 
     /// Back to the first page, digits cleared, after `MaskUnlockFlow.returnDelay` without input.
     func restartIfIdle(now: Date) {
-        if flow.restartIfIdle(now: now) {
+        // On a copy: this runs every second, and mutating `flow` in place publishes a change each time
+        // even when nothing changed, redrawing every mask window once a second.
+        var next = flow
+        if next.restartIfIdle(now: now) {
+            flow = next
             state.clearEntry()
         }
     }
@@ -125,6 +139,9 @@ final class MaskUnlockViewModel: ObservableObject {
 /// The black background comes from the mask window (alpha 0.99, see `MaskController`).
 struct MaskUnlockView: View {
     @ObservedObject var model: MaskUnlockViewModel
+    @ObservedObject var touchID: MaskTouchIDSession
+    /// Whether this screen's copy holds the system's Touch ID view; only one can (`MaskTouchIDSensorView`).
+    let hostsTouchIDSensor: Bool
 
     private static let keySide: CGFloat = 72
     private static let keySpacing: CGFloat = 20
@@ -184,7 +201,7 @@ struct MaskUnlockView: View {
 
     private var keypadPage: some View {
         VStack(spacing: 28) {
-            Text(L("Enter Passcode"))
+            Text(touchID.context == nil ? L("Enter Passcode") : L("Touch ID or Enter Passcode"))
                 .font(Self.titleFont)
                 .foregroundStyle(.white.opacity(0.85))
 
@@ -317,6 +334,7 @@ struct MaskUnlockView: View {
             }
             HStack(spacing: Self.keySpacing) {
                 Color.clear.frame(width: Self.keySide, height: Self.keySide)
+                    .overlay { MaskTouchIDIcon(touchID: touchID, hostsSensor: hostsTouchIDSensor) }
                 digitKey("0")
                 Button(action: personPress(model.deleteDigit)) {
                     Image(systemName: "delete.left")

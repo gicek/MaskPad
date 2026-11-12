@@ -15,6 +15,12 @@ final class MaskSettings: ObservableObject {
         didSet { defaults.set(autoDim, forKey: Self.autoDimKey) }
     }
 
+    /// While the keypad shows, a finger on Touch ID also turns the mask off (`MaskTouchID`). Has no effect
+    /// on a Mac without Touch ID.
+    @Published var touchIDUnlock: Bool {
+        didSet { defaults.set(touchIDUnlock, forKey: Self.touchIDUnlockKey) }
+    }
+
     /// Show `message` on the mask before the keypad (`MaskMessage`).
     @Published var showsMessage: Bool {
         didSet { defaults.set(showsMessage, forKey: Self.showsMessageKey) }
@@ -68,6 +74,7 @@ final class MaskSettings: ObservableObject {
     private static let autoEngageMinutesKey = "autoEngageMinutes"
     private static let autoEngageWaitsForMediaKey = "autoEngageWaitsForMedia"
     private static let showsMessageKey = "showsMessage"
+    private static let touchIDUnlockKey = "touchIDUnlock"
     private static let messageKey = "message"
     /// Separate defaults domain for tests, cleared on each init so real user preferences are untouched.
     static let testSuiteName = "com.gicek.maskpad.tests"
@@ -84,6 +91,8 @@ final class MaskSettings: ObservableObject {
         let minutes = self.defaults.integer(forKey: Self.autoEngageMinutesKey)
         autoEngageMinutes = Self.autoEngageOptions.contains(minutes) ? minutes : 0
         autoEngageWaitsForMedia = self.defaults.object(forKey: Self.autoEngageWaitsForMediaKey) as? Bool ?? true
+        // On by default: the same fingers already unlock the Mac, and logging in removes the mask.
+        touchIDUnlock = self.defaults.object(forKey: Self.touchIDUnlockKey) as? Bool ?? true
         showsMessage = self.defaults.bool(forKey: Self.showsMessageKey)
         message = MaskMessage.limited(self.defaults.string(forKey: Self.messageKey) ?? "")
         if TestEnvironment.isRunningInTests == false {

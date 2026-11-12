@@ -35,6 +35,8 @@ that operate your apps — while anyone walking by can neither see nor use the M
   seconds without input.
 - **Unlocks with a 6-digit passcode**, typed on the on-screen keypad or on the keyboard. Five wrong
   attempts trigger a 30-second cooldown, and digits left half-entered are cleared after 30 seconds.
+- **Unlocks with Touch ID** on a Mac that has it: while the keypad shows, rest a finger on the sensor.
+  Pressing the key (it is also the power key) stays blocked. Can be turned off in Settings.
 - **Shows the date, time and battery level** in the top-right corner of the mask, formatted for the
   app's language. The battery turns red below 20 % when not plugged in, and a red "Offline" appears
   while the Mac has no network connection.
@@ -109,6 +111,10 @@ macOS login password or FileVault.
   on a physical keyboard. Clicks, key presses and Accessibility actions from other processes, such as
   Computer Use agents working under the mask, are ignored, so they can't enter digits, start the
   wrong-passcode cooldown or lock the Mac. Ignored presses are logged with the process that sent them.
+- **Touch ID uses the fingerprints that unlock the Mac.** They are matched by the system (the Secure
+  Enclave), only while the keypad shows, with no fallback to the Mac password or an Apple Watch. After
+  five unrecognized fingers macOS locks Touch ID, for the mask and the lock screen alike, until the Mac
+  password is entered; until then only the passcode is left, and Settings offers to enter the password.
 - **The passcode is 6 digits.** It is stored in the Keychain as a salted SHA-256 hash.
 - **Restarting removes the mask.** After a restart (for example by holding the power button) the Mac
   falls back to its login password. If MaskPad itself crashes or is killed, the mask disappears and the
