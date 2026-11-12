@@ -21,14 +21,36 @@ final class MaskNowPlaying: ObservableObject {
     @Published private(set) var track: MaskMediaTrack?
     private var controller: (any MaskMediaControlling)?
     private let makeController: () -> any MaskMediaControlling
+    private let schedule: (TimeInterval, @escaping @MainActor () -> Void) -> Void
     private var generation = 0
+    /// Listener restarts left in this mask session (`maxRestarts`).
+    private var restartsLeft = 0
 
-    init(makeController: @escaping () -> any MaskMediaControlling = { MediaController() }) {
+    /// A listener that quits while masked (the helper crashed or was killed) is started again after
+    /// `restartDelay`: Settings can't be reached under the mask to turn the card off and on. At most
+    /// `maxRestarts` times per session, so a helper that can't run doesn't loop.
+    static let restartDelay: TimeInterval = 2
+    static let maxRestarts = 3
+
+    init(
+        makeController: @escaping () -> any MaskMediaControlling = { MediaController() },
+        schedule: @escaping (TimeInterval, @escaping @MainActor () -> Void) -> Void = { delay, action in
+            Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { _ in
+                MainActor.assumeIsolated { action() }
+            }
+        }
+    ) {
         self.makeController = makeController
+        self.schedule = schedule
     }
 
     func start() {
         guard controller == nil else { return }
+        restartsLeft = Self.maxRestarts
+        listen()
+    }
+
+    private func listen() {
         generation += 1
         let currentGeneration = generation
         let controller = makeController()
@@ -44,10 +66,26 @@ final class MaskNowPlaying: ObservableObject {
         controller.onListenerTerminated = { [weak self] in
             MainActor.assumeIsolated {
                 guard let self, self.generation == currentGeneration else { return }
-                self.track = nil
+                self.listenerTerminated()
             }
         }
         controller.startListening()
+    }
+
+    private func listenerTerminated() {
+        track = nil
+        controller?.onTrackInfoReceived = nil
+        controller?.onListenerTerminated = nil
+        controller = nil
+        // A new generation, so the queued restart is dropped if the mask turns off meanwhile.
+        generation += 1
+        guard restartsLeft > 0 else { return }
+        restartsLeft -= 1
+        let currentGeneration = generation
+        schedule(Self.restartDelay) { [weak self] in
+            guard let self, self.generation == currentGeneration, self.controller == nil else { return }
+            self.listen()
+        }
     }
 
     func stop() {

@@ -4941,54 +4941,54 @@
         }
       }
     },
-    "Set": {
+    "Set Passcode": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Festlegen"
+            "value": "Code festlegen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set"
+            "value": "Set Passcode"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurar"
+            "value": "Establecer código"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Définir"
+            "value": "Définir le code"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定"
+            "value": "パスコードを設定"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "설정"
+            "value": "암호 설정"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置"
+            "value": "设置密码"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定"
+            "value": "設定密碼"
           }
         }
       }

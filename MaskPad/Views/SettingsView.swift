@@ -167,7 +167,7 @@ struct SettingsView: View {
                 warning(L("Set a passcode first.")) { EmptyView() }
             } else {
                 warning(L("Set a passcode first.")) {
-                    Button(L("Set")) { page = .security }
+                    Button(L("Set Passcode")) { page = .security }
                 }
             }
         }

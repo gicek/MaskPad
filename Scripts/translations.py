@@ -16,14 +16,14 @@ T = {
  "Lecture d’exemple. Les commandes de l’aperçu n’agissent pas sur votre lecteur.",
  "Beispielwiedergabe. Die Vorschau steuert deinen Player nicht.",
 ),
-"Set": (
- "设置",
- "設定",
- "設定",
- "Configurar",
- "설정",
- "Définir",
- "Festlegen",
+"Set Passcode": (
+ "设置密码",
+ "設定密碼",
+ "パスコードを設定",
+ "Establecer código",
+ "암호 설정",
+ "Définir le code",
+ "Code festlegen",
 ),
 "Cancel": (
  "取消",

@@ -5,11 +5,37 @@ struct MaskAppearancePreview: View {
     @ObservedObject var settings: MaskSettings
     private static let canvas = CGSize(width: 1152, height: 720)
     private static let sampleDate = Date(timeIntervalSince1970: 1_566_561_660)
+    /// A made-up track with drawn artwork: the preview ships with the app, so no real song or cover.
     static let sampleTrack = MaskMediaTrack(.init(
-        title: "Lover", artist: "Taylor Swift", isPlaying: true,
+        title: "Evening Drive", artist: "Sample Artist", isPlaying: true,
         durationMicros: 221_300_000, elapsedTimeMicros: 83_000_000,
-        artwork: NSImage(named: "LoverPreview")
+        artwork: sampleArtwork
     ))!
+    /// Read once; the sensor doesn't come and go while Settings is open.
+    private static let hasTouchID = MaskTouchIDSession.isSensorPresent
+
+    private static let sampleArtwork = NSImage(size: NSSize(width: 200, height: 200), flipped: false) { rect in
+        NSGradient(colors: [
+            NSColor(red: 0.98, green: 0.55, blue: 0.62, alpha: 1),
+            NSColor(red: 0.55, green: 0.42, blue: 0.95, alpha: 1),
+            NSColor(red: 0.25, green: 0.70, blue: 0.95, alpha: 1),
+        ])?.draw(in: rect, angle: -45)
+        let note = NSImage(systemSymbolName: "music.note", accessibilityDescription: nil)?
+            .withSymbolConfiguration(.init(pointSize: 84, weight: .medium))
+        if let note {
+            let tinted = NSImage(size: note.size, flipped: false) { noteRect in
+                note.draw(in: noteRect)
+                NSColor.white.withAlphaComponent(0.85).set()
+                noteRect.fill(using: .sourceAtop)
+                return true
+            }
+            tinted.draw(in: NSRect(
+                x: rect.midX - note.size.width / 2, y: rect.midY - note.size.height / 2,
+                width: note.size.width, height: note.size.height
+            ))
+        }
+        return true
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -73,7 +99,8 @@ struct MaskAppearancePreview: View {
 
     private var keypad: some View {
         VStack(spacing: 28) {
-            Text(L("Enter Passcode"))
+            // Like the real keypad while Touch ID waits for a finger.
+            Text(settings.touchIDUnlock && Self.hasTouchID ? L("Touch ID or Enter Passcode") : L("Enter Passcode"))
                 .font(.system(size: 22))
                 .foregroundStyle(.white.opacity(0.85))
             HStack(spacing: 14) {

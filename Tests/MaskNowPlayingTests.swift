@@ -25,10 +25,6 @@ struct MaskNowPlayingTests {
         media.send(.togglePlayback)
         media.send(.next)
         #expect(controller.commands == ["previous", "toggle", "next"])
-        controller.onListenerTerminated?()
-        #expect(media.track == nil)
-        media.send(.next)
-        #expect(controller.commands.count == 3)
 
         media.stop()
         #expect(controller.stops == 1)
@@ -43,6 +39,49 @@ struct MaskNowPlayingTests {
         controller.onTrackInfoReceived?(nil)
         #expect(media.track == nil)
         media.stop()
+    }
+
+    /// A listener that quits while masked is started again, a few times at most, and never after the
+    /// mask is off.
+    @Test @MainActor func restartsAListenerThatQuits() {
+        var controllers: [TestMediaController] = []
+        var scheduled: [@MainActor () -> Void] = []
+        let media = MaskNowPlaying(
+            makeController: {
+                let controller = TestMediaController()
+                controllers.append(controller)
+                return controller
+            },
+            schedule: { _, action in scheduled.append(action) }
+        )
+        media.start()
+        controllers[0].onTrackInfoReceived?(TrackInfo(payload: .init(title: "Song", isPlaying: true)))
+        controllers[0].onListenerTerminated?()
+        // No card and no commands until the listener is back.
+        #expect(media.track == nil)
+        media.send(.next)
+        #expect(controllers[0].commands.isEmpty)
+        scheduled.removeLast()()
+        #expect(controllers.count == 2)
+
+        for restart in 2 ... MaskNowPlaying.maxRestarts {
+            controllers.last?.onListenerTerminated?()
+            #expect(scheduled.count == 1)
+            scheduled.removeLast()()
+            #expect(controllers.count == restart + 1)
+            #expect(controllers.last?.starts == 1)
+        }
+        controllers.last?.onListenerTerminated?()
+        #expect(scheduled.isEmpty)
+
+        // A restart queued when the mask turns off doesn't run.
+        media.stop()
+        media.start()
+        controllers.last?.onListenerTerminated?()
+        media.stop()
+        let count = controllers.count
+        scheduled.removeLast()()
+        #expect(controllers.count == count)
     }
 
     @Test func emptySessionsAreHidden() {
