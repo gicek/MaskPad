@@ -3,11 +3,12 @@ import SwiftUI
 /// A quiet companion to the status row. Artwork supplies the only color on the black mask.
 struct MaskNowPlayingView: View {
     @ObservedObject var media: MaskNowPlaying
+    @ObservedObject private var settings = MaskSettings.shared
     var width: CGFloat = 324
 
     var body: some View {
-        if let track = media.track {
-            MaskNowPlayingCard(track: track, width: width) { command in
+        if settings.showsNowPlaying, let track = media.track {
+            MaskNowPlayingCard(track: track, width: width, showsControls: settings.showsPlaybackControls) { command in
                 if MaskInputOrigin.currentEventIsPersonPress() { media.send(command) }
             }
         }
@@ -17,6 +18,7 @@ struct MaskNowPlayingView: View {
 struct MaskNowPlayingCard: View {
     let track: MaskMediaTrack
     var width: CGFloat = 324
+    var showsControls = true
     let onCommand: (MaskNowPlaying.Command) -> Void
     private var isCompact: Bool { width < 280 }
 
@@ -44,18 +46,20 @@ struct MaskNowPlayingCard: View {
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.white.opacity(0.5))
                     .accessibilityLabel(track.isPlaying ? L("Now playing") : L("Paused"))
-                    .accessibilityHidden(!isCompact)
-                if !isCompact {
+                    .accessibilityHidden(!isCompact || !showsControls)
+                if !isCompact || !showsControls {
                     Text(track.isPlaying ? L("Now playing") : L("Paused"))
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.white.opacity(0.6))
                 }
                 Spacer(minLength: 0)
-                HStack(spacing: 4) {
-                    control("backward.end.fill", label: L("Previous track"), command: .previous)
-                    control(track.isPlaying ? "pause.fill" : "play.fill",
-                            label: track.isPlaying ? L("Pause") : L("Play"), command: .togglePlayback, primary: true)
-                    control("forward.end.fill", label: L("Next track"), command: .next)
+                if showsControls {
+                    HStack(spacing: 4) {
+                        control("backward.end.fill", label: L("Previous track"), command: .previous)
+                        control(track.isPlaying ? "pause.fill" : "play.fill",
+                                label: track.isPlaying ? L("Pause") : L("Play"), command: .togglePlayback, primary: true)
+                        control("forward.end.fill", label: L("Next track"), command: .next)
+                    }
                 }
             }
 

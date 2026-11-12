@@ -2,9 +2,8 @@ import AppKit
 import ServiceManagement
 import SwiftUI
 
-/// Settings window: blockers at the top (missing permission or passcode), then Passcode, Screen Mask,
-/// Keyboard Shortcut, General, and a Screen Sharing section when relevant. Turning on the mask and quitting
-/// live in the status menu. The passcode is stored in the Keychain as a salted hash, never in UserDefaults.
+/// Categorized settings with a stable sidebar and independently scrolling detail pages.
+/// The passcode stays in the Keychain; all other preferences apply as they change.
 struct SettingsView: View {
     @ObservedObject var settings: MaskSettings
     @ObservedObject var hotKeys: HotKeyBindingStore
@@ -34,23 +33,21 @@ struct SettingsView: View {
     @State private var commandLineToolState = CommandLineToolInstaller.state
     @State private var commandLineToolChanging = false
     @State private var commandLineToolFailed = false
-    /// Measured content height. Window height is min(content, `maxHeight`); the rest scrolls.
-    @State private var contentHeight: CGFloat = Self.maxHeight
+    @State private var page: SettingsPage = .general
 
-    private static let maxHeight: CGFloat = 660
     private static let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
 
     var body: some View {
-        ScrollView(.vertical) {
-            content.background(GeometryReader { proxy in
-                Color.clear.preference(key: SettingsContentHeightKey.self, value: proxy.size.height)
-            })
+        HStack(spacing: 0) {
+            sidebar
+            Divider()
+            ScrollView(.vertical) {
+                content
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .id(page)
         }
-        .scrollBounceBehavior(.basedOnSize)
-        // The window sizes to this frame (NSHostingController's preferredContentSize): it fits the content
-        // up to 660pt, then scrolls.
-        .frame(width: 460, height: min(contentHeight, Self.maxHeight))
-        .onPreferenceChange(SettingsContentHeightKey.self) { contentHeight = $0 }
+        .frame(minWidth: 720, minHeight: 500)
         .onAppear {
             refreshSystemState()
             Task { await refreshRelockState() }
@@ -76,20 +73,73 @@ struct SettingsView: View {
         settings.refreshLaunchAtLogin()
     }
 
+    private var sidebar: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 9) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 28, height: 28)
+                    .accessibilityHidden(true)
+                Text(verbatim: "MaskPad")
+                    .font(.system(size: 15, weight: .semibold))
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 22)
+            .padding(.bottom, 16)
+
+            List(selection: $page) {
+                ForEach(SettingsPage.allCases) { destination in
+                    Label(destination.title, systemImage: destination.symbol)
+                        .font(.system(size: 13))
+                        .padding(.vertical, 4)
+                        .tag(destination)
+                }
+            }
+            .listStyle(.sidebar)
+            .scrollContentBackground(.hidden)
+
+            Text(L("Version \(Self.appVersion)"))
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                .padding(20)
+        }
+        .frame(width: 184)
+        .background(.quinary)
+    }
+
     private var content: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 7) {
+                Text(page.title)
+                    .font(.system(size: 24, weight: .semibold))
+                Text(page.subtitle)
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             warnings
-            passcodeSection
-            maskSection
-            shortcutSection
-            generalSection
-            // Only shown when relevant: sharing is active, or the setting was changed (keep a way to restore it).
-            if screenSharingActive || relockRestores == false {
-                screenSharingSection
+            switch page {
+            case .general:
+                generalSection
+                shortcutSection
+                updatesSection
+            case .mask:
+                maskSection
+            case .appearance:
+                messageSection
+                nowPlayingSection
+            case .security:
+                passcodeSection
+            case .integrations:
+                SettingsSection(L("Command line tool")) { commandLineToolRows }
+                // Keep a way to restore the setting after sharing ends.
+                if screenSharingActive || relockRestores == false {
+                    screenSharingSection
+                }
             }
         }
-        .padding(20)
-        .frame(width: 460, alignment: .leading)
+        .padding(28)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Warnings
@@ -118,7 +168,13 @@ struct SettingsView: View {
             .background(GuideAnchorReader(anchor: accessibilityAnchor))
         }
         if hasPasscode == false {
-            warning(L("Set a passcode first.")) { EmptyView() }
+            if page == .security {
+                warning(L("Set a passcode first.")) { EmptyView() }
+            } else {
+                warning(L("Set a passcode first.")) {
+                    Button(L("Passcode")) { page = .security }
+                }
+            }
         }
     }
 
@@ -215,7 +271,7 @@ struct SettingsView: View {
     }
 
     private var maskSection: some View {
-        SettingsSection(L("Screen Mask")) {
+        SettingsSection(L("Automatic behavior")) {
             SettingsRow(L("Turn on when idle")) {
                 Picker("", selection: $settings.autoEngageMinutes) {
                     ForEach(MaskSettings.autoEngageOptions, id: \.self) { minutes in
@@ -249,19 +305,44 @@ struct SettingsView: View {
             SettingsNote(L("After 20 seconds without activity, hides the keypad and dims the screen."))
 
             SettingsDivider()
+            SettingsNote(L("Apps under the mask keep running. Computer Use tools that work per window are unaffected; remote desktops see the keypad and can unlock."))
+        }
+    }
+
+    private var messageSection: some View {
+        SettingsSection(L("Message")) {
             SettingsRow(L("Show a message")) {
                 Toggle("", isOn: $settings.showsMessage)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
+                    .accessibilityLabel(L("Show a message"))
             }
-            if settings.showsMessage {
-                messageEditor
-            }
+            if settings.showsMessage { messageEditor }
             SettingsNote(L("Shows text on the screen mask."))
+        }
+    }
 
+    private var nowPlayingSection: some View {
+        SettingsSection(L("Now playing")) {
+            SettingsRow(L("Show now playing")) {
+                Toggle("", isOn: $settings.showsNowPlaying)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .accessibilityLabel(L("Show now playing"))
+            }
+            SettingsNote(L("Shows the current track or video on the screen mask."))
             SettingsDivider()
-            SettingsNote(L("Apps under the mask keep running. Computer Use tools that work per window are unaffected; remote desktops see the keypad and can unlock."))
+            SettingsRow(L("Show playback controls")) {
+                Toggle("", isOn: $settings.showsPlaybackControls)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .accessibilityLabel(L("Show playback controls"))
+            }
+            .disabled(!settings.showsNowPlaying)
+            SettingsNote(L("Allows play, pause and track changes without unlocking the mask."))
         }
     }
 
@@ -314,7 +395,7 @@ struct SettingsView: View {
     }
 
     private var generalSection: some View {
-        SettingsSection(L("General")) {
+        SettingsSection(L("Startup")) {
             SettingsRow(L("Launch at login")) {
                 Toggle("", isOn: $settings.launchAtLogin)
                     .labelsHidden()
@@ -331,11 +412,11 @@ struct SettingsView: View {
             if settings.launchAtLoginChangeFailed {
                 SettingsNote(L("Couldn't update Login Items."), isWarning: true)
             }
+        }
+    }
 
-            SettingsDivider()
-            commandLineToolRows
-
-            SettingsDivider()
+    private var updatesSection: some View {
+        SettingsSection(L("Updates")) {
             SettingsRow(L("Check for updates automatically")) {
                 Toggle("", isOn: $updater.automaticallyChecksForUpdates)
                     .labelsHidden()
@@ -354,7 +435,7 @@ struct SettingsView: View {
     /// The `maskpad` command in /usr/local/bin (`CommandLineToolInstaller`).
     @ViewBuilder
     private var commandLineToolRows: some View {
-        SettingsRow(L("Command line tool")) {
+        SettingsRow("maskpad") {
             switch commandLineToolState {
             case .notInstalled, .otherCopy:
                 Button(L("Install")) { changeCommandLineTool(install: true) }
@@ -515,9 +596,38 @@ struct SettingsView: View {
     }
 }
 
-private struct SettingsContentHeightKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
+/// Stable navigation, independent of whether optional controls are currently relevant.
+enum SettingsPage: String, CaseIterable, Identifiable {
+    case general, mask, appearance, security, integrations
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .general: L("General")
+        case .mask: L("Screen Mask")
+        case .appearance: L("Mask appearance")
+        case .security: L("Unlock & Security")
+        case .integrations: L("Integrations")
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .general: L("Startup, shortcuts and updates.")
+        case .mask: L("Choose when the mask appears and dims the screen.")
+        case .appearance: L("Choose what appears on the screen mask.")
+        case .security: L("Manage how you unlock the screen mask.")
+        case .integrations: L("Connect MaskPad to your tools and remote sessions.")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .general: "gearshape"
+        case .mask: "rectangle.on.rectangle"
+        case .appearance: "slider.horizontal.3"
+        case .security: "lock"
+        case .integrations: "puzzlepiece.extension"
+        }
     }
 }

@@ -26,6 +26,16 @@ final class MaskSettings: ObservableObject {
         didSet { defaults.set(showsMessage, forKey: Self.showsMessageKey) }
     }
 
+    /// System Now Playing metadata on the mask. Off also stops the helper process.
+    @Published var showsNowPlaying: Bool {
+        didSet { defaults.set(showsNowPlaying, forKey: Self.showsNowPlayingKey) }
+    }
+
+    /// Independent preference, retained when the Now Playing card is turned off.
+    @Published var showsPlaybackControls: Bool {
+        didSet { defaults.set(showsPlaybackControls, forKey: Self.showsPlaybackControlsKey) }
+    }
+
     /// The mask message as typed, kept within `MaskMessage` limits.
     @Published var message: String {
         didSet {
@@ -74,6 +84,8 @@ final class MaskSettings: ObservableObject {
     private static let autoEngageMinutesKey = "autoEngageMinutes"
     private static let autoEngageWaitsForMediaKey = "autoEngageWaitsForMedia"
     private static let showsMessageKey = "showsMessage"
+    private static let showsNowPlayingKey = "showsNowPlaying"
+    private static let showsPlaybackControlsKey = "showsPlaybackControls"
     private static let touchIDUnlockKey = "touchIDUnlock"
     private static let messageKey = "message"
     /// Separate defaults domain for tests, cleared on each init so real user preferences are untouched.
@@ -94,6 +106,8 @@ final class MaskSettings: ObservableObject {
         // On by default: the same fingers already unlock the Mac, and logging in removes the mask.
         touchIDUnlock = self.defaults.object(forKey: Self.touchIDUnlockKey) as? Bool ?? true
         showsMessage = self.defaults.bool(forKey: Self.showsMessageKey)
+        showsNowPlaying = self.defaults.object(forKey: Self.showsNowPlayingKey) as? Bool ?? true
+        showsPlaybackControls = self.defaults.object(forKey: Self.showsPlaybackControlsKey) as? Bool ?? true
         message = MaskMessage.limited(self.defaults.string(forKey: Self.messageKey) ?? "")
         if TestEnvironment.isRunningInTests == false {
             refreshLaunchAtLogin()

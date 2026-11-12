@@ -43,6 +43,7 @@ that operate your apps — while anyone walking by can neither see nor use the M
 - **Controls the current media player** from the mask: a compact card shows the title, artist,
   available artwork and playback progress, with previous, play/pause and next buttons. It follows
   macOS Now Playing across supported music apps and browsers, and hides when no media is available.
+  In Settings > Mask appearance, hide the card entirely or show information without playback controls.
 - **Shows that someone tried**: the keypad says how many wrong passcodes were entered since the mask
   turned on.
 - **Keeps your work running**: apps under the mask keep rendering, and tools that operate individual
@@ -81,7 +82,7 @@ MaskPad can be turned on, but never off, from outside: any app can cover the scr
 at the Mac (or through Screen Sharing) can remove the mask, with the passcode. If there is no passcode
 or no Accessibility permission yet, MaskPad opens Settings instead.
 
-**Command line.** In Settings > General, **Install** next to "Command line tool" adds the `maskpad`
+**Command line.** In Settings > Integrations > Command line tool, **Install** adds the `maskpad`
 command to `/usr/local/bin` (it may ask for an administrator password); **Remove** takes it away. The
 command is a link to MaskPad's own executable, so Settings offers to install it again if MaskPad moves.
 
@@ -156,7 +157,9 @@ macOS login password or FileVault.
   BSD-3-Clause Swift package based on [ungive/mediaremote-adapter](https://github.com/ungive/mediaremote-adapter).
   Its bundled helper reads the system MediaRemote session through `/usr/bin/perl`, including on macOS
   15.4 and later. All mask windows share one listener, stopped when the mask is dismissed. Track
-  information is displayed only on the mask and is never logged. Playback controls accept the same
+  display and playback controls have separate saved preferences, both on by default. Turning off the
+  display also stops the listener; the control preference is retained for when the card is enabled again.
+  Track information is displayed only on the mask and is never logged. Playback controls accept the same
   person-originated clicks as the keypad. Apps must publish Now Playing metadata to appear; video
   sessions may appear too. The integration uses private system APIs and can be affected by macOS updates.
 - **Auto-engage** polls the HID idle time. Unlocking the mask and an active Screen Sharing session

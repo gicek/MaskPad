@@ -45,6 +45,7 @@ final class MaskController: ObservableObject {
     private var windows: [NSWindow] = []
     private let blocker = MaskInputBlocker()
     private let nowPlaying = MaskNowPlaying()
+    private var nowPlayingPreference: AnyCancellable?
     private var unlockModel: MaskUnlockViewModel?
     /// Touch ID while the keypad shows (`MaskTouchIDSession`); does nothing when off in Settings.
     private var touchID: MaskTouchIDSession?
@@ -131,7 +132,9 @@ final class MaskController: ObservableObject {
             }
         )
         unlockModel = model
-        nowPlaying.start()
+        nowPlayingPreference = MaskSettings.shared.$showsNowPlaying.sink { [weak self] enabled in
+            if enabled { self?.nowPlaying.start() } else { self?.nowPlaying.stop() }
+        }
         buildWindows(model: model, touchID: touchID)
 
         // Rebuild windows when displays are added/removed or change resolution.
@@ -397,6 +400,7 @@ final class MaskController: ObservableObject {
     func disengage() {
         guard isEngaged else { return }
         isEngaged = false
+        nowPlayingPreference = nil
         nowPlaying.stop()
         Log.mask.notice("disengaged")
         stopSystemLockMonitoring()

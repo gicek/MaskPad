@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 /// Settings window (singleton). A menu bar app has no Dock icon, so it must activate itself when shown.
-/// Height follows content (`preferredContentSize`), so the window shrinks when banners or passcode fields go away.
+/// Stable, resizable dimensions keep navigation in place as settings pages change.
 @MainActor
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     static let shared = SettingsWindowController()
@@ -22,10 +22,13 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 
     private func makeWindow() -> NSWindow {
         let hosting = NSHostingController(rootView: SettingsView(settings: .shared, hotKeys: .shared))
-        hosting.sizingOptions = [.preferredContentSize]
+        hosting.sizingOptions = []
         let window = NSWindow(contentViewController: hosting)
         window.title = L("MaskPad Settings")
-        window.styleMask = [.titled, .closable, .miniaturizable]
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.contentMinSize = NSSize(width: 720, height: 500)
+        let availableHeight = NSScreen.main?.visibleFrame.height ?? 700
+        window.setContentSize(NSSize(width: 800, height: min(640, max(500, availableHeight - 60))))
         window.isReleasedWhenClosed = false
         window.delegate = self
         return window
