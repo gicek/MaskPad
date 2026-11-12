@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import os
 import MediaRemoteAdapter
 
 @MainActor
@@ -101,7 +102,8 @@ final class MaskNowPlaying: ObservableObject {
 
     func send(_ command: Command) {
         // No session means no controls: sending Play without one can launch a default player.
-        guard track != nil, let controller else { return }
+        guard let track, let controller else { return }
+        guard command == .togglePlayback || track.allowsSkipping else { return }
         switch command {
         case .previous: controller.previousTrack()
         case .togglePlayback: controller.togglePlayPause()
@@ -120,8 +122,10 @@ struct MaskMediaTrack {
     let elapsed: TimeInterval?
     let timestamp: Date?
     let rate: Double
+    /// Whether Previous and Next are offered (`MaskMediaSource`).
+    let allowsSkipping: Bool
 
-    init?(_ payload: TrackInfo.Payload) {
+    init?(_ payload: TrackInfo.Payload, isWebBrowser: (String) -> Bool = MaskMediaSource.isWebBrowser) {
         guard let title = Self.text(payload.title) else { return nil }
         self.title = title
         subtitle = Self.text(payload.artist) ?? Self.text(payload.applicationName) ?? ""
@@ -132,6 +136,7 @@ struct MaskMediaTrack {
         timestamp = Self.seconds(payload.timestampEpochMicros).map { Date(timeIntervalSince1970: $0) }
         let reportedRate = payload.playbackRate ?? 1
         rate = reportedRate.isFinite ? max(0, reportedRate) : 1
+        allowsSkipping = MaskMediaSource.allowsSkipping(bundleID: payload.bundleIdentifier, isWebBrowser: isWebBrowser)
     }
 
     func position(at date: Date) -> TimeInterval? {
@@ -149,4 +154,47 @@ struct MaskMediaTrack {
         guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else { return nil }
         return value
     }
+}
+
+/// Which players get Previous and Next on the mask. Only play/pause for video: in a browser, Next goes to
+/// another video or page, and a video player moves to another file, which can break what a tool under the
+/// mask is doing with that window. Music players keep all three.
+///
+/// Now Playing doesn't say whether a session is video, so it goes by the player: web browsers (any app
+/// that opens http and https links, and well-known browsers by bundle ID, which also covers their helper
+/// processes) and well-known video players. An unknown source gets only play/pause.
+enum MaskMediaSource {
+    static let browserPrefixes = [
+        "com.apple.Safari", "com.apple.WebKit", "com.google.Chrome", "org.chromium.", "org.mozilla.",
+        "com.microsoft.edgemac", "company.thebrowser.", "com.brave.Browser", "com.operasoftware.",
+        "com.vivaldi.", "app.zen-browser.", "com.kagi.kagimacOS",
+    ]
+
+    static let videoPlayers: Set<String> = [
+        "com.apple.QuickTimePlayerX", "com.apple.TV", "com.colliderli.iina", "org.videolan.vlc",
+        "io.mpv", "com.firecore.infuse", "com.movist.MovistPro", "com.netflix.Netflix",
+    ]
+
+    static func allowsSkipping(bundleID: String?, isWebBrowser: (String) -> Bool) -> Bool {
+        guard let bundleID, bundleID.isEmpty == false else { return false }
+        if videoPlayers.contains(bundleID) { return false }
+        if browserPrefixes.contains(where: { bundleID.hasPrefix($0) }) { return false }
+        return isWebBrowser(bundleID) == false
+    }
+
+    /// Whether the app declares itself a handler for web links. Read from its Info.plist, once per app.
+    static func isWebBrowser(_ bundleID: String) -> Bool {
+        cacheLock.withLock { cache in
+            if let known = cache[bundleID] { return known }
+            let isBrowser = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID)
+                .flatMap { Bundle(url: $0)?.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] }
+                .map { types in
+                    types.contains { ($0["CFBundleURLSchemes"] as? [String])?.contains { ["http", "https"].contains($0.lowercased()) } ?? false }
+                } ?? false
+            cache[bundleID] = isBrowser
+            return isBrowser
+        }
+    }
+
+    private static let cacheLock = OSAllocatedUnfairLock<[String: Bool]>(initialState: [:])
 }

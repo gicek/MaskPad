@@ -8,7 +8,7 @@ struct MaskAppearancePreview: View {
     /// A made-up track with drawn artwork: the preview ships with the app, so no real song or cover.
     static let sampleTrack = MaskMediaTrack(.init(
         title: "Evening Drive", artist: "Sample Artist", isPlaying: true,
-        durationMicros: 221_300_000, elapsedTimeMicros: 83_000_000,
+        durationMicros: 221_300_000, elapsedTimeMicros: 83_000_000, bundleIdentifier: "com.apple.Music",
         artwork: sampleArtwork
     ))!
     /// Read once; the sensor doesn't come and go while Settings is open.

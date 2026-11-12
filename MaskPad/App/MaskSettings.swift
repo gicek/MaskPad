@@ -31,6 +31,10 @@ final class MaskSettings: ObservableObject {
     }
 
     /// System Now Playing metadata on the mask. Off also stops the helper process.
+    ///
+    /// On for new installs, off for people upgrading from a version without it: the card shows what is
+    /// playing (a browser tab's video title, artwork) to anyone at the Mac, which the mask used to hide.
+    /// Decided once and stored, so it doesn't change when a passcode is set later.
     @Published var showsNowPlaying: Bool {
         didSet { defaults.set(showsNowPlaying, forKey: Self.showsNowPlayingKey) }
     }
@@ -95,7 +99,12 @@ final class MaskSettings: ObservableObject {
     /// Separate defaults domain for tests, cleared on each init so real user preferences are untouched.
     static let testSuiteName = "com.gicek.maskpad.tests"
 
-    init(defaults: UserDefaults = .standard) {
+    /// `isExistingInstall`: MaskPad was used before this version; a passcode is needed to use the mask, so
+    /// one already being set means an earlier version was. Only read when the Now Playing choice isn't stored.
+    init(
+        defaults: UserDefaults = .standard,
+        isExistingInstall: () -> Bool = { MaskPasscodeStore.shared.hasPasscode }
+    ) {
         if TestEnvironment.isRunningInTests, defaults === UserDefaults.standard {
             UserDefaults.standard.removePersistentDomain(forName: Self.testSuiteName)
             self.defaults = UserDefaults(suiteName: Self.testSuiteName)!
@@ -111,7 +120,12 @@ final class MaskSettings: ObservableObject {
         // On by default: the same fingers already unlock the Mac, and logging in removes the mask.
         touchIDUnlock = self.defaults.object(forKey: Self.touchIDUnlockKey) as? Bool ?? true
         showsMessage = self.defaults.bool(forKey: Self.showsMessageKey)
-        showsNowPlaying = self.defaults.object(forKey: Self.showsNowPlayingKey) as? Bool ?? true
+        let storedNowPlaying = self.defaults.object(forKey: Self.showsNowPlayingKey) as? Bool
+        let nowPlaying = storedNowPlaying ?? (isExistingInstall() == false)
+        if storedNowPlaying == nil {
+            self.defaults.set(nowPlaying, forKey: Self.showsNowPlayingKey)
+        }
+        showsNowPlaying = nowPlaying
         showsPlaybackControls = self.defaults.object(forKey: Self.showsPlaybackControlsKey) as? Bool ?? true
         message = MaskMessage.limited(self.defaults.string(forKey: Self.messageKey) ?? "")
         if TestEnvironment.isRunningInTests == false {

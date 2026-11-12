@@ -41,9 +41,12 @@ that operate your apps — while anyone walking by can neither see nor use the M
   app's language. The battery turns red below 20 % when not plugged in, and a red "Offline" appears
   while the Mac has no network connection.
 - **Controls the current media player** from the mask: a compact card shows the title, artist,
-  available artwork and playback progress, with previous, play/pause and next buttons. It follows
-  macOS Now Playing across supported music apps and browsers, and hides when no media is available.
-  In Settings > Mask Appearance, hide the card entirely or show information without playback controls.
+  available artwork and playback progress, with previous, play/pause and next buttons. For browsers
+  and video players it shows play/pause only, so the mask can't move a window to another video. It
+  follows macOS Now Playing across supported music apps and browsers, and hides when no media is
+  available. In Settings > Screen Mask, hide the card entirely or show information without playback
+  controls. On for new installs; after upgrading from an earlier version it stays off until you turn
+  it on.
 - **Shows that someone tried**: the keypad says how many wrong passcodes were entered since the mask
   turned on.
 - **Keeps your work running**: apps under the mask keep rendering, and tools that operate individual
@@ -110,6 +113,8 @@ MaskPad protects an unattended Mac from someone sitting down at it. It is not a 
 macOS login password or FileVault.
 
 - **Any app can turn the mask on**, through `maskpad://on` or the `maskpad` tool; none can turn it off.
+- **The media card shows what is playing.** When it is on, anyone at the Mac sees the title, artist and
+  artwork of the current media (for a browser, the page or video title) and can play or pause it.
 - **Remote input is not blocked.** Input from macOS Screen Sharing and from tools that send events
   directly to apps bypasses the mask by design, so anyone with remote access to the Mac can still use
   it.

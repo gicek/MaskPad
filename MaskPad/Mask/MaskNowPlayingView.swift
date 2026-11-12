@@ -56,10 +56,15 @@ struct MaskNowPlayingCard: View {
                 Spacer(minLength: 0)
                 if showsControls {
                     HStack(spacing: 4) {
-                        control("backward.end.fill", label: L("Previous track"), command: .previous)
+                        // Video and browsers: play/pause only (`MaskMediaSource`).
+                        if track.allowsSkipping {
+                            control("backward.end.fill", label: L("Previous track"), command: .previous)
+                        }
                         control(track.isPlaying ? "pause.fill" : "play.fill",
                                 label: track.isPlaying ? L("Pause") : L("Play"), command: .togglePlayback, primary: true)
-                        control("forward.end.fill", label: L("Next track"), command: .next)
+                        if track.allowsSkipping {
+                            control("forward.end.fill", label: L("Next track"), command: .next)
+                        }
                     }
                 }
             }

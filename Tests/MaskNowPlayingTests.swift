@@ -19,7 +19,7 @@ struct MaskNowPlayingTests {
         #expect(controller.commands.isEmpty)
 
         let queuedUpdate = try #require(controller.onTrackInfoReceived)
-        queuedUpdate(TrackInfo(payload: .init(title: "Song", isPlaying: true)))
+        queuedUpdate(TrackInfo(payload: .init(title: "Song", isPlaying: true, bundleIdentifier: "com.apple.Music")))
         #expect(media.track?.title == "Song")
         media.send(.previous)
         media.send(.togglePlayback)
@@ -82,6 +82,33 @@ struct MaskNowPlayingTests {
         let count = controllers.count
         scheduled.removeLast()()
         #expect(controllers.count == count)
+    }
+
+    /// Browsers and video players get play/pause only; music players all three.
+    @Test func skippingOnlyForMusicPlayers() {
+        let notBrowser: (String) -> Bool = { _ in false }
+        #expect(MaskMediaSource.allowsSkipping(bundleID: "com.apple.Music", isWebBrowser: notBrowser))
+        #expect(MaskMediaSource.allowsSkipping(bundleID: "com.spotify.client", isWebBrowser: notBrowser))
+        for video in ["com.google.Chrome", "com.google.Chrome.helper", "com.apple.Safari", "org.mozilla.firefox",
+                      "company.thebrowser.Browser", "com.apple.QuickTimePlayerX", "com.colliderli.iina"] {
+            #expect(MaskMediaSource.allowsSkipping(bundleID: video, isWebBrowser: notBrowser) == false)
+        }
+        #expect(MaskMediaSource.allowsSkipping(bundleID: "com.example.NewBrowser", isWebBrowser: { _ in true }) == false)
+        #expect(MaskMediaSource.allowsSkipping(bundleID: nil, isWebBrowser: notBrowser) == false)
+    }
+
+    /// Previous and Next aren't sent for a browser even if pressed some other way.
+    @Test @MainActor func noSkippingCommandsForBrowsers() throws {
+        let controller = TestMediaController()
+        let media = MaskNowPlaying(makeController: { controller }, schedule: { _, _ in })
+        media.start()
+        let update = try #require(controller.onTrackInfoReceived)
+        update(TrackInfo(payload: .init(title: "Video", isPlaying: true, bundleIdentifier: "com.google.Chrome")))
+        media.send(.next)
+        media.send(.previous)
+        media.send(.togglePlayback)
+        #expect(controller.commands == ["toggle"])
+        media.stop()
     }
 
     @Test func emptySessionsAreHidden() {
