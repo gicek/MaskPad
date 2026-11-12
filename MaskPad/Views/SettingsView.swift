@@ -116,7 +116,6 @@ struct SettingsView: View {
                 updatesSection
             case .mask:
                 maskSection
-            case .appearance:
                 messageSection
                 nowPlayingSection
                 MaskAppearancePreview(settings: settings)
@@ -672,14 +671,13 @@ struct SettingsView: View {
 
 /// Stable navigation, independent of whether optional controls are currently relevant.
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case general, mask, appearance, security, integrations, about
+    case general, mask, security, integrations, about
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .general: L("General")
         case .mask: L("Screen Mask")
-        case .appearance: L("Mask Appearance")
         case .security: L("Unlock & Security")
         case .integrations: L("Integrations")
         case .about: L("About")
@@ -690,7 +688,6 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         switch self {
         case .general: "gearshape"
         case .mask: "rectangle.on.rectangle"
-        case .appearance: "slider.horizontal.3"
         case .security: "lock"
         case .integrations: "puzzlepiece.extension"
         case .about: "info.circle"

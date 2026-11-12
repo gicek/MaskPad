@@ -160,15 +160,6 @@ T = {
  "Masquez vos écrans, laissez votre travail continuer.",
  "Bildschirme verdecken. Arbeit fortsetzen.",
 ),
-"Mask Appearance": (
- "遮罩显示",
- "遮罩顯示",
- "マスクの表示",
- "Apariencia de la máscara",
- "마스크 표시",
- "Affichage du masque",
- "Maskenanzeige",
-),
 "Message": (
  "留言",
  "留言",
