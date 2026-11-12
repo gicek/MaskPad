@@ -15,8 +15,11 @@ enum MaskCommand: String, CaseIterable, Equatable {
     case on
     case status
 
-    static let scheme = "maskpad"
-    static let replyNotification = Notification.Name("com.gicek.maskpad.commandReply")
+    static let scheme = AppIdentity.urlScheme
+    static let replyNotification = replyNotificationName(for: AppIdentity.bundleIdentifier)
+    static func replyNotificationName(for bundleIdentifier: String) -> Notification.Name {
+        Notification.Name(bundleIdentifier + ".commandReply")
+    }
     static let resultKey = "result"
 
     struct Request: Equatable {
@@ -27,7 +30,7 @@ enum MaskCommand: String, CaseIterable, Equatable {
 
     /// Parses `maskpad://<command>[?reply=<UUID>]`; nil for anything else. Only a well-formed UUID is
     /// accepted as the reply ID, so a URL can't make the app post an arbitrary notification object.
-    static func parse(_ url: URL) -> Request? {
+    static func parse(_ url: URL, scheme: String = Self.scheme) -> Request? {
         guard url.scheme?.lowercased() == scheme,
               let host = url.host(percentEncoded: false)?.lowercased(), let command = MaskCommand(rawValue: host),
               ["", "/"].contains(url.path(percentEncoded: false))
@@ -37,9 +40,9 @@ enum MaskCommand: String, CaseIterable, Equatable {
         return Request(command: command, replyID: reply.flatMap(UUID.init(uuidString:))?.uuidString)
     }
 
-    func url(replyID: String? = nil) -> URL {
+    func url(replyID: String? = nil, scheme: String = Self.scheme) -> URL {
         var components = URLComponents()
-        components.scheme = Self.scheme
+        components.scheme = scheme
         components.host = rawValue
         if let replyID { components.queryItems = [URLQueryItem(name: "reply", value: replyID)] }
         return components.url!

@@ -4,7 +4,7 @@ import Testing
 
 struct MaskCommandTests {
     private func parse(_ string: String) -> MaskCommand.Request? {
-        URL(string: string).flatMap(MaskCommand.parse)
+        URL(string: string).flatMap { MaskCommand.parse($0, scheme: "maskpad") }
     }
 
     @Test func parsesCommands() {

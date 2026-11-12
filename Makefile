@@ -43,8 +43,7 @@ build: project ## Build the Debug app into build/debug
 	@ditto $(DERIVED_DATA)/Build/Products/Debug/MaskPad.app $(DEBUG_APP)
 	@echo "==> $(DEBUG_APP)"
 
-run: build ## Build and launch the Debug app, quitting a running copy first
-	@pkill -x MaskPad || true
+run: build ## Build and open the Debug app (reuse a running Debug instance)
 	open $(DEBUG_APP)
 
 test: project ## Run the unit tests

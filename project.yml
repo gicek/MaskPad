@@ -49,7 +49,9 @@ targets:
     info:
       path: MaskPad/Info.plist
       properties:
-        CFBundleDisplayName: MaskPad
+        CFBundleDisplayName: $(MASKPAD_DISPLAY_NAME)
+        CFBundleName: $(MASKPAD_DISPLAY_NAME)
+        MaskPadURLScheme: $(MASKPAD_URL_SCHEME)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.utilities
@@ -65,11 +67,13 @@ targets:
         SUVerifyUpdateBeforeExtraction: true
         # maskpad://on and maskpad://status, for launchers, Shortcuts, scripts and the maskpad tool (MaskCommand).
         CFBundleURLTypes:
-          - CFBundleURLName: com.gicek.maskpad
-            CFBundleURLSchemes: [maskpad]
+          - CFBundleURLName: $(PRODUCT_BUNDLE_IDENTIFIER)
+            CFBundleURLSchemes: [$(MASKPAD_URL_SCHEME)]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.gicek.maskpad
+        MASKPAD_DISPLAY_NAME: MaskPad
+        MASKPAD_URL_SCHEME: maskpad
         PRODUCT_NAME: MaskPad
         PRODUCT_MODULE_NAME: MaskPad
         ENABLE_HARDENED_RUNTIME: YES
@@ -80,6 +84,10 @@ targets:
         # Icons are generated from design/logo by make icons (Scripts/build_icons.sh).
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: com.gicek.maskpad.debug
+          MASKPAD_DISPLAY_NAME: MaskPad Debug
+          MASKPAD_URL_SCHEME: maskpad-debug
         Release:
           # Release builds must not carry the get-task-allow debugging entitlement (notarization rejects it).
           CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO

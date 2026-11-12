@@ -108,7 +108,7 @@ enum CommandLineTool {
         let reply = Reply()
         // Observe before opening the URL, so a fast reply isn't missed.
         let observer = DistributedNotificationCenter.default().addObserver(
-            forName: MaskCommand.replyNotification, object: replyID, queue: nil
+            forName: MaskCommand.replyNotificationName(for: appBundle?.bundleIdentifier ?? AppIdentity.bundleIdentifier), object: replyID, queue: nil
         ) { notification in
             let raw = notification.userInfo?[MaskCommand.resultKey] as? String
             reply.finish(raw.flatMap(MaskCommandResult.init(rawValue:)))
@@ -118,12 +118,17 @@ enum CommandLineTool {
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.activates = false
         configuration.addsToRecentItems = false
-        guard let appURL = appBundle?.bundleURL else {
+        // A CLI in another app copy must target the primary copy, rather than launch a duplicate.
+        let runningURL = appBundle?.bundleIdentifier.flatMap { identifier in
+            NSRunningApplication.runningApplications(withBundleIdentifier: identifier)
+                .first(where: { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier })?.bundleURL
+        }
+        guard let appURL = runningURL ?? appBundle?.bundleURL else {
             printError("can't find MaskPad.app; link to the executable inside it.")
             return nil
         }
         NSWorkspace.shared.open(
-            [command.url(replyID: replyID)], withApplicationAt: appURL, configuration: configuration
+            [command.url(replyID: replyID, scheme: appBundle?.object(forInfoDictionaryKey: "MaskPadURLScheme") as? String ?? "maskpad")], withApplicationAt: appURL, configuration: configuration
         ) { _, error in
             if let error {
                 printError("couldn't reach MaskPad: \(error.localizedDescription)")

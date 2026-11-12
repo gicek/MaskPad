@@ -17,7 +17,7 @@ final class MaskPasscodeStore {
     /// for state that depends on whether a passcode exists, e.g. the auto-mask sleep assertion.
     static let didChangeNotification = Notification.Name("com.gicek.maskpad.passcodeDidChange")
 
-    private let service = "com.gicek.maskpad.passcode"
+    private let service = AppIdentity.passcodeService
     private let account = "mask"
     private let memoryOnly: Bool
     private var memoryPasscode: MaskPasscode?

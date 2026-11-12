@@ -181,7 +181,7 @@ the string catalog. MaskPad runs on macOS 14 or later.
 brew install xcodegen
 make            # list all targets
 make build      # build the Debug app into build/debug
-make run        # build and launch it, quitting a running copy first
+make run        # build and open Debug; reuse an existing Debug instance
 make test       # run the unit tests
 make check      # string catalog check and unit tests; run before committing
 make clean      # remove build output, fetched packages and Xcode's DerivedData for this project
@@ -309,11 +309,29 @@ tool is in `build/SourcePackages` after any build):
 build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x sparkle-key.txt
 ```
 
+Debug uses `com.gicek.maskpad.debug` and `maskpad-debug://`; Release keeps `com.gicek.maskpad`
+and `maskpad://`. Each identity has its own preferences, Keychain passcode, permissions and instance
+lock. Copies of the same identity share one GUI process, including direct executable launches.
+Opening another copy asks the existing process to show Settings; it cannot remove an active mask.
+The lock is released by the OS on exit or crash. Debug never checks the production update feed.
+`make run` leaves running apps alone; quit Debug first when you need to load a newly built binary.
+
 ### Tests
 
 Unit tests cover the passcode, keypad, input-tap rules, lock detection, brightness recovery, idle
 detection, power assertions and shortcuts. Tests never touch real state: the passcode store is in
 memory, settings use a separate defaults domain, and no global shortcut or menu bar item is created.
+The instance-lock tests also exercise contention and crash recovery with a separate process.
+
+For the launch/URL/CLI integration smoke test, run after `make build`:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift Scripts/verify_single_instance.swift build/debug/MaskPad.app build/instance-tests
+```
+
+This re-signs two temporary copies with a fresh test identity, checks concurrent launches, cross-copy
+URL forwarding, the symlink CLI and relaunch, then quits the fixture apps. Their artifacts remain in
+the printed directory; real app credentials and permissions are untouched.
 
 ## Localization
 

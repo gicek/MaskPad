@@ -40,7 +40,7 @@ final class AppUpdater: NSObject, ObservableObject {
 
     /// Starts the updater. Not called in tests: the test host must never check for or install updates.
     func start() {
-        guard controller == nil else { return }
+        guard AppIdentity.isDebug == false, controller == nil else { return }
         let controller = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: self)
         self.controller = controller
         let updater = controller.updater

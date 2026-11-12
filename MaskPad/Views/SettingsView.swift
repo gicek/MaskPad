@@ -481,6 +481,7 @@ struct SettingsView: View {
         SettingsSection(L("Updates")) {
             SettingsRow(L("Check for updates automatically")) {
                 Toggle(L("Check for updates automatically"), isOn: $updater.automaticallyChecksForUpdates)
+                    .disabled(AppIdentity.isDebug)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
