@@ -53,6 +53,9 @@ final class MaskTouchIDSession: ObservableObject {
     /// The context of the current wait, or nil when not waiting: Touch ID is off in Settings or can't be
     /// used now, the keypad isn't showing, or between two waits.
     @Published private(set) var context: LAContext?
+    /// The mask window that shows the system's Touch ID view: the key window. That view reads a finger
+    /// only in the key window of the active app; in any other it is dimmed and nothing happens.
+    @Published private(set) var hostWindow: ObjectIdentifier?
 
     private let isEnabled: Bool
     private let onMatch: () -> Void
@@ -111,6 +114,17 @@ final class MaskTouchIDSession: ObservableObject {
         context = nil
     }
 
+    /// Another mask window became the key window (a click on another screen), or the windows were
+    /// rebuilt. The system's view can't move, so a wait in progress starts over in the new window.
+    func setHost(_ window: NSWindow?) {
+        let host = window.map(ObjectIdentifier.init)
+        guard host != hostWindow else { return }
+        hostWindow = host
+        guard isWanted else { return }
+        stop()
+        start()
+    }
+
     /// Called by the sensor view once it is in a window; starts the wait for `context`.
     func begin(_ context: LAContext) {
         guard context === self.context, hasBegun == false else { return }
@@ -160,18 +174,20 @@ final class MaskTouchIDSession: ObservableObject {
 }
 
 /// The fingerprint in the keypad's empty corner while Touch ID waits for a finger. Not a button: the sensor
-/// is on the keyboard. One screen shows the system's view; the others show the same icon as a picture.
+/// is on the keyboard. The screen with the key window shows the system's view (`hostWindow`); the others
+/// show the same icon as a picture.
 ///
 /// A view of its own, observing only the session, so the keypad redrawing around it (every digit, every
 /// second of a cooldown) doesn't touch the system's view.
 struct MaskTouchIDIcon: View {
     @ObservedObject var touchID: MaskTouchIDSession
-    let hostsSensor: Bool
+    /// The mask window this copy is in.
+    let window: ObjectIdentifier
 
     var body: some View {
         if let context = touchID.context {
             Group {
-                if hostsSensor {
+                if touchID.hostWindow == window {
                     MaskTouchIDSensorView(context: context, session: touchID)
                         // A new wait is a new context, and the system view is paired with one for good.
                         .id(ObjectIdentifier(context))
@@ -191,7 +207,7 @@ struct MaskTouchIDIcon: View {
 
 /// The system's Touch ID view for one wait. A context shows its Touch ID prompt in the view paired with
 /// it, or else in the standard dialog; only one view can be paired (a second one stays blank), so only
-/// one screen shows it.
+/// one screen shows it: the one with the key window, where it reads fingers (`MaskTouchIDSession.hostWindow`).
 ///
 /// The view has to stay visible and untouched: it pulses about once a second while it waits, and draws
 /// the fingerprint filling in before a match is reported. Made invisible, with its animations sped up

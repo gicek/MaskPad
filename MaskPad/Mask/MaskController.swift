@@ -49,6 +49,8 @@ final class MaskController: ObservableObject {
     private var touchID: MaskTouchIDSession?
     private var previousPresentationOptions: NSApplication.PresentationOptions?
     private var screenObserver: NSObjectProtocol?
+    /// A mask window becoming key: Touch ID follows it (`MaskTouchIDSession.hostWindow`).
+    private var keyWindowObserver: NSObjectProtocol?
 
     /// System lock observers (see `startSystemLockMonitoring()`), one list per notification center.
     private var workspaceObservers: [NSObjectProtocol] = []
@@ -144,6 +146,17 @@ final class MaskController: ObservableObject {
                 // Connecting a display also implies someone is present.
                 self.lastActivity = Date()
                 self.dimmer.wake()
+            }
+        }
+
+        // A click on another screen makes its mask window key; Touch ID only reads fingers there.
+        keyWindowObserver = NotificationCenter.default.addObserver(
+            forName: NSWindow.didBecomeKeyNotification, object: nil, queue: .main
+        ) { [weak self] notification in
+            let window = notification.object as? NSWindow
+            MainActor.assumeIsolated {
+                guard let self, self.isEngaged, let window, self.windows.contains(window) else { return }
+                self.touchID?.setHost(window)
             }
         }
 
@@ -402,6 +415,10 @@ final class MaskController: ObservableObject {
             NotificationCenter.default.removeObserver(screenObserver)
         }
         screenObserver = nil
+        if let keyWindowObserver {
+            NotificationCenter.default.removeObserver(keyWindowObserver)
+        }
+        keyWindowObserver = nil
         for window in windows {
             window.orderOut(nil)
         }
@@ -418,12 +435,13 @@ final class MaskController: ObservableObject {
     }
 
     private func buildWindows(model: MaskUnlockViewModel, touchID: MaskTouchIDSession) {
-        // The Touch ID view lives in one of the windows; a wait can't move to a new one.
+        // The Touch ID view lives in one of the windows; a wait can't move to a new one. Stopped first,
+        // so the new windows becoming key one after the other don't each start a wait.
         touchID.stop()
         for window in windows {
             window.orderOut(nil)
         }
-        windows = NSScreen.screens.enumerated().map { index, screen in
+        windows = NSScreen.screens.map { screen in
             let window = MaskWindow(
                 contentRect: screen.frame,
                 styleMask: .borderless,
@@ -441,9 +459,8 @@ final class MaskController: ObservableObject {
             window.collectionBehavior = [
                 .canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle,
             ]
-            // The Touch ID view goes on the main screen (the first one).
             window.contentView = MaskHostingView(rootView: MaskUnlockView(
-                model: model, touchID: touchID, hostsTouchIDSensor: index == 0
+                model: model, touchID: touchID, window: ObjectIdentifier(window)
             ))
             // Exactly the screen, whatever the content asks for (see `MaskHostingView`).
             window.setFrame(screen.frame, display: false)
@@ -452,6 +469,8 @@ final class MaskController: ObservableObject {
         }
         // An external display unplugged while dimmed won't restore its brightness on its own, so show a hint.
         model.showsExternalDisplayHint = MaskSettings.shared.autoDim && Self.hasExternalDisplay()
+        // The last window made key is the key window, if MaskPad is the active app.
+        touchID.setHost(windows.first(where: \.isKeyWindow) ?? windows.last)
         if model.page == .keypad {
             touchID.start()
         }

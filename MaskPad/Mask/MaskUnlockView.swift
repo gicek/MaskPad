@@ -140,8 +140,8 @@ final class MaskUnlockViewModel: ObservableObject {
 struct MaskUnlockView: View {
     @ObservedObject var model: MaskUnlockViewModel
     @ObservedObject var touchID: MaskTouchIDSession
-    /// Whether this screen's copy holds the system's Touch ID view; only one can (`MaskTouchIDSensorView`).
-    let hostsTouchIDSensor: Bool
+    /// The mask window this copy is in; the key window shows the system's Touch ID view (`MaskTouchIDIcon`).
+    let window: ObjectIdentifier
 
     private static let keySide: CGFloat = 72
     private static let keySpacing: CGFloat = 20
@@ -334,7 +334,7 @@ struct MaskUnlockView: View {
             }
             HStack(spacing: Self.keySpacing) {
                 Color.clear.frame(width: Self.keySide, height: Self.keySide)
-                    .overlay { MaskTouchIDIcon(touchID: touchID, hostsSensor: hostsTouchIDSensor) }
+                    .overlay { MaskTouchIDIcon(touchID: touchID, window: window) }
                 digitKey("0")
                 Button(action: personPress(model.deleteDigit)) {
                     Image(systemName: "delete.left")
