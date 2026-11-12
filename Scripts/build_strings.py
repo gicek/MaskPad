@@ -22,9 +22,9 @@ from translations import LANGS, T  # noqa: E402
 
 # Types of interpolated variables, keyed by the literal Swift interpolation expression.
 INT_VARS = {"remaining", "attempts"}
-STRING_VARS = {"Self.appName", "Self.appVersion"}
+STRING_VARS = {"Self.appName", "Self.appVersion", "Self.appBuild"}
 
-CALL = re.compile(r'\bL\("((?:[^"\\]|\\.)*)"\)')
+CALL = re.compile(r'\bL\("((?:[^"\\]|\\.)*)"\s*[,)]')
 INTERPOLATION = re.compile(r"\\\(([^()]*)\)")
 PLACEHOLDER = re.compile(r"%(?:lld|@)")
 OUT = root / "MaskPad/Resources/Localizable.xcstrings"
@@ -79,8 +79,10 @@ def typeset(lang, value):
 strings = {}
 for key in sorted(T, key=str.lower):
     strings[key] = {"localizations": {
-        lang: {"stringUnit": {"state": "translated", "value": typeset(lang, value)}}
-        for lang, value in zip(LANGS, T[key])
+        # Explicit English resources allow switching back to English on a non-English Mac.
+        "en": {"stringUnit": {"state": "translated", "value": key}},
+        **{lang: {"stringUnit": {"state": "translated", "value": typeset(lang, value)}}
+           for lang, value in zip(LANGS, T[key])}
     }}
 catalog = json.dumps({"sourceLanguage": "en", "strings": strings, "version": "1.0"},
                      ensure_ascii=False, indent=2, sort_keys=True) + "\n"

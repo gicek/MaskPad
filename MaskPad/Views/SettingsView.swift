@@ -22,10 +22,11 @@ struct SettingsView: View {
     @State private var newCode = ""
     @State private var confirmCode = ""
     /// Passcode errors (wrong length, mismatch, Keychain failure), shown at the bottom of the section.
-    @State private var passcodeError: String?
+    @State private var passcodeError: SettingsIssue?
+    @State private var showsResetPasscodeConfirmation = false
     /// Failure changing the Screen Sharing setting, shown in that section.
-    @State private var relockError: String?
-    @State private var shortcutError: String?
+    @State private var relockError: SettingsIssue?
+    @State private var shortcutError: SettingsIssue?
     /// Whether the Mac relocks after Screen Sharing ends, and whether sharing is active. Both need probes, so refresh on open and after changes.
     @State private var relockRestores = true
     @State private var screenSharingActive = false
@@ -36,6 +37,7 @@ struct SettingsView: View {
     @State private var page: SettingsPage = .general
 
     private static let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+    private static let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
 
     var body: some View {
         HStack(spacing: 0) {
@@ -47,7 +49,20 @@ struct SettingsView: View {
             .scrollBounceBehavior(.basedOnSize)
             .id(page)
         }
-        .frame(minWidth: 720, minHeight: 500)
+        .frame(width: SettingsMetrics.windowSize.width, height: SettingsMetrics.windowSize.height)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .ignoresSafeArea()
+        .buttonStyle(SettingsButtonStyle())
+        .environment(\.locale, settings.language.locale)
+        .onChange(of: settings.language) { _, _ in
+            SettingsWindowController.shared.refreshTitle()
+        }
+        .confirmationDialog(L("Reset passcode?"), isPresented: $showsResetPasscodeConfirmation, titleVisibility: .visible) {
+            Button(L("Reset passcode"), role: .destructive, action: resetPasscode)
+            Button(L("Cancel"), role: .cancel) {}
+        } message: {
+            Text(L("This removes the current passcode and turns off automatic masking. Set a new passcode before using the screen mask again."))
+        }
         .onAppear {
             refreshSystemState()
             Task { await refreshRelockState() }
@@ -74,52 +89,28 @@ struct SettingsView: View {
     }
 
     private var sidebar: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 9) {
-                Image(nsImage: NSApp.applicationIconImage)
-                    .resizable()
-                    .frame(width: 28, height: 28)
-                    .accessibilityHidden(true)
-                Text(verbatim: "MaskPad")
-                    .font(.system(size: 15, weight: .semibold))
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 22)
-            .padding(.bottom, 16)
-
-            List(selection: $page) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 2) {
                 ForEach(SettingsPage.allCases) { destination in
-                    Label(destination.title, systemImage: destination.symbol)
-                        .font(.system(size: 13))
-                        .padding(.vertical, 4)
-                        .tag(destination)
+                    SettingsSidebarRow(title: destination.title, symbol: destination.symbol, isSelected: page == destination) {
+                        page = destination
+                    }
                 }
             }
-            .listStyle(.sidebar)
-            .scrollContentBackground(.hidden)
-
-            Text(L("Version \(Self.appVersion)"))
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-                .padding(20)
+            .padding(.horizontal, 10)
+            .padding(.top, SettingsMetrics.sidebarTopInset)
         }
-        .frame(width: 184)
-        .background(.quinary)
+        .frame(width: SettingsMetrics.sidebarWidth)
+        .frame(maxHeight: .infinity)
+        .background(SettingsSidebarMaterial())
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 7) {
-                Text(page.title)
-                    .font(.system(size: 24, weight: .semibold))
-                Text(page.subtitle)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            warnings
+        VStack(alignment: .leading, spacing: SettingsMetrics.groupSpacing) {
+            if page != .about { warnings }
             switch page {
             case .general:
+                languageSection
                 generalSection
                 shortcutSection
                 updatesSection
@@ -132,13 +123,16 @@ struct SettingsView: View {
                 passcodeSection
             case .integrations:
                 SettingsSection(L("Command line tool")) { commandLineToolRows }
-                // Keep a way to restore the setting after sharing ends.
                 if screenSharingActive || relockRestores == false {
                     screenSharingSection
                 }
+            case .about:
+                aboutPage
             }
         }
-        .padding(28)
+        .padding(.horizontal, SettingsMetrics.pageInset)
+        .padding(.top, SettingsMetrics.pageTopInset)
+        .padding(.bottom, SettingsMetrics.pageInset)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -172,7 +166,7 @@ struct SettingsView: View {
                 warning(L("Set a passcode first.")) { EmptyView() }
             } else {
                 warning(L("Set a passcode first.")) {
-                    Button(L("Passcode")) { page = .security }
+                    Button(L("Set")) { page = .security }
                 }
             }
         }
@@ -206,18 +200,14 @@ struct SettingsView: View {
         SettingsSection(L("Passcode")) {
             if hasPasscode {
                 SettingsRow(L("Passcode is set")) {
-                    Button(L("Reset")) {
-                        MaskPasscodeStore.shared.clear()
-                        hasPasscode = false
-                        // Also turn off auto-engage: the picker is disabled without a passcode and would keep
-                        // the old value, silently re-arming a forgotten delay when a passcode is set later.
-                        settings.autoEngageMinutes = 0
-                        passcodeError = nil
+                    Button(L("Reset passcode"), role: .destructive) {
+                        showsResetPasscodeConfirmation = true
                     }
                 }
             } else {
                 SettingsRow(L("New passcode")) {
                     SecureField("", text: $newCode)
+                        .accessibilityLabel(L("New passcode"))
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 110)
                         .onChange(of: newCode) { _, value in
@@ -228,6 +218,7 @@ struct SettingsView: View {
                 }
                 SettingsRow(L("Confirm passcode")) {
                     SecureField("", text: $confirmCode)
+                        .accessibilityLabel(L("Confirm passcode"))
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 110)
                         .onChange(of: confirmCode) { _, value in
@@ -242,14 +233,15 @@ struct SettingsView: View {
                     Button(L("Save")) { savePasscode() }
                         .disabled(newCode.isEmpty && confirmCode.isEmpty)
                 }
+                .padding(.trailing, SettingsMetrics.rowInset)
             }
             if let passcodeError {
-                SettingsNote(passcodeError, isWarning: true)
+                SettingsNote(passcodeError.message(), isWarning: true)
             }
             if hasTouchID {
                 SettingsDivider()
                 SettingsRow(L("Unlock with Touch ID")) {
-                    Toggle("", isOn: $settings.touchIDUnlock)
+                    Toggle(L("Unlock with Touch ID"), isOn: $settings.touchIDUnlock)
                         .labelsHidden()
                         .toggleStyle(.switch)
                         .controlSize(.small)
@@ -265,6 +257,7 @@ struct SettingsView: View {
                         }
                         .controlSize(.small)
                     }
+                    .padding(.trailing, SettingsMetrics.rowInset)
                 }
             }
         }
@@ -272,8 +265,8 @@ struct SettingsView: View {
 
     private var maskSection: some View {
         SettingsSection(L("Automatic behavior")) {
-            SettingsRow(L("Turn on when idle")) {
-                Picker("", selection: $settings.autoEngageMinutes) {
+            SettingsRow(L("Turn on when idle"), description: autoMaskSleepNote) {
+                Picker(L("Turn on when idle"), selection: $settings.autoEngageMinutes) {
                     ForEach(MaskSettings.autoEngageOptions, id: \.self) { minutes in
                         Text(autoEngageLabel(minutes)).tag(minutes)
                     }
@@ -283,66 +276,66 @@ struct SettingsView: View {
                 .fixedSize()
                 .disabled(hasPasscode == false)
             }
-            SettingsNote(L("Until the mask turns on, the Mac won't lock or sleep on its own."))
 
             SettingsDivider()
-            SettingsRow(L("Wait during video and calls")) {
-                Toggle("", isOn: $settings.autoEngageWaitsForMedia)
+            SettingsRow(L("Delay during videos and calls"), description: L("Doesn't turn on when idle while a video, call, presentation, game or screen recording keeps the display awake.")) {
+                Toggle(L("Delay during videos and calls"), isOn: $settings.autoEngageWaitsForMedia)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
                     .disabled(hasPasscode == false || settings.autoEngageMinutes == 0)
             }
-            SettingsNote(L("Doesn't turn on when idle while a video, call, presentation, game or screen recording keeps the display awake."))
 
             SettingsDivider()
-            SettingsRow(L("Automatically hide and dim")) {
-                Toggle("", isOn: $settings.autoDim)
+            SettingsRow(L("Automatically hide and dim"), description: L("After 20 seconds without activity, hides the keypad and dims the screen.")) {
+                Toggle(L("Automatically hide and dim"), isOn: $settings.autoDim)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
             }
-            SettingsNote(L("After 20 seconds without activity, hides the keypad and dims the screen."))
 
             SettingsDivider()
             SettingsNote(L("Apps under the mask keep running. Computer Use tools that work per window are unaffected; remote desktops see the keypad and can unlock."))
         }
     }
 
+    private var autoMaskSleepNote: String? {
+        guard settings.autoEngageMinutes > 0, hasPasscode, canBlockLocalInput else { return nil }
+        return L("While waiting for automatic masking, the Mac won't sleep or lock automatically.")
+    }
+
     private var messageSection: some View {
         SettingsSection(L("Message")) {
-            SettingsRow(L("Show a message")) {
-                Toggle("", isOn: $settings.showsMessage)
+            SettingsRow(L("Show a message"), description: L("Shows text on the screen mask.")) {
+                Toggle(L("Show a message"), isOn: $settings.showsMessage)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
-                    .accessibilityLabel(L("Show a message"))
             }
-            if settings.showsMessage { messageEditor }
-            SettingsNote(L("Shows text on the screen mask."))
+            if settings.showsMessage {
+                messageEditor
+                    .padding(.horizontal, SettingsMetrics.rowInset)
+                    .padding(.bottom, 14)
+            }
         }
     }
 
     private var nowPlayingSection: some View {
         SettingsSection(L("Now playing")) {
-            SettingsRow(L("Show now playing")) {
-                Toggle("", isOn: $settings.showsNowPlaying)
+            SettingsRow(L("Show now playing"), description: L("Shows the current track or video on the screen mask.")) {
+                Toggle(L("Show now playing"), isOn: $settings.showsNowPlaying)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
-                    .accessibilityLabel(L("Show now playing"))
             }
-            SettingsNote(L("Shows the current track or video on the screen mask."))
             SettingsDivider()
-            SettingsRow(L("Show playback controls")) {
-                Toggle("", isOn: $settings.showsPlaybackControls)
+            SettingsRow(L("Show playback controls"), description: L("Allows play, pause and track changes without unlocking the mask.")) {
+                Toggle(L("Show playback controls"), isOn: $settings.showsPlaybackControls)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
-                    .accessibilityLabel(L("Show playback controls"))
             }
             .disabled(!settings.showsNowPlaying)
-            SettingsNote(L("Allows play, pause and track changes without unlocking the mask."))
         }
     }
 
@@ -350,6 +343,7 @@ struct SettingsView: View {
     private var messageEditor: some View {
         VStack(alignment: .trailing, spacing: 4) {
             TextEditor(text: $settings.message)
+                .accessibilityLabel(L("Message"))
                 .font(.system(size: 13))
                 .scrollContentBackground(.hidden)
                 .padding(6)
@@ -371,7 +365,7 @@ struct SettingsView: View {
                         chord: hotKeys.chord(for: action),
                         validate: { $0.hotKeyProblem },
                         onChange: { hotKeys.set($0, for: action) },
-                        errorText: $shortcutError
+                        error: $shortcutError
                     )
                 }
                 if hotKeyCenter.unavailableActions.contains(action) {
@@ -379,7 +373,7 @@ struct SettingsView: View {
                 }
             }
             if let shortcutError {
-                SettingsNote(shortcutError, isWarning: true)
+                SettingsNote(shortcutError.message(), isWarning: true)
             }
             if hotKeys.hasDefaultBindings == false {
                 HStack {
@@ -390,6 +384,8 @@ struct SettingsView: View {
                     }
                     .controlSize(.small)
                 }
+                .padding(.horizontal, SettingsMetrics.rowInset)
+                .padding(.bottom, 12)
             }
         }
     }
@@ -397,7 +393,7 @@ struct SettingsView: View {
     private var generalSection: some View {
         SettingsSection(L("Startup")) {
             SettingsRow(L("Launch at login")) {
-                Toggle("", isOn: $settings.launchAtLogin)
+                Toggle(L("Launch at login"), isOn: $settings.launchAtLogin)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
@@ -408,6 +404,7 @@ struct SettingsView: View {
                     Button(L("Open Login Items")) { SMAppService.openSystemSettingsLoginItems() }
                         .controlSize(.small)
                 }
+                .padding(.trailing, SettingsMetrics.rowInset)
             }
             if settings.launchAtLoginChangeFailed {
                 SettingsNote(L("Couldn't update Login Items."), isWarning: true)
@@ -415,16 +412,81 @@ struct SettingsView: View {
         }
     }
 
+    private var languageSection: some View {
+        SettingsSection(L("Language")) {
+            SettingsRow(L("Language")) {
+                Picker(L("Language"), selection: $settings.language) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(verbatim: language.title).tag(language)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                // AppKit caches popup item titles; rebuild only the picker when its language changes.
+                .id(settings.language)
+            }
+        }
+    }
+
+    private var aboutPage: some View {
+        VStack(alignment: .leading, spacing: SettingsMetrics.groupSpacing) {
+            HStack(spacing: 16) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 64, height: 64)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(verbatim: "MaskPad")
+                        .font(.system(size: 24, weight: .semibold))
+                    Text(L("Cover your screens. Keep your work running."))
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.horizontal, SettingsMetrics.rowInset)
+
+            SettingsSection(L("About")) {
+                SettingsRow(L("Version"), description: L("Build \(Self.appBuild)")) {
+                    Text(verbatim: Self.appVersion)
+                        .font(.system(size: 13).monospacedDigit())
+                        .textSelection(.enabled)
+                }
+                SettingsDivider()
+                SettingsRow(L("License")) {
+                    Link(destination: URL(string: "https://github.com/gicek/MaskPad/blob/main/LICENSE")!) {
+                        Text(verbatim: "MIT")
+                    }
+                }
+            }
+            SettingsSection(L("Project")) {
+                SettingsRow(L("Source code")) {
+                    Link(destination: URL(string: "https://github.com/gicek/MaskPad")!) {
+                        Text(verbatim: "GitHub")
+                    }
+                }
+                SettingsDivider()
+                SettingsRow(L("Feedback")) {
+                    Link(L("Report an issue"), destination: URL(string: "https://github.com/gicek/MaskPad/issues")!)
+                }
+            }
+            Text(verbatim: Bundle.main.object(forInfoDictionaryKey: "NSHumanReadableCopyright") as? String ?? "")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, SettingsMetrics.rowInset)
+        }
+    }
+
     private var updatesSection: some View {
         SettingsSection(L("Updates")) {
             SettingsRow(L("Check for updates automatically")) {
-                Toggle("", isOn: $updater.automaticallyChecksForUpdates)
+                Toggle(L("Check for updates automatically"), isOn: $updater.automaticallyChecksForUpdates)
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
             }
-            HStack {
-                SettingsNote(L("Version \(Self.appVersion)"))
+            SettingsDivider()
+            SettingsRow(L("Version \(Self.appVersion)")) {
                 Button(L("Check Now")) { updater.checkForUpdates() }
                     .controlSize(.small)
                     .disabled(updater.canCheckForUpdates == false && updater.hasPendingUpdate == false)
@@ -491,7 +553,7 @@ struct SettingsView: View {
                 }
             }
             if let relockError {
-                SettingsNote(relockError, isWarning: true)
+                SettingsNote(relockError.message(), isWarning: true)
             }
             if relockRestores {
                 SettingsNote(L("When sharing ends, macOS may lock the Mac again and interrupt tools under the mask. Changing this needs an administrator password."), isWarning: true)
@@ -523,7 +585,7 @@ struct SettingsView: View {
             case .applied, .cancelled:
                 relockError = nil
             case .failed:
-                relockError = L("Could not change the system setting.")
+                relockError = .systemSettingFailed
             }
             await refreshRelockState()
         }
@@ -553,20 +615,20 @@ struct SettingsView: View {
 
     private func savePasscode() {
         guard MaskPasscode.isValidFormat(newCode) else {
-            passcodeError = L("Enter a 6-digit passcode.")
+            passcodeError = .invalidPasscode
             return
         }
         guard confirmCode.isEmpty == false else {
-            passcodeError = L("Enter the passcode again to confirm.")
+            passcodeError = .confirmationRequired
             return
         }
         guard newCode == confirmCode else {
-            passcodeError = L("Passcodes don't match.")
+            passcodeError = .passcodesDiffer
             return
         }
         guard let passcode = MaskPasscode.make(code: newCode),
               MaskPasscodeStore.shared.save(passcode) else {
-            passcodeError = L("Couldn't save the passcode. Please try again.")
+            passcodeError = .passcodeSaveFailed
             return
         }
         newCode = ""
@@ -575,6 +637,16 @@ struct SettingsView: View {
         passcodeError = nil
         // Setting a passcode usually means the user is about to step away: re-check Screen Sharing and show its section if active.
         Task { await refreshRelockState() }
+    }
+
+    private func resetPasscode() {
+        MaskPasscodeStore.shared.clear()
+        hasPasscode = MaskPasscodeStore.shared.hasPasscode
+        // Never leave an old idle delay silently armed after a passcode is removed.
+        settings.autoEngageMinutes = 0
+        newCode = ""
+        confirmCode = ""
+        passcodeError = nil
     }
 
     // MARK: - Auto-Engage Delay
@@ -598,7 +670,7 @@ struct SettingsView: View {
 
 /// Stable navigation, independent of whether optional controls are currently relevant.
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case general, mask, appearance, security, integrations
+    case general, mask, appearance, security, integrations, about
     var id: String { rawValue }
 
     var title: String {
@@ -608,16 +680,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         case .appearance: L("Mask appearance")
         case .security: L("Unlock & Security")
         case .integrations: L("Integrations")
-        }
-    }
-
-    var subtitle: String {
-        switch self {
-        case .general: L("Startup, shortcuts and updates.")
-        case .mask: L("Choose when the mask appears and dims the screen.")
-        case .appearance: L("Choose what appears on the screen mask.")
-        case .security: L("Manage how you unlock the screen mask.")
-        case .integrations: L("Connect MaskPad to your tools and remote sessions.")
+        case .about: L("About")
         }
     }
 
@@ -628,6 +691,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         case .appearance: "slider.horizontal.3"
         case .security: "lock"
         case .integrations: "puzzlepiece.extension"
+        case .about: "info.circle"
         }
     }
 }

@@ -9,6 +9,12 @@
             "value": "%lld falsche Codeversuche"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld wrong passcode attempts"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -53,6 +59,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 falscher Codeversuch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 wrong passcode attempt"
           }
         },
         "es": {
@@ -101,6 +113,12 @@
             "value": "6 Ziffern zum Entsperren der Maske."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 digits, used to unlock the mask."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -147,6 +165,12 @@
             "value": "Ein globaler Kurzbefehl muss die Befehls-, Wahl- oder Control-Taste enthalten."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A global shortcut needs at least one of Command, Option, or Control."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -185,12 +209,70 @@
         }
       }
     },
+    "About": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acerca de"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このアプリについて"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정보"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關於"
+          }
+        }
+      }
+    },
     "Accessibility permission is needed to block the keyboard and mouse.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Zum Blockieren von Tastatur und Maus ist die Bedienungshilfen-Berechtigung nötig."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility permission is needed to block the keyboard and mouse."
           }
         },
         "es": {
@@ -239,6 +321,12 @@
             "value": "Fügt den Befehl maskpad zu /usr/local/bin hinzu. Eventuell ist ein Administratorpasswort nötig."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds the maskpad command to /usr/local/bin. May ask for an administrator password."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -283,6 +371,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nach 1 Stunde"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 1 hour"
           }
         },
         "es": {
@@ -331,6 +425,12 @@
             "value": "Nach 1 Minute"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 1 minute"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -375,6 +475,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nach 10 Minuten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 10 minutes"
           }
         },
         "es": {
@@ -423,6 +529,12 @@
             "value": "Nach 2 Stunden"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 2 hours"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -467,6 +579,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nach 20 Minuten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 20 minutes"
           }
         },
         "es": {
@@ -515,6 +633,12 @@
             "value": "Blendet nach 20 Sekunden ohne Aktivität das Ziffernfeld aus und dunkelt den Bildschirm ab."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 20 seconds without activity, hides the keypad and dims the screen."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -559,6 +683,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nach 3 Stunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 3 hours"
           }
         },
         "es": {
@@ -607,6 +737,12 @@
             "value": "Nach 3 Minuten"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 3 minutes"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -651,6 +787,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nach 30 Minuten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 30 minutes"
           }
         },
         "es": {
@@ -699,6 +841,12 @@
             "value": "Nach 5 Minuten"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After 5 minutes"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -743,6 +891,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erlaube MaskPad unter „Anmeldeobjekte“, um den Vorgang abzuschließen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow MaskPad in Login Items to finish."
           }
         },
         "es": {
@@ -791,6 +945,12 @@
             "value": "Erlaubt Wiedergabe, Pause und Titelwechsel ohne Entsperren der Maske."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allows play, pause and track changes without unlocking the mask."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -835,6 +995,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein externer Bildschirm ist angeschlossen. Wird das Kabel abgezogen, während der Bildschirm abgedunkelt ist, wird die Helligkeit eventuell nicht wiederhergestellt. Aktiviere zuerst den Bildschirm."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An external display is connected. Unplugging its cable while the screen is dimmed may keep its brightness from restoring. Wake the screen first."
           }
         },
         "es": {
@@ -883,6 +1049,12 @@
             "value": "In /usr/local/bin gibt es bereits eine andere Datei namens maskpad."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another file named maskpad is already in /usr/local/bin."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -927,6 +1099,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Apps unter der Maske laufen weiter. Fensterbasierte Computer-Use-Werkzeuge sind nicht betroffen; Remote-Desktops sehen das Ziffernfeld und können entsperren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps under the mask keep running. Computer Use tools that work per window are unaffected; remote desktops see the keypad and can unlock."
           }
         },
         "es": {
@@ -975,6 +1153,12 @@
             "value": "Automatisches Verhalten"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic behavior"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1019,6 +1203,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Automatisch ausblenden und abdunkeln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically hide and dim"
           }
         },
         "es": {
@@ -1067,6 +1257,12 @@
             "value": "Zurück"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1105,12 +1301,122 @@
         }
       }
     },
+    "Build %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compilación %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ビルド %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "빌드 %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "构建 %@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建置 %@"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャンセル"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
     "Change Setting": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Einstellung ändern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Setting"
           }
         },
         "es": {
@@ -1159,6 +1465,12 @@
             "value": "Jetzt prüfen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Now"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1203,6 +1515,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nach Updates suchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates"
           }
         },
         "es": {
@@ -1251,6 +1569,12 @@
             "value": "Automatisch nach Updates suchen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for updates automatically"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1289,104 +1613,18 @@
         }
       }
     },
-    "Choose what appears on the screen mask.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Festlegen, was auf der Bildschirmmaske erscheint."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Elige qué aparece en la máscara de pantalla."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choisissez ce qui apparaît sur le masque."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "画面マスクに表示する内容を設定します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "화면 마스크에 표시할 내용을 선택합니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "选择遮罩上的留言、播放信息和控制按钮。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "選擇遮罩上的留言、播放資訊與控制按鈕。"
-          }
-        }
-      }
-    },
-    "Choose when the mask appears and dims the screen.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Festlegen, wann die Maske erscheint und den Bildschirm abdunkelt."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Elige cuándo se activa la máscara y se atenúa la pantalla."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choisissez quand le masque apparaît et assombrit l’écran."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "マスクの自動表示と画面を暗くする動作を設定します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "마스크를 자동으로 표시하고 화면을 어둡게 하는 동작을 설정합니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "设置自动开启遮罩与屏幕变暗的行为。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "設定自動開啟遮罩與螢幕變暗的行為。"
-          }
-        }
-      }
-    },
     "Clear": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
           }
         },
         "es": {
@@ -1435,6 +1673,12 @@
             "value": "Befehlszeilenwerkzeug"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command line tool"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1481,6 +1725,12 @@
             "value": "Code bestätigen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm passcode"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1519,58 +1769,18 @@
         }
       }
     },
-    "Connect MaskPad to your tools and remote sessions.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MaskPad mit Werkzeugen und Remotesitzungen verbinden."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conecta MaskPad con tus herramientas y sesiones remotas."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connectez MaskPad à vos outils et sessions à distance."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ツールやリモートセッションとMaskPadを連携します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MaskPad를 도구 및 원격 세션과 연결합니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "连接命令行工具，管理远程共享行为。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連接命令列工具，管理遠端共享行為。"
-          }
-        }
-      }
-    },
     "Could not change the system setting.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Die Systemeinstellung konnte nicht geändert werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not change the system setting."
           }
         },
         "es": {
@@ -1619,6 +1829,12 @@
             "value": "Das Befehlszeilenwerkzeug konnte nicht geändert werden."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't change the command line tool."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1663,6 +1879,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Code konnte nicht gesichert werden. Versuche es erneut."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't save the passcode. Please try again."
           }
         },
         "es": {
@@ -1711,6 +1933,12 @@
             "value": "Anmeldeobjekte konnten nicht aktualisiert werden."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't update Login Items."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1749,12 +1977,122 @@
         }
       }
     },
+    "Cover your screens. Keep your work running.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bildschirme verdecken. Arbeit fortsetzen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cover your screens. Keep your work running."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cubre tus pantallas y deja que el trabajo continúe."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquez vos écrans, laissez votre travail continuer."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画面を隠しても、作業はそのまま続きます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "화면을 가려도 작업은 계속됩니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遮住屏幕，任务继续运行。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遮住螢幕，工作繼續執行。"
+          }
+        }
+      }
+    },
+    "Delay during videos and calls": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Videos und Anrufen verzögern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delay during videos and calls"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retrasar durante vídeos y llamadas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Différer pendant les vidéos et les appels"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ビデオ再生や通話中は自動表示しない"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동영상 재생 및 통화 중 자동 표시 지연"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "视频播放或通话时暂缓开启"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放影片或通話時延後開啟"
+          }
+        }
+      }
+    },
     "Delete": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
           }
         },
         "es": {
@@ -1803,6 +2141,12 @@
             "value": "Wird bei Inaktivität nicht aktiviert, solange ein Video, ein Anruf, eine Präsentation, ein Spiel oder eine Bildschirmaufnahme den Bildschirm aktiv hält."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doesn't turn on when idle while a video, call, presentation, game or screen recording keeps the display awake."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1849,6 +2193,12 @@
             "value": "Ziehe %@ in die Liste oben"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag %@ into the list above to allow Accessibility"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1870,7 +2220,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@을(를) 위의 목록으로 드래그하여 손쉬운 사용 허용"
+            "value": "%@ 앱을 위 목록으로 드래그해 손쉬운 사용을 허용하세요."
           }
         },
         "zh-Hans": {
@@ -1893,6 +2243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Code eingeben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter Passcode"
           }
         },
         "es": {
@@ -1941,6 +2297,12 @@
             "value": "Passwort eingeben"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter Password"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -1985,6 +2347,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gib einen 6-stelligen Code ein."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a 6-digit passcode."
           }
         },
         "es": {
@@ -2033,6 +2401,12 @@
             "value": "Gib den Code zur Bestätigung erneut ein."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the passcode again to confirm."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2071,12 +2445,70 @@
         }
       }
     },
+    "Feedback": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comentarios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commentaires"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードバック"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드백"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "反馈"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回饋"
+          }
+        }
+      }
+    },
     "Finish in System Settings": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "In den Systemeinstellungen abschließen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish in System Settings"
           }
         },
         "es": {
@@ -2117,12 +2549,70 @@
         }
       }
     },
+    "Follow System": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemeinstellung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow System"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguir el sistema"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suivre le système"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システムに従う"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템 설정 따르기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟随系统"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟隨系統"
+          }
+        }
+      }
+    },
     "Forgot Passcode": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Code vergessen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forgot Passcode"
           }
         },
         "es": {
@@ -2171,6 +2661,12 @@
             "value": "Code vergessen?"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forgot Passcode?"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2215,6 +2711,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Allgemein"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
           }
         },
         "es": {
@@ -2263,6 +2765,12 @@
             "value": "Installieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2307,6 +2815,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Integrationen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Integrations"
           }
         },
         "es": {
@@ -2355,6 +2869,12 @@
             "value": "Tastaturkurzbefehl"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyboard Shortcut"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2393,12 +2913,70 @@
         }
       }
     },
+    "Language": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprache"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idioma"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langue"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "言語"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "언어"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "語言"
+          }
+        }
+      }
+    },
     "Launch at login": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Bei der Anmeldung öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launch at login"
           }
         },
         "es": {
@@ -2428,7 +3006,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开机自启动"
+            "value": "登录时自动启动"
           }
         },
         "zh-Hant": {
@@ -2439,48 +3017,54 @@
         }
       }
     },
-    "Manage how you unlock the screen mask.": {
+    "License": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Methoden zum Entsperren der Bildschirmmaske verwalten."
+            "value": "Lizenz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "License"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gestiona cómo desbloquear la máscara de pantalla."
+            "value": "Licencia"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gérez les méthodes de déverrouillage du masque."
+            "value": "Licence"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "画面マスクの解除方法を管理します。"
+            "value": "ライセンス"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "화면 마스크의 잠금 해제 방법을 관리합니다."
+            "value": "라이선스"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "管理遮罩的解锁方式。"
+            "value": "许可证"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "管理遮罩的解鎖方式。"
+            "value": "授權條款"
           }
         }
       }
@@ -2491,6 +3075,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Maskenanzeige"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mask appearance"
           }
         },
         "es": {
@@ -2539,6 +3129,12 @@
             "value": "MaskPad-Einstellungen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad Settings"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2583,6 +3179,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "MaskPad möchte ändern, ob dieser Mac nach Ende der macOS-Bildschirmfreigabe wieder gesperrt wird."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad wants to change whether this Mac locks again after macOS Screen Sharing ends."
           }
         },
         "es": {
@@ -2631,6 +3233,12 @@
             "value": "MaskPad möchte den Befehl maskpad installieren."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad wants to install the maskpad command."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2675,6 +3283,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "MaskPad möchte den Befehl maskpad entfernen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskPad wants to remove the maskpad command."
           }
         },
         "es": {
@@ -2723,6 +3337,12 @@
             "value": "Nachricht"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2767,6 +3387,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nie"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
           }
         },
         "es": {
@@ -2815,6 +3441,12 @@
             "value": "Neuer Code"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New passcode"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2859,6 +3491,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nächster Titel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next track"
           }
         },
         "es": {
@@ -2907,6 +3545,12 @@
             "value": "Nicht festgelegt"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not set"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2953,6 +3597,12 @@
             "value": "Wiedergabe läuft"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now playing"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -2994,6 +3644,12 @@
     "Offline": {
       "localizations": {
         "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline"
+          }
+        },
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Offline"
@@ -3045,6 +3701,12 @@
             "value": "Anmeldeobjekte öffnen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Login Items"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3054,7 +3716,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvrir les réglages"
+            "value": "Ouvrir les éléments d’ouverture"
           }
         },
         "ja": {
@@ -3089,6 +3751,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Systemeinstellungen öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
           }
         },
         "es": {
@@ -3137,6 +3805,12 @@
             "value": "Code"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passcode"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3181,6 +3855,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Code festgelegt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passcode is set"
           }
         },
         "es": {
@@ -3229,6 +3909,12 @@
             "value": "Die Codes stimmen nicht überein."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passcodes don't match."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3273,6 +3959,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pausieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
           }
         },
         "es": {
@@ -3321,6 +4013,12 @@
             "value": "Pausiert"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3365,6 +4063,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wiedergeben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play"
           }
         },
         "es": {
@@ -3413,6 +4117,12 @@
             "value": "Wiedergabefortschritt"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playback progress"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3459,6 +4169,12 @@
             "value": "Tasten drücken"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press keys"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3468,13 +4184,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Appuyez sur les touches"
+            "value": "Tapez le raccourci"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "キーを押してください"
+            "value": "キーを入力"
           }
         },
         "ko": {
@@ -3503,6 +4219,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vorheriger Titel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous track"
           }
         },
         "es": {
@@ -3543,12 +4265,70 @@
         }
       }
     },
+    "Project": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Projekt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proyecto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Projet"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロジェクト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로젝트"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "项目"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "專案"
+          }
+        }
+      }
+    },
     "Quit MaskPad": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "MaskPad beenden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit MaskPad"
           }
         },
         "es": {
@@ -3597,6 +4377,12 @@
             "value": "Tastenkombination aufnehmen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record a key combination"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3643,6 +4429,12 @@
             "value": "Entfernen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3681,48 +4473,158 @@
         }
       }
     },
-    "Reset": {
+    "Report an issue": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zurücksetzen"
+            "value": "Problem melden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report an issue"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restablecer"
+            "value": "Informar de un problema"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réinitialiser"
+            "value": "Signaler un problème"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リセット"
+            "value": "問題を報告"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "재설정"
+            "value": "문제 신고"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重置"
+            "value": "报告问题"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重設"
+            "value": "回報問題"
+          }
+        }
+      }
+    },
+    "Reset passcode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code zurücksetzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset passcode"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restablecer código"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser le code"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスコードをリセット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "암호 재설정"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置密码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重設密碼"
+          }
+        }
+      }
+    },
+    "Reset passcode?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code zurücksetzen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset passcode?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Restablecer el código?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser le code ?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスコードをリセットしますか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "암호를 재설정할까요?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置密码？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重設密碼？"
           }
         }
       }
@@ -3733,6 +4635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Standard wiederherstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Default"
           }
         },
         "es": {
@@ -3781,6 +4689,12 @@
             "value": "Sichern"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3827,6 +4741,12 @@
             "value": "Bildschirmmaske"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Mask"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3865,12 +4785,70 @@
         }
       }
     },
+    "Set": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Festlegen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Définir"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
+        }
+      }
+    },
     "Set a passcode first.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Lege zuerst einen Code fest."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set a passcode first."
           }
         },
         "es": {
@@ -3919,6 +4897,12 @@
             "value": "Einstellungen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -3963,6 +4947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nachricht anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show a message"
           }
         },
         "es": {
@@ -4011,6 +5001,12 @@
             "value": "Aktuelle Wiedergabe anzeigen"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show now playing"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4055,6 +5051,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wiedergabesteuerung anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show playback controls"
           }
         },
         "es": {
@@ -4103,6 +5105,12 @@
             "value": "Zeigt einen Text auf der Bildschirmmaske an."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows text on the screen mask."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4149,6 +5157,12 @@
             "value": "Zeigt den aktuellen Titel oder das Video auf der Bildschirmmaske an."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the current track or video on the screen mask."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4187,12 +5201,70 @@
         }
       }
     },
+    "Source code": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quellcode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source code"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código fuente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code source"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ソースコード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소스 코드"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "源代码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原始碼"
+          }
+        }
+      }
+    },
     "Startup": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Start"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startup"
           }
         },
         "es": {
@@ -4233,58 +5305,18 @@
         }
       }
     },
-    "Startup, shortcuts and updates.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start, Kurzbefehle und Updates verwalten."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gestiona el inicio, los atajos y las actualizaciones."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gérez le démarrage, les raccourcis et les mises à jour."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "起動、ショートカット、アップデートを管理します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "시작, 단축키 및 업데이트를 관리합니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "管理启动、快捷键和更新。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "管理啟動、快速鍵與更新。"
-          }
-        }
-      }
-    },
     "Stay unlocked after sharing ends": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Nach Freigabe entsperrt bleiben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stay unlocked after sharing ends"
           }
         },
         "es": {
@@ -4333,6 +5365,12 @@
             "value": "Zuerst wird der Mac gesperrt. Melde dich mit dem Mac-Passwort an, dann ist die Maske aus; setze danach den Code in den MaskPad-Einstellungen zurück."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Mac locks first. Log in with your Mac password and the mask turns off, then reset the passcode in MaskPad Settings."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4377,6 +5415,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der Mac bleibt nach der Freigabe entsperrt. Andere Sperreinstellungen gelten weiterhin."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Mac stays unlocked when sharing ends. Other lock settings still apply."
           }
         },
         "es": {
@@ -4425,6 +5469,12 @@
             "value": "Der Befehl maskpad verweist auf eine andere MaskPad-Kopie. Installiere ihn erneut, um diese zu verwenden."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The maskpad command points to another copy of MaskPad. Install it again to use this one."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4463,12 +5513,70 @@
         }
       }
     },
+    "This removes the current passcode and turns off automatic masking. Set a new passcode before using the screen mask again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der aktuelle Code wird entfernt und die automatische Maskierung deaktiviert. Lege einen neuen Code fest, bevor du die Bildschirmmaske wieder verwendest."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This removes the current passcode and turns off automatic masking. Set a new passcode before using the screen mask again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se eliminará el código actual y se desactivará la máscara automática. Tendrás que configurar un código nuevo antes de volver a usar la máscara de pantalla."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le code actuel sera supprimé et l’activation automatique du masque sera désactivée. Définissez un nouveau code avant d’utiliser à nouveau le masque d’écran."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のパスコードを削除し、マスクの自動表示をオフにします。画面マスクを再び使用するには、新しいパスコードの設定が必要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "현재 암호를 제거하고 마스크 자동 표시를 끕니다. 화면 마스크를 다시 사용하려면 새 암호를 설정해야 합니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这会移除当前密码，并关闭自动遮罩。再次使用屏幕遮罩前，需要设置新密码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這會移除目前的密碼，並關閉自動遮罩。再次使用螢幕遮罩前，需要設定新密碼。"
+          }
+        }
+      }
+    },
     "This shortcut is used by another app. Choose a different one.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Dieser Kurzbefehl wird von einer anderen App verwendet. Wähle einen anderen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This shortcut is used by another app. Choose a different one."
           }
         },
         "es": {
@@ -4517,6 +5625,12 @@
             "value": "Zu viele Versuche. Versuche es in %lld s erneut"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many attempts. Try again in %llds"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4558,6 +5672,12 @@
     "Touch ID": {
       "localizations": {
         "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch ID"
+          }
+        },
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Touch ID"
@@ -4609,6 +5729,12 @@
             "value": "Touch ID ist gesperrt. Gib dein Mac-Passwort ein, um es wieder zu verwenden."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch ID is locked. Enter your Mac password to use it again."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4653,6 +5779,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Touch ID oder Code eingeben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch ID or Enter Passcode"
           }
         },
         "es": {
@@ -4701,6 +5833,12 @@
             "value": "Bildschirmmaske aktivieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn On Screen Mask"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4747,6 +5885,12 @@
             "value": "Aktiviere %@ in der Liste oben"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on %@ in the list above"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4768,7 +5912,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "위의 목록에서 %@을(를) 켜세요"
+            "value": "위 목록에서 %@ 앱을 켜세요."
           }
         },
         "zh-Hans": {
@@ -4791,6 +5935,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bildschirmmaske aktivieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on screen mask"
           }
         },
         "es": {
@@ -4839,6 +5989,12 @@
             "value": "Bei Inaktivität aktivieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on when idle"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4883,6 +6039,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gib maskpad on im Terminal ein, um die Maske einzuschalten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type maskpad on in Terminal to turn on the mask."
           }
         },
         "es": {
@@ -4931,6 +6093,12 @@
             "value": "Entsperren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -4975,6 +6143,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Entsperren und Sicherheit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock & Security"
           }
         },
         "es": {
@@ -5023,6 +6197,12 @@
             "value": "Mit Mac-Passwort entsperren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with Mac Password"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5069,6 +6249,12 @@
             "value": "Mit Touch ID entsperren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with Touch ID"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5107,58 +6293,18 @@
         }
       }
     },
-    "Until the mask turns on, the Mac won't lock or sleep on its own.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bis die Maske aktiviert wird, sperrt sich der Mac nicht und wechselt nicht in den Ruhezustand."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hasta que se active la máscara, el Mac no se bloqueará ni entrará en reposo por sí solo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tant que le masque n’est pas activé, le Mac ne se verrouille pas et ne se met pas en veille de lui-même."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "マスクがオンになるまで、Mac は自動でロックやスリープをしません。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "마스크가 켜질 때까지 Mac은 자동으로 잠기거나 잠자기 상태로 전환되지 않습니다."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开启遮罩前，Mac 不会自动锁屏或休眠。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開啟遮罩前，Mac 不會自動鎖定或睡眠。"
-          }
-        }
-      }
-    },
     "Update Available": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Update verfügbar"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update Available"
           }
         },
         "es": {
@@ -5207,6 +6353,12 @@
             "value": "Updates"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5245,9 +6397,67 @@
         }
       }
     },
+    "Version": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バージョン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "버전"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本"
+          }
+        }
+      }
+    },
     "Version %@": {
       "localizations": {
         "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        },
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Version %@"
@@ -5291,58 +6501,18 @@
         }
       }
     },
-    "Wait during video and calls": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bei Videos und Anrufen warten"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esperar durante vídeos y llamadas"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Attendre pendant les vidéos et les appels"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ビデオや通話中は待機"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "비디오 및 통화 중에는 대기"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "视频和通话期间等待"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "視訊和通話期間等待"
-          }
-        }
-      }
-    },
     "When sharing ends, macOS may lock the Mac again and interrupt tools under the mask. Changing this needs an administrator password.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Nach der Freigabe kann macOS den Mac wieder sperren und Werkzeuge unter der Maske unterbrechen. Zum Ändern ist ein Administratorpasswort nötig."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When sharing ends, macOS may lock the Mac again and interrupt tools under the mask. Changing this needs an administrator password."
           }
         },
         "es": {
@@ -5383,12 +6553,70 @@
         }
       }
     },
+    "While waiting for automatic masking, the Mac won't sleep or lock automatically.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bis zur automatischen Aktivierung der Maske wechselt der Mac nicht automatisch in den Ruhezustand und sperrt sich nicht automatisch."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While waiting for automatic masking, the Mac won't sleep or lock automatically."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mientras espera la activación automática de la máscara, el Mac no entrará en reposo ni se bloqueará automáticamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attendant l’activation automatique du masque, le Mac ne se met pas en veille et ne se verrouille pas automatiquement."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マスクの自動表示を待つ間、Macは自動でスリープやロックをしません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마스크가 자동으로 표시될 때까지 Mac이 자동으로 잠자기 상태로 전환되거나 잠기지 않습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待自动开启遮罩期间，Mac 不会自动休眠或锁定。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待自動開啟遮罩期間，Mac 不會自動睡眠或鎖定。"
+          }
+        }
+      }
+    },
     "macOS Screen Sharing": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "macOS-Bildschirmfreigabe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS Screen Sharing"
           }
         },
         "es": {
@@ -5437,6 +6665,12 @@
             "value": "Touch ID wieder zu aktivieren"
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "turn Touch ID back on"
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -5481,6 +6715,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "die Bildschirmmaske entsperren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unlock the screen mask"
           }
         },
         "es": {

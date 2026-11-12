@@ -62,6 +62,9 @@ that operate your apps — while anyone walking by can neither see nor use the M
   **Check for Updates** from the menu bar icon. Updates never check or relaunch while the mask is on;
   a check that came due meanwhile runs when the mask turns off.
 - Available in English, 简体中文, 繁體中文, 日本語, Español, 한국어, Français and Deutsch.
+  Choose a language in Settings > General; the interface changes immediately. Settings > About shows
+  the version, build number, license, source code and feedback links. The settings window stays at
+  870 × 630 points, with scrolling for longer pages.
 
 ## Getting Started
 

@@ -10,9 +10,9 @@ import SwiftUI
 struct ShortcutRecorderField: View {
     let chord: KeyChord?
     /// Validates a recorded chord; a non-nil message rejects it and is shown by the caller.
-    let validate: (KeyChord) -> String?
+    let validate: (KeyChord) -> SettingsIssue?
     let onChange: (KeyChord?) -> Void
-    @Binding var errorText: String?
+    @Binding var error: SettingsIssue?
 
     @State private var isRecording = false
     @State private var monitor: Any?
@@ -48,7 +48,7 @@ struct ShortcutRecorderField: View {
             if chord != nil {
                 Button {
                     stopRecording()
-                    errorText = nil
+                    error = nil
                     onChange(nil)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
@@ -115,7 +115,7 @@ struct ShortcutRecorderField: View {
         guard monitor == nil else { return }
         hotKeyRecordingToken = GlobalHotKeyCenter.shared.beginRecording()
         isRecording = true
-        errorText = nil
+        error = nil
         monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .leftMouseDown]) { event in
             // A click elsewhere cancels recording; let the event through (the user is likely clicking another control).
             guard event.type == .keyDown else {
@@ -152,7 +152,7 @@ struct ShortcutRecorderField: View {
             }
             if recorded.keyCode == UInt16(kVK_Delete) {
                 stopRecording()
-                errorText = nil
+                error = nil
                 onChange(nil)
                 return
             }
@@ -160,10 +160,10 @@ struct ShortcutRecorderField: View {
 
         stopRecording()
         if let problem = validate(recorded) {
-            errorText = problem
+            error = problem
             return
         }
-        errorText = nil
+        error = nil
         onChange(recorded)
     }
 }

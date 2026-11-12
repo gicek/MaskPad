@@ -46,15 +46,16 @@ struct MaskStatusBar: View {
     private static let warningColor = Color(red: 1, green: 0.27, blue: 0.23)
 
     /// The app's localization language combined with the system region.
-    static let locale: Locale = {
-        let language = Bundle.main.preferredLocalizations.first ?? "en"
+    static var locale: Locale {
+        let language = AppLanguage.current.resolvedCode()
         guard let region = Locale.current.region?.identifier else { return Locale(identifier: language) }
         return Locale(identifier: "\(language)_\(region)")
-    }()
+    }
 
-    private static let dateFormat = Date.FormatStyle(locale: locale)
-        .weekday(.abbreviated).month(.abbreviated).day()
-    private static let timeFormat = Date.FormatStyle(locale: locale).hour().minute()
+    private static var dateFormat: Date.FormatStyle {
+        Date.FormatStyle(locale: locale).weekday(.abbreviated).month(.abbreviated).day()
+    }
+    private static var timeFormat: Date.FormatStyle { Date.FormatStyle(locale: locale).hour().minute() }
 }
 
 /// Internal battery state from IOKit power sources; nil on Macs without a battery.

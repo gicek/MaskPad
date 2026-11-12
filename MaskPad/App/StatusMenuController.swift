@@ -8,6 +8,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private let menu = NSMenu()
     private let engageItem = NSMenuItem()
     private let updateItem = NSMenuItem()
+    private let settingsItem = NSMenuItem()
+    private let quitItem = NSMenuItem()
     private var cancellables: Set<AnyCancellable> = []
 
     override init() {
@@ -24,11 +26,13 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         engageItem.target = self
         engageItem.action = #selector(engage)
 
-        let settingsItem = NSMenuItem(title: L("Settings"), action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.action = #selector(openSettings)
+        settingsItem.keyEquivalent = ","
         settingsItem.target = self
         updateItem.target = self
         updateItem.action = #selector(checkForUpdates)
-        let quitItem = NSMenuItem(title: L("Quit MaskPad"), action: #selector(quit), keyEquivalent: "q")
+        quitItem.action = #selector(quit)
+        quitItem.keyEquivalent = "q"
         quitItem.target = self
 
         menu.items = [engageItem, .separator(), settingsItem, updateItem, .separator(), quitItem]
@@ -66,6 +70,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// Shows the global hotkey on the menu item as a reminder; the hotkey doesn't rely on keyEquivalent.
     /// Hidden if registration failed (taken by another app), so the menu never shows a dead shortcut.
     private func refresh() {
+        settingsItem.title = L("Settings")
+        quitItem.title = L("Quit MaskPad")
         engageItem.title = L("Turn On Screen Mask")
         engageItem.isEnabled = MaskController.shared.isEngaged == false
         // A found update stays clickable even while Sparkle's session is open: clicking brings its alert forward.

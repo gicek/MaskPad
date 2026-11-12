@@ -67,8 +67,8 @@ struct KeyChord: Codable, Hashable, Sendable {
     }
 
     /// Why the chord can't be a global hotkey, for the settings UI; nil if it can.
-    var hotKeyProblem: String? {
-        isValidHotKey ? nil : L("A global shortcut needs at least one of Command, Option, or Control.")
+    var hotKeyProblem: SettingsIssue? {
+        isValidHotKey ? nil : .shortcutNeedsModifier
     }
 }
 

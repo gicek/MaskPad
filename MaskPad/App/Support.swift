@@ -1,8 +1,8 @@
 import Foundation
 
 /// Localization lookup. Keys are the English text; translations live in `Localizable.xcstrings`.
-func L(_ key: String.LocalizationValue) -> String {
-    String(localized: key)
+func L(_ key: String.LocalizationValue, language: AppLanguage = .current) -> String {
+    return String(localized: key, bundle: language.bundle(), locale: language.locale)
 }
 
 enum TestEnvironment {

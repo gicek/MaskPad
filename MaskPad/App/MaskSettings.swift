@@ -10,6 +10,10 @@ final class MaskSettings: ObservableObject {
     /// Idle auto-engage choices in minutes; 0 = never. Mirrors the system screen saver delays.
     static let autoEngageOptions = [0, 1, 3, 5, 10, 20, 30, 60, 120, 180]
 
+    @Published var language: AppLanguage {
+        didSet { defaults.set(language.rawValue, forKey: AppLanguage.defaultsKey) }
+    }
+
     /// While masked, hide the keypad and dim the screen after 20 seconds of no local activity.
     @Published var autoDim: Bool {
         didSet { defaults.set(autoDim, forKey: Self.autoDimKey) }
@@ -98,6 +102,7 @@ final class MaskSettings: ObservableObject {
         } else {
             self.defaults = defaults
         }
+        language = AppLanguage(rawValue: self.defaults.string(forKey: AppLanguage.defaultsKey) ?? "") ?? .system
         autoDim = self.defaults.object(forKey: Self.autoDimKey) as? Bool ?? true
         // Values outside the options (old versions, manual edits) would show a blank picker; fall back to never.
         let minutes = self.defaults.integer(forKey: Self.autoEngageMinutesKey)

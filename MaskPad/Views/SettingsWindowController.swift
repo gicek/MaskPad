@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 /// Settings window (singleton). A menu bar app has no Dock icon, so it must activate itself when shown.
-/// Stable, resizable dimensions keep navigation in place as settings pages change.
+/// A fixed 870 x 630 window; individual pages scroll without moving the navigation.
 @MainActor
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     static let shared = SettingsWindowController()
@@ -15,9 +15,14 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         let isNew = window == nil
         let window = self.window ?? makeWindow()
         self.window = window
+        refreshTitle()
         NSApp.activate(ignoringOtherApps: true)
         if isNew { window.center() }
         window.makeKeyAndOrderFront(nil)
+    }
+
+    func refreshTitle() {
+        window?.title = L("MaskPad Settings")
     }
 
     private func makeWindow() -> NSWindow {
@@ -25,10 +30,13 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         hosting.sizingOptions = []
         let window = NSWindow(contentViewController: hosting)
         window.title = L("MaskPad Settings")
-        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-        window.contentMinSize = NSSize(width: 720, height: 500)
-        let availableHeight = NSScreen.main?.visibleFrame.height ?? 700
-        window.setContentSize(NSSize(width: 800, height: min(640, max(500, availableHeight - 60))))
+        window.styleMask = [.titled, .closable, .miniaturizable, .fullSizeContentView]
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.titlebarSeparatorStyle = .none
+        window.minSize = SettingsMetrics.windowSize
+        window.maxSize = SettingsMetrics.windowSize
+        window.setFrame(NSRect(origin: .zero, size: SettingsMetrics.windowSize), display: false)
         window.isReleasedWhenClosed = false
         window.delegate = self
         return window
