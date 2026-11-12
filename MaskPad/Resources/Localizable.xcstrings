@@ -3069,7 +3069,7 @@
         }
       }
     },
-    "Mask appearance": {
+    "Mask Appearance": {
       "localizations": {
         "de": {
           "stringUnit": {
@@ -3080,7 +3080,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mask appearance"
+            "value": "Mask Appearance"
           }
         },
         "es": {
@@ -4213,6 +4213,58 @@
         }
       }
     },
+    "Preview": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschau"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista previa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プレビュー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "미리보기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预览"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "預覽"
+          }
+        }
+      }
+    },
     "Previous track": {
       "localizations": {
         "de": {
@@ -4681,6 +4733,58 @@
         }
       }
     },
+    "Sample playback. Preview controls don't affect your player.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beispielwiedergabe. Die Vorschau steuert deinen Player nicht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sample playback. Preview controls don't affect your player."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La reproducción es de ejemplo. Los controles de la vista previa no afectan al reproductor."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture d’exemple. Les commandes de l’aperçu n’agissent pas sur votre lecteur."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再生内容はサンプルです。プレビューのボタンはプレーヤーを操作しません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생 내용은 예시입니다. 미리보기의 버튼은 플레이어를 제어하지 않습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放内容为示例，预览中的按钮不会控制播放器。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放內容為範例，預覽中的按鈕不會控制播放器。"
+          }
+        }
+      }
+    },
     "Save": {
       "localizations": {
         "de": {
@@ -4781,6 +4885,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "螢幕遮罩"
+          }
+        }
+      }
+    },
+    "Screen mask preview": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschau der Bildschirmmaske"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen mask preview"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista previa de la máscara de pantalla"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu du masque d’écran"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画面マスクのプレビュー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "화면 마스크 미리보기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "屏幕遮罩预览"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "螢幕遮罩預覽"
           }
         }
       }

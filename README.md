@@ -43,7 +43,7 @@ that operate your apps — while anyone walking by can neither see nor use the M
 - **Controls the current media player** from the mask: a compact card shows the title, artist,
   available artwork and playback progress, with previous, play/pause and next buttons. It follows
   macOS Now Playing across supported music apps and browsers, and hides when no media is available.
-  In Settings > Mask appearance, hide the card entirely or show information without playback controls.
+  In Settings > Mask Appearance, hide the card entirely or show information without playback controls.
 - **Shows that someone tried**: the keypad says how many wrong passcodes were entered since the mask
   turned on.
 - **Keeps your work running**: apps under the mask keep rendering, and tools that operate individual

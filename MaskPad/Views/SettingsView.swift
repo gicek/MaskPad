@@ -119,6 +119,7 @@ struct SettingsView: View {
             case .appearance:
                 messageSection
                 nowPlayingSection
+                MaskAppearancePreview(settings: settings)
             case .security:
                 passcodeSection
             case .integrations:
@@ -678,7 +679,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         switch self {
         case .general: L("General")
         case .mask: L("Screen Mask")
-        case .appearance: L("Mask appearance")
+        case .appearance: L("Mask Appearance")
         case .security: L("Unlock & Security")
         case .integrations: L("Integrations")
         case .about: L("About")

@@ -5,6 +5,17 @@
 LANGS = ['zh-Hans', 'zh-Hant', 'ja', 'es', 'ko', 'fr', 'de']
 
 T = {
+"Preview": ("预览", "預覽", "プレビュー", "Vista previa", "미리보기", "Aperçu", "Vorschau"),
+"Screen mask preview": ("屏幕遮罩预览", "螢幕遮罩預覽", "画面マスクのプレビュー", "Vista previa de la máscara de pantalla", "화면 마스크 미리보기", "Aperçu du masque d’écran", "Vorschau der Bildschirmmaske"),
+"Sample playback. Preview controls don't affect your player.": (
+ "播放内容为示例，预览中的按钮不会控制播放器。",
+ "播放內容為範例，預覽中的按鈕不會控制播放器。",
+ "再生内容はサンプルです。プレビューのボタンはプレーヤーを操作しません。",
+ "La reproducción es de ejemplo. Los controles de la vista previa no afectan al reproductor.",
+ "재생 내용은 예시입니다. 미리보기의 버튼은 플레이어를 제어하지 않습니다.",
+ "Lecture d’exemple. Les commandes de l’aperçu n’agissent pas sur votre lecteur.",
+ "Beispielwiedergabe. Die Vorschau steuert deinen Player nicht.",
+),
 "Set": (
  "设置",
  "設定",
@@ -149,7 +160,7 @@ T = {
  "Masquez vos écrans, laissez votre travail continuer.",
  "Bildschirme verdecken. Arbeit fortsetzen.",
 ),
-"Mask appearance": (
+"Mask Appearance": (
  "遮罩显示",
  "遮罩顯示",
  "マスクの表示",

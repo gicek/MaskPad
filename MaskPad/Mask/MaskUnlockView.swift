@@ -184,27 +184,8 @@ struct MaskUnlockView: View {
     /// The message from Settings, large, with Unlock leading to the keypad. Text and emoji, up to three
     /// lines (`MaskMessage`); long lines wrap.
     private var messagePage: some View {
-        VStack(spacing: 36) {
-            Text(model.message ?? "")
-                .font(.system(size: 34, weight: .regular))
-                .foregroundStyle(.white.opacity(0.92))
-                .multilineTextAlignment(.center)
-                .lineSpacing(6)
-                .frame(maxWidth: 760)
-
-            Button(action: personPress(model.unlock)) {
-                Text(L("Unlock"))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 10)
-                    .background(Capsule().fill(Color.white.opacity(0.18)))
-                    .contentShape(Capsule())
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal, 40)
-        .transition(.opacity)
+        MaskMessageContent(message: model.message ?? "", onUnlock: personPress(model.unlock))
+            .transition(.opacity)
     }
 
     private var keypadPage: some View {

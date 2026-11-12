@@ -19,6 +19,7 @@ struct MaskNowPlayingCard: View {
     let track: MaskMediaTrack
     var width: CGFloat = 324
     var showsControls = true
+    var progressDate: Date? = nil
     let onCommand: (MaskNowPlaying.Command) -> Void
     private var isCompact: Bool { width < 280 }
 
@@ -64,8 +65,8 @@ struct MaskNowPlayingCard: View {
             }
 
             if !isCompact, let duration = track.duration, track.elapsed != nil {
-                TimelineView(.animation(minimumInterval: 1, paused: !track.isPlaying)) { context in
-                    let position = track.position(at: context.date) ?? 0
+                TimelineView(.animation(minimumInterval: 1, paused: !track.isPlaying || progressDate != nil)) { context in
+                    let position = track.position(at: progressDate ?? context.date) ?? 0
                     VStack(spacing: 7) {
                         GeometryReader { geometry in
                             Capsule().fill(.white.opacity(0.1))
